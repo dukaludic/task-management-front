@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-// import * as datahandler from "./dataHandler";
+import * as datahandler from "./dataHandler";
 
 const Login = () => {
   const [username, setUsername] = useState("");
