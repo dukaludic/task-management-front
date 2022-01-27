@@ -8,8 +8,10 @@ import {
   Redirect,
 } from "react-router-dom";
 
-import Homepage from "./pages/homepage";
+import Dashboard from "./pages/dashboard";
 import Login from "./helpers/login";
+import Projects from "./pages/projects";
+import Tasks from "./pages/tasks";
 
 //State
 // import
@@ -19,8 +21,10 @@ function App() {
     <div className="App">
       <Router>
         <Routes>
-          <Route exact path="/" element={<Homepage />}></Route>
+          <Route exact path="/" element={<Dashboard />}></Route>
           <Route exact path="/login" element={<Login />}></Route>
+          <Route exact path="/projects" element={<Projects />}></Route>
+          <Route exact path="/tasks" element={<Tasks />}></Route>
         </Routes>
       </Router>
     </div>
