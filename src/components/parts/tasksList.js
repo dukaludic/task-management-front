@@ -1,8 +1,10 @@
 import React from "react";
 import { Container, Col, Row } from "react-bootstrap";
-import { BsThreeDotsVertical } from "react-icons/bs";
+// import { BsThreeDotsVertical } from "react-icons/bs";
 
 function TasksList(props) {
+
+  console.log(props.inProgress)
   return (
     <Container>
       <Row>
@@ -12,10 +14,15 @@ function TasksList(props) {
             <p>3 tasks available</p>
           </div>
           <div className="add-new-task-btn"></div>
-
-          <div>
-            <hr></hr>
-          </div>
+          {props.todo.map((item) => {
+            return (
+              <div>
+                <hr></hr>
+                <h3>{item.title}</h3>
+              </div>
+            )
+          })}
+          
         </Col>
         <Col></Col>
         <Col></Col>
