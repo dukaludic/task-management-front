@@ -60,3 +60,17 @@
   height: 100px;
   background-color: #ddd;
 }
+
+.task-flag {
+  height: 20px;
+  border-radius: 5px;
+  width: 50px;
+  border: 1px solid #903636;
+  color: #903636;
+  font-size: 10px;
+  display: inline;
+}
+
+.insert-task-wrapper {
+  transition: all 0.3s;
+}
