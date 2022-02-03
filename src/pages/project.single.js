@@ -6,6 +6,8 @@ import * as dataHandler from "../helpers/dataHandler";
 import Sidebar from "../components/shared/sidebar";
 import TasksList from "../components/parts/tasksList";
 import ProjectTeam from "../components/parts/project.team";
+import ProjectBlockers from "../components/parts/project.blockers";
+import ProjectGeneralDiscussion from "../components/parts/project.general.discussion";
 
 function ProjectSingle() {
   const { id } = useParams();
@@ -19,6 +21,7 @@ function ProjectSingle() {
     (async () => {
       const project = await dataHandler.showSingle("projects", id);
       setProject(project);
+      console.log(project, "===project");
 
       const todo = project.tasks.filter((task) => task.status === "to_do");
       const inProgress = project.tasks.filter(
@@ -59,9 +62,16 @@ function ProjectSingle() {
         </Row>
         <Row>
           <Col>
-            <ProjectTeam assigned_users={project.assigned_users} />
+            <ProjectTeam assigned_users={project?.assigned_users} />
           </Col>
-          <Col></Col>
+          <Col>
+            <ProjectBlockers blockers={project?.blockers} />
+          </Col>
+        </Row>
+        <Row>
+          <Col>
+            <ProjectGeneralDiscussion comments={project?.comments} />
+          </Col>
         </Row>
       </Container>
     </div>
