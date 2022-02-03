@@ -74,3 +74,10 @@
 .insert-task-wrapper {
   transition: all 0.3s;
 }
+
+.team-big-image-circle {
+  width: 50px;
+  height: 50px;
+  border-radius: 100%;
+  background-color: #ddd;
+}

@@ -22,8 +22,6 @@ function Tasks() {
       const inReview = tasks.filter((task) => task.status === "in_review");
       const done = tasks.filter((task) => task.status === "done");
 
-      console.log(todo, inProgress, inReview, done);
-
       setTodo(todo);
       setInProgress(inProgress);
       setInReview(inReview);

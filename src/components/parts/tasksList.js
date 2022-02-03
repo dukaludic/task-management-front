@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useReducer } from "react";
+import { Link } from "react-router-dom";
 import { Container, Col, Row } from "react-bootstrap";
 import * as dataHandler from "../../helpers/dataHandler";
 
@@ -54,7 +55,7 @@ function TasksList(props) {
               <input placeholder="Assign to"></input>
               <AiFillPlusCircle />
               <button>Add</button>
-              <button>Cancel</button>
+              <button onClick={(e) => setInsertNewTask("")}>Cancel</button>
             </>
           ) : (
             <div
@@ -69,7 +70,7 @@ function TasksList(props) {
                 <hr style={{ transition: "all 0.3s" }}></hr>
                 <div>
                   <div className="d-flex justify-content-between">
-                    <span>{item.title}</span>
+                    <Link to={`/task/${item.id}`}>{item.title}</Link>
                     <BsThreeDotsVertical />
                   </div>
                   <div
@@ -114,7 +115,7 @@ function TasksList(props) {
               <input placeholder="Assign to"></input>
               <AiFillPlusCircle />
               <button>Add</button>
-              <button onClick={() => setInsertNewTask("")}>Cancel</button>
+              <button onClick={(e) => setInsertNewTask("")}>Cancel</button>
             </>
           ) : (
             <div
@@ -128,7 +129,7 @@ function TasksList(props) {
                 <hr></hr>
                 <div>
                   <div className="d-flex justify-content-between">
-                    <span>{item.title}</span>
+                    <Link to={`/task/${item.id}`}>{item.title}</Link>
                     <BsThreeDotsVertical />
                   </div>
                   <div
@@ -173,7 +174,7 @@ function TasksList(props) {
               <input placeholder="Assign to"></input>
               <AiFillPlusCircle />
               <button>Add</button>
-              <button onClick={() => setInsertNewTask("")}>Cancel</button>
+              <button onClick={(e) => setInsertNewTask("")}>Cancel</button>
             </>
           ) : (
             <div
@@ -187,7 +188,7 @@ function TasksList(props) {
                 <hr></hr>
                 <div>
                   <div className="d-flex justify-content-between">
-                    <span>{item.title}</span>
+                    <Link to={`/task/${item.id}`}>{item.title}</Link>
                     <BsThreeDotsVertical />
                   </div>
                   <div
@@ -232,7 +233,7 @@ function TasksList(props) {
               <input placeholder="Assign to"></input>
               <AiFillPlusCircle />
               <button>Add</button>
-              <button onClick={() => setInsertNewTask("")}>Cancel</button>
+              <button onClick={(e) => setInsertNewTask("")}>Cancel</button>
             </>
           ) : (
             <div
@@ -246,7 +247,7 @@ function TasksList(props) {
                 <hr></hr>
                 <div>
                   <div className="d-flex justify-content-between">
-                    <span>{item.title}</span>
+                    <Link to={`/task/${item.id}`}>{item.title}</Link>
                     <BsThreeDotsVertical />
                   </div>
                   <div

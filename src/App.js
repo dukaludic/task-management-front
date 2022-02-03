@@ -12,6 +12,8 @@ import Dashboard from "./pages/dashboard";
 import Login from "./helpers/login";
 import Projects from "./pages/projects";
 import Tasks from "./pages/tasks";
+import TaskSingle from "./pages/task.single";
+import ProjectSingle from "./pages/project.single";
 
 //State
 // import
@@ -25,6 +27,8 @@ function App() {
           <Route exact path="/login" element={<Login />}></Route>
           <Route exact path="/projects" element={<Projects />}></Route>
           <Route exact path="/tasks" element={<Tasks />}></Route>
+          <Route exact path="/task/:id" element={<TaskSingle />}></Route>
+          <Route exact path="/project/:id" element={<ProjectSingle />}></Route>
         </Routes>
       </Router>
     </div>
