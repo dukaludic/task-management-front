@@ -1,7 +1,11 @@
 import React, { useEffect, useState } from "react";
+import QuillEditor from "../../helpers/QuillEditor";
 
 function ProjectGeneralDiscussion(props) {
   console.log(props.comments);
+
+  const [quillEditor, setQuillEditor] = useState("");
+  const [quillFiles, setQuillFiles] = useState([]);
 
   return (
     <div>
@@ -22,6 +26,11 @@ function ProjectGeneralDiscussion(props) {
             </div>
           );
         })}
+
+      <QuillEditor
+        onEditorChange={setQuillEditor}
+        onFilesChange={setQuillFiles}
+      />
     </div>
   );
 }

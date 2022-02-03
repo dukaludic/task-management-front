@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 
 function ProjectsList(props) {
   return (
@@ -12,7 +13,7 @@ function ProjectsList(props) {
       {props.projects.map((project, index) => {
         return (
           <div className="project-list-info">
-            <p>{project.title}</p>
+            <Link to={`/project/${project.id}`}>{project.title}</Link>
             <div className="d-flex align-items-center">
               {project.assigned_users.map((user) => {
                 return <div className="team-small-image-circle"></div>;

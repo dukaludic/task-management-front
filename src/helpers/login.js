@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import * as datahandler from "./dataHandler";
+import axios from "axios";
 
 const Login = () => {
   const [username, setUsername] = useState("");
@@ -9,14 +10,25 @@ const Login = () => {
     console.log("useeffect");
   }, []);
 
-  const login = () => {
-    console.log(username, password);
+  const login = async () => {
+    axios
+      .post(`${process.env.REACT_APP_API_URL}/auth/login`, {
+        username: username,
+        password: password,
+      })
+      .then(async (response) => {
+        console.log("Response", response);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+    // console.log(state, "===state");
   };
 
   return (
-    <div>
-      <h1>Login</h1>
-      <div>
+    <div style={{ backgroundColor: "#ddd", height: "100vh" }}>
+      <div className="login-wrapper">
+        <h1>Login</h1>
         <input
           type="email"
           value={username}

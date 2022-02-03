@@ -15,10 +15,15 @@ import Tasks from "./pages/tasks";
 import TaskSingle from "./pages/task.single";
 import ProjectSingle from "./pages/project.single";
 
+// import { useContext } from "react";
+// import { AuthContext } from "./context/AuthContext";
+
 //State
 // import
 
 function App() {
+  // const authContext = useContext(AuthContext);
+  // console.log(authContext, "===authContext");
   return (
     <div className="App">
       <Router>
