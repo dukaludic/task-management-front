@@ -1,23 +1,55 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import * as datahandler from "./dataHandler";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
+
+import { Auth } from "../context/AuthContext";
+import jwt_decode from "jwt-decode";
+
+// import globalState from "../context/globalState";
 
 const Login = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
 
+  const context = useContext(Auth);
+
+  const navigate = useNavigate();
+
+  // const context = useContext(globalState);
+
   useEffect(() => {
     console.log("useeffect");
+    // const token = localStorage.getItem("access_token");
+
+    console.log(context.state, "===context");
+    if (context.state.isAuthenticated) {
+      console.log("redirect");
+      navigate("dashboard");
+    }
   }, []);
 
+  // this.context.dispatch({
+  //   type: "SET_DATA",
+  //   payload: {
+  //     ...this.context.state.data,
+  //     cart: cart,
+  //   },
+  // });
+
   const login = async () => {
+    console.log("login");
     axios
-      .post(`${process.env.REACT_APP_API_URL}/auth/login`, {
+      .post(`${process.env.REACT_APP_API_URL}/login`, {
         username: username,
         password: password,
       })
       .then(async (response) => {
-        console.log("Response", response);
+        localStorage.setItem("access_token", response.data.access_token);
+        const decoded = jwt_decode(response.data.access_token);
+        console.log(decoded, "===decoded");
+        context.dispatch({ type: "LOGIN", payload: decoded });
+        navigate("dashboard");
       })
       .catch((error) => {
         console.log(error);

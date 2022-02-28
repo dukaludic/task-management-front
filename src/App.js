@@ -16,20 +16,21 @@ import TaskSingle from "./pages/task.single";
 import ProjectSingle from "./pages/project.single";
 
 // import { useContext } from "react";
-// import { AuthContext } from "./context/AuthContext";
+// // import { AuthContext } from "./context/AuthContext";
+// import { globalState } from "./context/globalState";
 
 //State
 // import
 
 function App() {
-  // const authContext = useContext(AuthContext);
-  // console.log(authContext, "===authContext");
+  // const globalState = useContext(globalState);
+  // console.log(globalState, "===globalState");
   return (
     <div className="App">
       <Router>
         <Routes>
-          <Route exact path="/" element={<Dashboard />}></Route>
-          <Route exact path="/login" element={<Login />}></Route>
+          <Route exact path="/" element={<Login />}></Route>
+          <Route exact path="/dashboard" element={<Dashboard />}></Route>
           <Route exact path="/projects" element={<Projects />}></Route>
           <Route exact path="/tasks" element={<Tasks />}></Route>
           <Route exact path="/task/:id" element={<TaskSingle />}></Route>

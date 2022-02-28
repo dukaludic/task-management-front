@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 
 import * as dataHandler from "../helpers/dataHandler";
 import { Container, Row, Col } from "react-bootstrap";
@@ -8,6 +8,8 @@ import DashboardProjectSummary from "../components/parts/dashboardProjectSummary
 import DashboardTasks from "../components/parts/dashboardTasks";
 import DashboardReviews from "../components/parts/dashboardReviews";
 import DashboardRecent from "../components/parts/dashboardRecent";
+
+import { Auth } from "../context/AuthContext";
 
 const Dashboard = () => {
   const [projects, setProjects] = useState([]);
@@ -20,10 +22,22 @@ const Dashboard = () => {
   const [projectProgresses, setProjectProgresses] = useState([]);
   const [events, setEvents] = useState([]);
 
+  const context = useContext(Auth);
+
+  const showContext = () => {
+    console.log("context", context.state.data);
+  };
+
   useEffect(() => {
     (async () => {
-      const projects = await dataHandler.show("projects");
-      const events = await dataHandler.show("events");
+      const projects = await dataHandler.show(
+        `projects/user/${context.state.data.user.id}`
+      );
+      const events = await dataHandler.show(
+        `events/user/${context.state.data.user.id}`
+      );
+
+      console.log(context.state.data.user.id);
 
       console.log(events, "===events");
 
@@ -137,6 +151,7 @@ const Dashboard = () => {
         </Row>
       </Container>
       <DashboardRecent events={events} />
+      <button onClick={showContext}>See Context</button>
     </div>
   );
 };

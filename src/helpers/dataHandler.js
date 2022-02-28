@@ -15,8 +15,6 @@ export const create = async (resource, data, success, failure) => {
 };
 
 export const show = async (resource) => {
-  console.log(process.env, resource, "===url");
-  console.log(`${process.env.REACT_APP_API_URL}/${resource}`);
   const result = await axios
     .get(`${process.env.REACT_APP_API_URL}/${resource}`)
     .then((response) => {
