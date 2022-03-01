@@ -53,7 +53,7 @@ function ProjectSingle() {
         <Row>
           <Col lg={12}>
             <TasksList
-              projectView={true}
+              project={project}
               todo={todo}
               inProgress={inProgress}
               inReview={inReview}
