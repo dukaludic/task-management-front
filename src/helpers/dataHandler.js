@@ -23,7 +23,7 @@ export const show = async (resource) => {
     .catch((error) => {
       console.log(error);
     });
-
+  console.log("datahandler");
   return result;
 };
 

@@ -13,6 +13,7 @@ function Tasks() {
   const [done, setDone] = useState([]);
 
   useEffect(() => {
+    console.log("refetch");
     (async () => {
       const tasks = await datahandler.show("tasks");
       setTasks(tasks);
@@ -41,10 +42,15 @@ function Tasks() {
         <Row>
           <Col lg={12}>
             <TasksList
+              tasks={tasks}
               todo={todo}
               inProgress={inProgress}
               inReview={inReview}
               done={done}
+              setTodo={setTodo}
+              setInProgress={setInProgress}
+              setInReview={setInReview}
+              setDone={setDone}
             />
           </Col>
         </Row>

@@ -1,4 +1,10 @@
-import React, { useEffect, useState, useReducer, useRef } from "react";
+import React, {
+  useEffect,
+  useState,
+  useReducer,
+  useRef,
+  useContext,
+} from "react";
 import { Link } from "react-router-dom";
 import { Container, Col, Row } from "react-bootstrap";
 import * as dataHandler from "../../helpers/dataHandler";
@@ -6,6 +12,11 @@ import * as dataHandler from "../../helpers/dataHandler";
 import { BsThreeDotsVertical } from "react-icons/bs";
 import { AiFillPlusCircle } from "react-icons/ai";
 import TasksDropdown from "./tasksDropdown";
+
+import { Auth } from "../../context/AuthContext";
+
+import Dropdown from "react-bootstrap/Dropdown";
+import { useNavigate } from "react-router-dom";
 
 function TasksList(props) {
   const [newTaskType, setNewTaskType] = useState("");
@@ -19,7 +30,21 @@ function TasksList(props) {
   const [workers, setWorkers] = useState([]);
   const [projectManagers, setProjectManagers] = useState([]);
 
+  const [showTaskDropdown, setShowTaskDropdown] = useState(-1);
+
+  const [update, setUpdate] = useState("");
+
+  const authContext = useContext(Auth);
+
+  const navigate = useNavigate();
+
+  // window.onclick = () => {
+  //   console.log("click");
+  //   setShowTaskDropdown(-1);
+  // };
+
   useEffect(async () => {
+    console.log("useEffect");
     const titles = await dataHandler.show("projects/titles");
     const users = await dataHandler.show("users/names");
 
@@ -56,8 +81,6 @@ function TasksList(props) {
   };
 
   const insertTask = async () => {
-    setNewTaskType("");
-
     console.log("insert task");
 
     console.log(props, "props");
@@ -70,6 +93,10 @@ function TasksList(props) {
     }
     const project_manager_id = newTaskProjectManager.id;
     const status = newTaskType;
+    const created_by = authContext.state.data.user.id;
+    const creation_time = new Date();
+
+    console.log(created_by, "created");
 
     const taskObj = {
       project_id,
@@ -77,20 +104,56 @@ function TasksList(props) {
       assigned_users,
       project_manager_id,
       status,
+      created_by,
+      creation_time,
     };
-
     const insertTaskRes = await dataHandler.create("tasks", taskObj);
 
-    console.log(insertTaskRes, "insertTaskRes");
+    taskObj.id = insertTaskRes.id;
+
+    // Insert task in front end temp memory since I don't know how to refetch immediately
+    switch (newTaskType) {
+      case "to_do":
+        console.log("to_do");
+        props.setTodo([...props.todo, taskObj]);
+        break;
+      case "in_progress":
+        props.setInProgress([...props.inProgress, taskObj]);
+        break;
+      case "in_review":
+        props.setInReview([...props.inReview, taskObj]);
+        break;
+      case "done":
+        props.setDone([...props.done, taskObj]);
+        break;
+
+      default:
+        break;
+    }
+
+    // console.log(insertTaskRes, "insertTaskRes");
 
     console.log(taskObj, "taskObj");
+
+    setNewTaskType("");
   };
 
-  //   const InsertTaskMenu = () => {
-  //     return (
+  const taskOptionsClick = async (action, item) => {
+    switch (action) {
+      case "edit":
+        //navigate
+        navigate(`/task/${item.id}`);
+        break;
+      case "delete":
+        const task = props.tasks.find((el) => el.id === item.id);
+        const deleted = await dataHandler.deleteItem("tasks", task.id);
+        console.log("delete", task, deleted);
+        break;
 
-  //     );
-  //   };
+      default:
+        break;
+    }
+  };
 
   return (
     <Container>
@@ -103,6 +166,7 @@ function TasksList(props) {
           </div>
           {newTaskType === "to_do" ? (
             <>
+              <p>Title</p>
               <input
                 value={newTaskTitle}
                 onChange={(e) => {
@@ -110,30 +174,33 @@ function TasksList(props) {
                 }}
                 placeholder="Title"
               ></input>
+              <p>Project</p>
               {console.log(projectTitles, "projectTitles")}
               <TasksDropdown
                 items={projectTitles}
                 type="projects"
                 setNewTaskProject={setNewTaskProject}
               />
-
+              <p>Description</p>
               <textarea
                 value={newTaskDescription}
                 onChange={(e) => setNewTaskDescription(e.target.value)}
                 placeholder="Description"
               ></textarea>
+              <p>Project Manager</p>
               <TasksDropdown
                 items={projectManagers}
                 type="project_managers"
                 setNewTaskProjectManager={setNewTaskProjectManager}
               />
+              <p>Team</p>
               <TasksDropdown
                 items={workers}
                 type="workers"
                 setNewTaskAssignedUsers={setNewTaskAssignedUsers}
                 newTaskAssignedUsers={newTaskAssignedUsers}
               />
-              <AiFillPlusCircle />
+
               <button onClick={insertTask}>Add</button>
               <button onClick={(e) => changeTaskType("")}>Cancel</button>
               {/* {projectTitles.map((item) => {
@@ -150,14 +217,33 @@ function TasksList(props) {
             ></div>
           )}
 
-          {props.todo.map((item) => {
+          {props.todo.map((item, index) => {
             return (
               <div>
                 <hr style={{ transition: "all 0.3s" }}></hr>
                 <div>
                   <div className="d-flex justify-content-between">
                     <Link to={`/task/${item.id}`}>{item.title}</Link>
-                    <BsThreeDotsVertical />
+                    <BsThreeDotsVertical
+                      onClick={() => setShowTaskDropdown(index)}
+                    />
+                    <Dropdown.Menu
+                      style={{ transform: "translateX(220px)" }}
+                      show={showTaskDropdown === index}
+                    >
+                      <Dropdown.Item
+                        onClick={() => taskOptionsClick("edit", item)}
+                        eventKey="1"
+                      >
+                        Edit
+                      </Dropdown.Item>
+                      <Dropdown.Item
+                        onClick={() => taskOptionsClick("delete", item)}
+                        eventKey="2"
+                      >
+                        Delete
+                      </Dropdown.Item>
+                    </Dropdown.Menu>
                   </div>
                   <div
                     className="d-flex justify-content-between"
@@ -181,6 +267,7 @@ function TasksList(props) {
           </div>
           {newTaskType === "in_progress" ? (
             <>
+              <p>Title</p>
               <input
                 value={newTaskTitle}
                 onChange={(e) => {
@@ -188,29 +275,32 @@ function TasksList(props) {
                 }}
                 placeholder="Title"
               ></input>
+              <p>Project</p>
               <TasksDropdown
                 items={projectTitles}
                 type="projects"
                 setNewTaskProject={setNewTaskProject}
               />
-
+              <p>Description</p>
               <textarea
                 value={newTaskDescription}
                 onChange={(e) => setNewTaskDescription(e.target.value)}
                 placeholder="Description"
               ></textarea>
+              <p>Project Manager</p>
               <TasksDropdown
                 items={projectManagers}
                 type="project_managers"
                 setNewTaskProjectManager={setNewTaskProjectManager}
               />
+              <p>Team</p>
               <TasksDropdown
                 items={workers}
                 type="workers"
                 setNewTaskAssignedUsers={setNewTaskAssignedUsers}
                 newTaskAssignedUsers={newTaskAssignedUsers}
               />
-              <AiFillPlusCircle />
+
               <button onClick={insertTask}>Add</button>
               <button onClick={(e) => changeTaskType("")}>Cancel</button>
             </>
@@ -251,6 +341,7 @@ function TasksList(props) {
           </div>
           {newTaskType === "in_review" ? (
             <>
+              <p>Title</p>
               <input
                 value={newTaskTitle}
                 onChange={(e) => {
@@ -258,29 +349,32 @@ function TasksList(props) {
                 }}
                 placeholder="Title"
               ></input>
+              <p>Project</p>
               <TasksDropdown
                 items={projectTitles}
                 type="projects"
                 setNewTaskProject={setNewTaskProject}
               />
-
+              <p>Description</p>
               <textarea
                 value={newTaskDescription}
                 onChange={(e) => setNewTaskDescription(e.target.value)}
                 placeholder="Description"
               ></textarea>
+              <p>Project Manager</p>
               <TasksDropdown
                 items={projectManagers}
                 type="project_managers"
                 setNewTaskProjectManager={setNewTaskProjectManager}
               />
+              <p>Team</p>
               <TasksDropdown
                 items={workers}
                 type="workers"
                 setNewTaskAssignedUsers={setNewTaskAssignedUsers}
                 newTaskAssignedUsers={newTaskAssignedUsers}
               />
-              <AiFillPlusCircle />
+
               <button onClick={insertTask}>Add</button>
               <button onClick={(e) => changeTaskType("")}>Cancel</button>
             </>
@@ -321,6 +415,7 @@ function TasksList(props) {
           </div>
           {newTaskType === "done" ? (
             <>
+              <p>Title</p>
               <input
                 value={newTaskTitle}
                 onChange={(e) => {
@@ -328,29 +423,32 @@ function TasksList(props) {
                 }}
                 placeholder="Title"
               ></input>
+              <p>Project</p>
               <TasksDropdown
                 items={projectTitles}
                 type="projects"
                 setNewTaskProject={setNewTaskProject}
               />
-
+              <p>Description</p>
               <textarea
                 value={newTaskDescription}
                 onChange={(e) => setNewTaskDescription(e.target.value)}
                 placeholder="Description"
               ></textarea>
+              <p>Project Manager</p>
               <TasksDropdown
                 items={projectManagers}
                 type="project_managers"
                 setNewTaskProjectManager={setNewTaskProjectManager}
               />
+              <p>Team</p>
               <TasksDropdown
                 items={workers}
                 type="workers"
                 setNewTaskAssignedUsers={setNewTaskAssignedUsers}
                 newTaskAssignedUsers={newTaskAssignedUsers}
               />
-              <AiFillPlusCircle />
+
               <button onClick={insertTask}>Add</button>
               <button onClick={(e) => changeTaskType("")}>Cancel</button>
             </>
