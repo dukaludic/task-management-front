@@ -12,11 +12,15 @@ import * as dataHandler from "../../helpers/dataHandler";
 import { BsThreeDotsVertical } from "react-icons/bs";
 import { AiFillPlusCircle } from "react-icons/ai";
 import TasksDropdown from "./tasksDropdown";
+import TaskItem from "./taskItem";
 
 import { Auth } from "../../context/AuthContext";
 
 import Dropdown from "react-bootstrap/Dropdown";
 import { useNavigate } from "react-router-dom";
+
+import Column from "./column";
+import { DragDropContext } from "react-beautiful-dnd";
 
 function TasksList(props) {
   const [newTaskType, setNewTaskType] = useState("");
@@ -35,6 +39,53 @@ function TasksList(props) {
   const [update, setUpdate] = useState("");
 
   const authContext = useContext(Auth);
+
+  //DND
+  const initialData = {
+    tasks: {
+      "61ec01992d4715532858af0e": {
+        id: "61ec01992d4715532858af0e",
+        title: "Landing Page",
+        project_id: "61eae6462d4715532858aec6",
+        status: "in_progress",
+        description:
+          "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+      },
+      "61f7a1067d145db0a3dae0b6": {
+        id: "61f7a1067d145db0a3dae0b6",
+        title: "Create Cart Page",
+        project_id: "61eae6462d4715532858aec6",
+        status: "in_progress",
+        description:
+          "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+      },
+    },
+    columns: {
+      "column-1": {
+        id: "column-1",
+        title: "To do",
+        taskIds: ["61ec01992d4715532858af0e", "61f7a1067d145db0a3dae0b6"],
+      },
+      "column-2": {
+        id: "column-2",
+        title: "In Progress",
+        taskIds: [],
+      },
+      "column-3": {
+        id: "column-3",
+        title: "In Review",
+        taskIds: [],
+      },
+      "column-4": {
+        id: "column-4",
+        title: "Done",
+        taskIds: [],
+      },
+    },
+    columnOrder: ["column-1", "column-2", "column-3", "column-4"],
+  };
+
+  const [state, setState] = useState(initialData);
 
   const navigate = useNavigate();
 
@@ -155,6 +206,45 @@ function TasksList(props) {
     }
   };
 
+  const onDragEnd = (result) => {
+    const { destination, source, draggableId } = result;
+
+    if (!destination) {
+      return;
+    }
+
+    if (
+      destination.droppableId === source.droppableId &&
+      destination.index === source.index
+    ) {
+      return;
+    }
+
+    const column = state.columns[source.droppableId];
+    const newTaskIds = Array.from(column.taskIds);
+    newTaskIds.splice(source.index, 1);
+    newTaskIds.splice(destination.index, 0, draggableId);
+
+    const newColumn = {
+      ...column,
+      taskIds: newTaskIds,
+    };
+
+    console.log(newColumn, "newColumn !!!!!!!!!");
+
+    console.log(newColumn, "===newColumn");
+
+    const newState = {
+      ...state,
+      columns: {
+        ...state.columns,
+        [newColumn.id]: newColumn,
+      },
+    };
+
+    setState(newState);
+  };
+
   return (
     <Container>
       <Row>
@@ -216,48 +306,14 @@ function TasksList(props) {
               className="add-new-task-btn"
             ></div>
           )}
+          <DragDropContext onDragEnd={onDragEnd}>
+            {state.columnOrder.map((columnId) => {
+              const column = state.columns[columnId];
+              const tasks = column.taskIds.map((taskId) => state.tasks[taskId]);
 
-          {props.todo.map((item, index) => {
-            return (
-              <div>
-                <hr style={{ transition: "all 0.3s" }}></hr>
-                <div>
-                  <div className="d-flex justify-content-between">
-                    <Link to={`/task/${item.id}`}>{item.title}</Link>
-                    <BsThreeDotsVertical
-                      onClick={() => setShowTaskDropdown(index)}
-                    />
-                    <Dropdown.Menu
-                      style={{ transform: "translateX(220px)" }}
-                      show={showTaskDropdown === index}
-                    >
-                      <Dropdown.Item
-                        onClick={() => taskOptionsClick("edit", item)}
-                        eventKey="1"
-                      >
-                        Edit
-                      </Dropdown.Item>
-                      <Dropdown.Item
-                        onClick={() => taskOptionsClick("delete", item)}
-                        eventKey="2"
-                      >
-                        Delete
-                      </Dropdown.Item>
-                    </Dropdown.Menu>
-                  </div>
-                  <div
-                    className="d-flex justify-content-between"
-                    style={{ fontSize: "11px" }}
-                  >
-                    <span>John Doe </span>
-                    <span>6 days ago</span>
-                    <div className="task-flag">OVERDUE</div>
-                  </div>
-                  <div>{item.description}</div>
-                </div>
-              </div>
-            );
-          })}
+              return <Column key={column.id} column={column} tasks={tasks} />;
+            })}
+          </DragDropContext>
         </Col>
         {/* IN PROGRESS */}
         <Col>
