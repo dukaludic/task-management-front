@@ -7,12 +7,11 @@ import React, {
 } from "react";
 import { Link } from "react-router-dom";
 import { Container, Col, Row } from "react-bootstrap";
-import * as dataHandler from "../../helpers/dataHandler";
+import * as datahandler from "../../helpers/dataHandler";
 
 import { BsThreeDotsVertical } from "react-icons/bs";
 import { AiFillPlusCircle } from "react-icons/ai";
 import TasksDropdown from "./tasksDropdown";
-import TaskItem from "./taskItem";
 
 import { Auth } from "../../context/AuthContext";
 
@@ -30,6 +29,7 @@ function TasksList(props) {
   const [newTaskAssignedUsers, setNewTaskAssignedUsers] = useState([]);
   const [newTaskProjectManager, setNewTaskProjectManager] = useState([]);
   const [projectTitles, setProjectTitles] = useState([]);
+  const [dueDate, setDueDate] = useState(new Date());
 
   const [workers, setWorkers] = useState([]);
   const [projectManagers, setProjectManagers] = useState([]);
@@ -42,29 +42,12 @@ function TasksList(props) {
 
   //DND
   const initialData = {
-    tasks: {
-      "61ec01992d4715532858af0e": {
-        id: "61ec01992d4715532858af0e",
-        title: "Landing Page",
-        project_id: "61eae6462d4715532858aec6",
-        status: "in_progress",
-        description:
-          "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-      },
-      "61f7a1067d145db0a3dae0b6": {
-        id: "61f7a1067d145db0a3dae0b6",
-        title: "Create Cart Page",
-        project_id: "61eae6462d4715532858aec6",
-        status: "in_progress",
-        description:
-          "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-      },
-    },
+    tasks: {},
     columns: {
       "column-1": {
         id: "column-1",
         title: "To do",
-        taskIds: ["61ec01992d4715532858af0e", "61f7a1067d145db0a3dae0b6"],
+        taskIds: [],
       },
       "column-2": {
         id: "column-2",
@@ -85,7 +68,8 @@ function TasksList(props) {
     columnOrder: ["column-1", "column-2", "column-3", "column-4"],
   };
 
-  const [state, setState] = useState(initialData);
+  // Drag and drop state
+  const [state, setState] = useState({});
 
   const navigate = useNavigate();
 
@@ -95,30 +79,89 @@ function TasksList(props) {
   // };
 
   useEffect(async () => {
-    console.log("useEffect");
-    const titles = await dataHandler.show("projects/titles");
-    const users = await dataHandler.show("users/names");
+    console.log(props.tasks, "tasks");
+    (async () => {
+      const tasks = await datahandler.show("tasks");
 
-    // firt name and last name to title so it can be passed to dropdown component
-    const workers = [];
-    const projectManagers = [];
-    for (let i = 0; i < users.length; i++) {
-      if (users[i].role === "project_manager") {
-        projectManagers.push({
-          id: users[i].id,
-          title: `${users[i].first_name} ${users[i].last_name}`,
-        });
-      } else {
-        workers.push({
-          id: users[i].id,
-          title: `${users[i].first_name} ${users[i].last_name}`,
-        });
+      const sortedTasks = {
+        tasks: {},
+        columns: {
+          "column-1": {
+            id: "column-1",
+            title: "To do",
+            taskIds: [],
+          },
+          "column-2": {
+            id: "column-2",
+            title: "In Progress",
+            taskIds: [],
+          },
+          "column-3": {
+            id: "column-3",
+            title: "In Review",
+            taskIds: [],
+          },
+          "column-4": {
+            id: "column-4",
+            title: "Done",
+            taskIds: [],
+          },
+        },
+        columnOrder: ["column-1", "column-2", "column-3", "column-4"],
+      };
+
+      console.log(tasks, "tasks");
+
+      for (let i = 0; i < tasks.length; i++) {
+        sortedTasks.tasks[tasks[i].id] = tasks[i];
+
+        console.log(tasks[i].status);
+        switch (tasks[i].status) {
+          case "to_do":
+            sortedTasks.columns["column-1"].taskIds.push(tasks[i].id);
+            break;
+          case "in_progress":
+            sortedTasks.columns["column-2"].taskIds.push(tasks[i].id);
+            break;
+          case "in_review":
+            sortedTasks.columns["column-3"].taskIds.push(tasks[i].id);
+            break;
+          case "done":
+            sortedTasks.columns["column-4"].taskIds.push(tasks[i].id);
+            break;
+
+          default:
+            break;
+        }
       }
-    }
 
-    setWorkers(workers);
-    setProjectManagers(projectManagers);
-    setProjectTitles(titles);
+      console.log(sortedTasks, "===sorteTasks");
+
+      const titles = await datahandler.show("projects/titles");
+      const users = await datahandler.show("users/names");
+
+      // firt name and last name to title so it can be passed to dropdown component
+      const workers = [];
+      const projectManagers = [];
+      for (let i = 0; i < users.length; i++) {
+        if (users[i].role === "project_manager") {
+          projectManagers.push({
+            id: users[i].id,
+            title: `${users[i].first_name} ${users[i].last_name}`,
+          });
+        } else {
+          workers.push({
+            id: users[i].id,
+            title: `${users[i].first_name} ${users[i].last_name}`,
+          });
+        }
+      }
+
+      setState(sortedTasks);
+      setWorkers(workers);
+      setProjectManagers(projectManagers);
+      setProjectTitles(titles);
+    })();
   }, []);
 
   // Reset inputs on task type/status change
@@ -129,7 +172,12 @@ function TasksList(props) {
     setNewTaskDescription("");
     setNewTaskAssignedUsers([]);
     setNewTaskProjectManager("");
+    setDueDate(new Date());
   };
+
+  useEffect(() => {
+    console.log("state set");
+  }, [state]);
 
   const insertTask = async () => {
     console.log("insert task");
@@ -143,11 +191,23 @@ function TasksList(props) {
       assigned_users.push(newTaskAssignedUsers[i].id);
     }
     const project_manager_id = newTaskProjectManager.id;
-    const status = newTaskType;
+
+    function toSnakeCase(str) {
+      return (
+        str &&
+        str
+          .match(
+            /[A-Z]{2,}(?=[A-Z][a-z]+[0-9]*|\b)|[A-Z]?[a-z]+[0-9]*|[A-Z]|[0-9]+/g
+          )
+          .map((s) => s.toLowerCase())
+          .join("_")
+      );
+    }
+    const status = toSnakeCase(newTaskType);
+    console.log(status, "===status");
+
     const created_by = authContext.state.data.user.id;
     const creation_time = new Date();
-
-    console.log(created_by, "created");
 
     const taskObj = {
       project_id,
@@ -158,24 +218,62 @@ function TasksList(props) {
       created_by,
       creation_time,
     };
-    const insertTaskRes = await dataHandler.create("tasks", taskObj);
+    const insertTaskRes = await datahandler.create("tasks", taskObj);
 
     taskObj.id = insertTaskRes.id;
 
+    console.log(status, "newTaskType");
+
+    // const initialData = {
+    //   tasks: {},
+    //   columns: {
+    //     "column-1": {
+    //       id: "column-1",
+    //       title: "To do",
+    //       taskIds: [],
+    //     },
+    //     "column-2": {
+    //       id: "column-2",
+    //       title: "In Progress",
+    //       taskIds: [],
+    //     },
+    //     "column-3": {
+    //       id: "column-3",
+    //       title: "In Review",
+    //       taskIds: [],
+    //     },
+    //     "column-4": {
+    //       id: "column-4",
+    //       title: "Done",
+    //       taskIds: [],
+    //     },
+    //   },
+    //   columnOrder: ["column-1", "column-2", "column-3", "column-4"],
+    // };
+
     // Insert task in front end temp memory since I don't know how to refetch immediately
-    switch (newTaskType) {
+    const tmpTasksObj = state;
+
+    switch (status) {
       case "to_do":
-        console.log("to_do");
-        props.setTodo([...props.todo, taskObj]);
+        tmpTasksObj.tasks[taskObj.id] = taskObj;
+        tmpTasksObj.columns["column-1"].taskIds.push(taskObj.id);
+        setState(tmpTasksObj);
         break;
       case "in_progress":
-        props.setInProgress([...props.inProgress, taskObj]);
+        tmpTasksObj.tasks[taskObj.id] = taskObj;
+        tmpTasksObj.columns["column-2"].taskIds.push(taskObj.id);
+        setState(tmpTasksObj);
         break;
       case "in_review":
-        props.setInReview([...props.inReview, taskObj]);
+        tmpTasksObj.tasks[taskObj.id] = taskObj;
+        tmpTasksObj.columns["column-3"].taskIds.push(taskObj.id);
+        setState(tmpTasksObj);
         break;
       case "done":
-        props.setDone([...props.done, taskObj]);
+        tmpTasksObj.tasks[taskObj.id] = taskObj;
+        tmpTasksObj.columns["column-4"].taskIds.push(taskObj.id);
+        setState(tmpTasksObj);
         break;
 
       default:
@@ -197,7 +295,7 @@ function TasksList(props) {
         break;
       case "delete":
         const task = props.tasks.find((el) => el.id === item.id);
-        const deleted = await dataHandler.deleteItem("tasks", task.id);
+        const deleted = await datahandler.deleteItem("tasks", task.id);
         console.log("delete", task, deleted);
         break;
 
@@ -220,28 +318,54 @@ function TasksList(props) {
       return;
     }
 
-    const column = state.columns[source.droppableId];
-    const newTaskIds = Array.from(column.taskIds);
-    newTaskIds.splice(source.index, 1);
-    newTaskIds.splice(destination.index, 0, draggableId);
+    const start = state.columns[source.droppableId];
+    const finish = state.columns[destination.droppableId];
 
-    const newColumn = {
-      ...column,
-      taskIds: newTaskIds,
+    if (start === finish) {
+      const newTaskIds = Array.from(start.taskIds);
+      newTaskIds.splice(source.index, 1);
+      newTaskIds.splice(destination.index, 0, draggableId);
+
+      const newColumn = {
+        ...start,
+        taskIds: newTaskIds,
+      };
+
+      const newState = {
+        ...state,
+        columns: {
+          ...state.columns,
+          [newColumn.id]: newColumn,
+        },
+      };
+
+      setState(newState);
+      return;
+    }
+
+    // Moving from one list to another
+    const startTaskIds = Array.from(start.taskIds);
+    startTaskIds.splice(source.index, 1);
+    const newStart = {
+      ...start,
+      taskIds: startTaskIds,
     };
 
-    console.log(newColumn, "newColumn !!!!!!!!!");
-
-    console.log(newColumn, "===newColumn");
+    const finishTaskIds = Array.from(finish.taskIds);
+    finishTaskIds.splice(destination.index, 0, draggableId);
+    const newFinish = {
+      ...finish,
+      taskIds: finishTaskIds,
+    };
 
     const newState = {
       ...state,
       columns: {
         ...state.columns,
-        [newColumn.id]: newColumn,
+        [newStart.id]: newStart,
+        [newFinish.id]: newFinish,
       },
     };
-
     setState(newState);
   };
 
@@ -250,292 +374,93 @@ function TasksList(props) {
       <Row>
         {/* TODO */}
         <Col>
-          <div>
-            <h3>To do</h3>
-            <p>{props.todo.length} tasks available</p>
-          </div>
-          {newTaskType === "to_do" ? (
-            <>
-              <p>Title</p>
-              <input
-                value={newTaskTitle}
-                onChange={(e) => {
-                  setNewTaskTitle(e.target.value);
-                }}
-                placeholder="Title"
-              ></input>
-              <p>Project</p>
-              {console.log(projectTitles, "projectTitles")}
-              <TasksDropdown
-                items={projectTitles}
-                type="projects"
-                setNewTaskProject={setNewTaskProject}
-              />
-              <p>Description</p>
-              <textarea
-                value={newTaskDescription}
-                onChange={(e) => setNewTaskDescription(e.target.value)}
-                placeholder="Description"
-              ></textarea>
-              <p>Project Manager</p>
-              <TasksDropdown
-                items={projectManagers}
-                type="project_managers"
-                setNewTaskProjectManager={setNewTaskProjectManager}
-              />
-              <p>Team</p>
-              <TasksDropdown
-                items={workers}
-                type="workers"
-                setNewTaskAssignedUsers={setNewTaskAssignedUsers}
-                newTaskAssignedUsers={newTaskAssignedUsers}
-              />
-
-              <button onClick={insertTask}>Add</button>
-              <button onClick={(e) => changeTaskType("")}>Cancel</button>
-              {/* {projectTitles.map((item) => {
-                {
-                  console.log(projectTitles, projectsDropdown, "projectTitles");
-                }
-                <div>{item.title}</div>;
-              })} */}
-            </>
-          ) : (
-            <div
-              onClick={() => changeTaskType("to_do")}
-              className="add-new-task-btn"
-            ></div>
-          )}
           <DragDropContext onDragEnd={onDragEnd}>
-            {state.columnOrder.map((columnId) => {
-              const column = state.columns[columnId];
-              const tasks = column.taskIds.map((taskId) => state.tasks[taskId]);
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "row",
+                width: "220px",
+                minHeight: "100px",
+              }}
+            >
+              {state.columnOrder?.map((columnId, index) => {
+                const column = state.columns[columnId];
 
-              return <Column key={column.id} column={column} tasks={tasks} />;
-            })}
+                const tasks = column.taskIds.map(
+                  (taskId) => state.tasks[taskId]
+                );
+
+                return (
+                  <Col>
+                    <div>
+                      <h3>{column.title}</h3>
+                      <p>{props.todo.length} tasks available</p>
+                    </div>
+                    {newTaskType === column.title ? (
+                      <div className="add-new-task-container">
+                        <p>Title</p>
+                        <input
+                          value={newTaskTitle}
+                          onChange={(e) => {
+                            setNewTaskTitle(e.target.value);
+                          }}
+                          placeholder="Title"
+                        ></input>
+                        <p>Project</p>
+                        {console.log(projectTitles, "projectTitles")}
+                        <TasksDropdown
+                          items={projectTitles}
+                          type="projects"
+                          setNewTaskProject={setNewTaskProject}
+                        />
+                        <p>Description</p>
+                        <textarea
+                          value={newTaskDescription}
+                          onChange={(e) =>
+                            setNewTaskDescription(e.target.value)
+                          }
+                          placeholder="Description"
+                        ></textarea>
+                        <p>Project Manager</p>
+                        <TasksDropdown
+                          items={projectManagers}
+                          type="project_managers"
+                          setNewTaskProjectManager={setNewTaskProjectManager}
+                        />
+                        <p>Team</p>
+                        <TasksDropdown
+                          items={workers}
+                          type="workers"
+                          setNewTaskAssignedUsers={setNewTaskAssignedUsers}
+                          newTaskAssignedUsers={newTaskAssignedUsers}
+                        />
+                        <p>Due Date</p>
+                        <input
+                          style={{ width: "100%" }}
+                          type="date"
+                          placeholder={new Date().toLocaleDateString("en-CA")}
+                          value={dueDate}
+                          onChange={(e) => setDueDate(e.target.value)}
+                          name="dueDate"
+                        ></input>
+                        <button onClick={insertTask}>Add</button>
+                        <button onClick={(e) => changeTaskType("")}>
+                          Cancel
+                        </button>
+                      </div>
+                    ) : (
+                      <div
+                        style={{ margin: "10px" }}
+                        onClick={() => changeTaskType(column.title)}
+                        className="add-new-task-btn"
+                      ></div>
+                    )}
+                    <Column key={column.id} column={column} tasks={tasks} />
+                  </Col>
+                );
+              })}
+            </div>
           </DragDropContext>
-        </Col>
-        {/* IN PROGRESS */}
-        <Col>
-          <div>
-            <h3>In Progress</h3>
-            <p>{props.inProgress.length} tasks available</p>
-          </div>
-          {newTaskType === "in_progress" ? (
-            <>
-              <p>Title</p>
-              <input
-                value={newTaskTitle}
-                onChange={(e) => {
-                  setNewTaskTitle(e.target.value);
-                }}
-                placeholder="Title"
-              ></input>
-              <p>Project</p>
-              <TasksDropdown
-                items={projectTitles}
-                type="projects"
-                setNewTaskProject={setNewTaskProject}
-              />
-              <p>Description</p>
-              <textarea
-                value={newTaskDescription}
-                onChange={(e) => setNewTaskDescription(e.target.value)}
-                placeholder="Description"
-              ></textarea>
-              <p>Project Manager</p>
-              <TasksDropdown
-                items={projectManagers}
-                type="project_managers"
-                setNewTaskProjectManager={setNewTaskProjectManager}
-              />
-              <p>Team</p>
-              <TasksDropdown
-                items={workers}
-                type="workers"
-                setNewTaskAssignedUsers={setNewTaskAssignedUsers}
-                newTaskAssignedUsers={newTaskAssignedUsers}
-              />
-
-              <button onClick={insertTask}>Add</button>
-              <button onClick={(e) => changeTaskType("")}>Cancel</button>
-            </>
-          ) : (
-            <div
-              onClick={() => changeTaskType("in_progress")}
-              className="add-new-task-btn"
-            ></div>
-          )}
-          {props.inProgress.map((item) => {
-            return (
-              <div>
-                <hr></hr>
-                <div>
-                  <div className="d-flex justify-content-between">
-                    <Link to={`/task/${item.id}`}>{item.title}</Link>
-                    <BsThreeDotsVertical />
-                  </div>
-                  <div
-                    className="d-flex justify-content-between"
-                    style={{ fontSize: "11px" }}
-                  >
-                    <span>John Doe </span>
-                    <span>6 days ago</span>
-                    <div className="task-flag">OVERDUE</div>
-                  </div>
-                  <div>{item.description}</div>
-                </div>
-              </div>
-            );
-          })}
-        </Col>
-        {/* IN REVIEW */}
-        <Col>
-          <div>
-            <h3>In Review</h3>
-            <p>{props.inReview.length} tasks available</p>
-          </div>
-          {newTaskType === "in_review" ? (
-            <>
-              <p>Title</p>
-              <input
-                value={newTaskTitle}
-                onChange={(e) => {
-                  setNewTaskTitle(e.target.value);
-                }}
-                placeholder="Title"
-              ></input>
-              <p>Project</p>
-              <TasksDropdown
-                items={projectTitles}
-                type="projects"
-                setNewTaskProject={setNewTaskProject}
-              />
-              <p>Description</p>
-              <textarea
-                value={newTaskDescription}
-                onChange={(e) => setNewTaskDescription(e.target.value)}
-                placeholder="Description"
-              ></textarea>
-              <p>Project Manager</p>
-              <TasksDropdown
-                items={projectManagers}
-                type="project_managers"
-                setNewTaskProjectManager={setNewTaskProjectManager}
-              />
-              <p>Team</p>
-              <TasksDropdown
-                items={workers}
-                type="workers"
-                setNewTaskAssignedUsers={setNewTaskAssignedUsers}
-                newTaskAssignedUsers={newTaskAssignedUsers}
-              />
-
-              <button onClick={insertTask}>Add</button>
-              <button onClick={(e) => changeTaskType("")}>Cancel</button>
-            </>
-          ) : (
-            <div
-              onClick={() => changeTaskType("in_review")}
-              className="add-new-task-btn"
-            ></div>
-          )}
-          {props.inReview.map((item) => {
-            return (
-              <div>
-                <hr></hr>
-                <div>
-                  <div className="d-flex justify-content-between">
-                    <Link to={`/task/${item.id}`}>{item.title}</Link>
-                    <BsThreeDotsVertical />
-                  </div>
-                  <div
-                    className="d-flex justify-content-between"
-                    style={{ fontSize: "11px" }}
-                  >
-                    <span>John Doe </span>
-                    <span>6 days ago</span>
-                    <div className="task-flag">OVERDUE</div>
-                  </div>
-                  <div>{item.description}</div>
-                </div>
-              </div>
-            );
-          })}
-        </Col>
-        {/* DONE */}
-        <Col>
-          <div>
-            <h3>Done</h3>
-            <p>{props.done.length} tasks available</p>
-          </div>
-          {newTaskType === "done" ? (
-            <>
-              <p>Title</p>
-              <input
-                value={newTaskTitle}
-                onChange={(e) => {
-                  setNewTaskTitle(e.target.value);
-                }}
-                placeholder="Title"
-              ></input>
-              <p>Project</p>
-              <TasksDropdown
-                items={projectTitles}
-                type="projects"
-                setNewTaskProject={setNewTaskProject}
-              />
-              <p>Description</p>
-              <textarea
-                value={newTaskDescription}
-                onChange={(e) => setNewTaskDescription(e.target.value)}
-                placeholder="Description"
-              ></textarea>
-              <p>Project Manager</p>
-              <TasksDropdown
-                items={projectManagers}
-                type="project_managers"
-                setNewTaskProjectManager={setNewTaskProjectManager}
-              />
-              <p>Team</p>
-              <TasksDropdown
-                items={workers}
-                type="workers"
-                setNewTaskAssignedUsers={setNewTaskAssignedUsers}
-                newTaskAssignedUsers={newTaskAssignedUsers}
-              />
-
-              <button onClick={insertTask}>Add</button>
-              <button onClick={(e) => changeTaskType("")}>Cancel</button>
-            </>
-          ) : (
-            <div
-              onClick={() => changeTaskType("done")}
-              className="add-new-task-btn"
-            ></div>
-          )}
-          {props.done.map((item) => {
-            return (
-              <div>
-                <hr></hr>
-                <div>
-                  <div className="d-flex justify-content-between">
-                    <Link to={`/task/${item.id}`}>{item.title}</Link>
-                    <BsThreeDotsVertical />
-                  </div>
-                  <div
-                    className="d-flex justify-content-between"
-                    style={{ fontSize: "11px" }}
-                  >
-                    <span>John Doe </span>
-                    <span>6 days ago</span>
-                    <div className="task-flag">OVERDUE</div>
-                  </div>
-                  <div>{item.description}</div>
-                </div>
-              </div>
-            );
-          })}
         </Col>
       </Row>
     </Container>

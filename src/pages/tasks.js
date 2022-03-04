@@ -17,16 +17,6 @@ function Tasks() {
     (async () => {
       const tasks = await datahandler.show("tasks");
       setTasks(tasks);
-
-      const todo = tasks.filter((task) => task.status === "to_do");
-      const inProgress = tasks.filter((task) => task.status === "in_progress");
-      const inReview = tasks.filter((task) => task.status === "in_review");
-      const done = tasks.filter((task) => task.status === "done");
-
-      setTodo(todo);
-      setInProgress(inProgress);
-      setInReview(inReview);
-      setDone(done);
     })();
   }, []);
 

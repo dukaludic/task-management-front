@@ -1,27 +1,48 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Draggable } from "react-beautiful-dnd";
+import styled from "styled-components";
 import { BsThreeDotsVertical } from "react-icons/bs";
+import { Link } from "react-router-dom";
 
-function TaskItem({ item }) {
+const Container = styled.div`
+  border: 1px solid lightgrey;
+  border-radius: 2px;
+  padding: 8px;
+  margin-bottom: 8px;
+  background-color: white;
+`;
+
+function TaskItem(props) {
   return (
-    <div>
-      <hr></hr>
-      <div>
-        <div className="d-flex justify-content-between">
-          <Link to={`/task/${item.id}`}>{item.title}</Link>
-          <BsThreeDotsVertical />
-        </div>
-        <div
-          className="d-flex justify-content-between"
-          style={{ fontSize: "11px" }}
+    <Draggable draggableId={props.task.id} index={props.index}>
+      {(provided, snapshot) => (
+        <Container
+          ref={provided.innerRef}
+          {...provided.draggableProps}
+          {...provided.dragHandleProps}
+          innerRef={provided.innerRef}
         >
-          <span>John Doe </span>
-          <span>6 days ago</span>
-          <div className="task-flag">OVERDUE</div>
-        </div>
-        <div>{item.description}</div>
-      </div>
-    </div>
+          {/* {console.log(props.task)} */}
+          <div>
+            <div>
+              <div className="d-flex justify-content-between">
+                <Link to={`/task/${props.task.id}`}>{props.task.title}</Link>
+                <BsThreeDotsVertical />
+              </div>
+              <div
+                className="d-flex justify-content-between"
+                style={{ fontSize: "11px" }}
+              >
+                <span>John Doe </span>
+                <span>6 days ago</span>
+                <div className="task-flag">OVERDUE</div>
+              </div>
+              <div>{props.task.description}</div>
+            </div>
+          </div>
+        </Container>
+      )}
+    </Draggable>
   );
 }
 

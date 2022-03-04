@@ -48,6 +48,8 @@ const Login = () => {
         localStorage.setItem("access_token", response.data.access_token);
         const decoded = jwt_decode(response.data.access_token);
         console.log(decoded, "===decoded");
+        // Gde da cuvam podatke o useru, dal u contextu ili localstorage
+        // const userData = await datahandler.show("users", decoded.id);
         context.dispatch({ type: "LOGIN", payload: decoded });
         navigate("dashboard");
       })
