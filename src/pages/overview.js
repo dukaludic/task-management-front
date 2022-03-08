@@ -195,6 +195,7 @@ const Overview = () => {
               todo={todo}
               inProgress={inProgress}
               inReview={inReview}
+              setInReview={setInReview}
             />
           </Col>
         </Row>
