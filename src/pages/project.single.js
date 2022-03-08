@@ -41,8 +41,7 @@ function ProjectSingle() {
 
   return (
     <div>
-      <Sidebar />
-      <Container style={{ margin: "0 50px 50px 350px" }}>
+      <Container>
         <Row>
           <Col>
             <p>Project</p>

@@ -11,6 +11,7 @@ import jwt_decode from "jwt-decode";
 const Login = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [credentialsValid, setCredentialsValid] = useState(true);
 
   const context = useContext(Auth);
 
@@ -54,6 +55,7 @@ const Login = () => {
         navigate("dashboard");
       })
       .catch((error) => {
+        setCredentialsValid(false);
         console.log(error);
       });
     // console.log(state, "===state");
@@ -77,6 +79,14 @@ const Login = () => {
           name="password"
         ></input>
         <button onClick={login}>Login</button>
+        <button
+          onClick={() => {
+            navigate("/register");
+          }}
+        >
+          Register
+        </button>
+        {!credentialsValid && <p>Invalid Credentials</p>}
       </div>
     </div>
   );

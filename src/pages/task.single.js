@@ -56,8 +56,7 @@ function TaskSingle() {
 
   return (
     <div className="d-flex">
-      <Sidebar />
-      <Container style={{ margin: "0 50px 50px 350px" }}>
+      <Container>
         <Row>
           <p>Task</p>
           <h1>{task?.title}</h1>

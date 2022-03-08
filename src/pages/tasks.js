@@ -22,8 +22,7 @@ function Tasks() {
 
   return (
     <div className="d-flex">
-      <Sidebar />
-      <Container style={{ margin: "0 50px 50px 350px" }}>
+      <Container>
         <Row>
           <Col lg={12}>
             <h1>All Tasks</h1>

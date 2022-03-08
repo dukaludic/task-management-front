@@ -7,6 +7,19 @@ import { useDropzone } from "react-dropzone";
 import imageToBase64 from "image-to-base64/browser";
 import * as datahandler from "../../helpers/dataHandler";
 
+import Dashboard from "../../pages/dashboard";
+import Projects from "../../pages/projects";
+import Tasks from "../../pages/tasks";
+import TaskSingle from "../../pages/task.single";
+import ProjectSingle from "../../pages/project.single";
+
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Redirect,
+} from "react-router-dom";
+
 import { Auth } from "../../context/AuthContext";
 
 Modal.setAppElement("#root");
@@ -16,7 +29,7 @@ function Sidebar() {
   const [user, setUser] = useState({});
   const [modalIsOpen, setIsOpen] = React.useState(false);
   const [modalProfilePicture, setModalProfilePicture] = useState("");
-  const [profilePicture, setProfilePicture] = useState("");
+  const [profilePicture, setProfilePicture] = useState(null);
 
   useEffect(() => {
     const token = localStorage.getItem("access_token");
@@ -25,7 +38,7 @@ function Sidebar() {
     (async () => {
       const userData = await datahandler.show(`users/basic/${decoded.id}`);
       setUser(userData);
-      console.log(userData, "===userData");
+      console.log(userData, "===userData 2131231");
     })();
 
     console.log(decoded, "===decoded");
@@ -131,6 +144,8 @@ function Sidebar() {
         profile_picture: insertImageAssignedRes.id,
       });
     }
+
+    console.log(modalProfilePicture, "==modalProfilePicture");
 
     setProfilePicture(modalProfilePicture);
 

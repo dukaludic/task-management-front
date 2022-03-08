@@ -14,6 +14,7 @@ const AuthProvider = (props) => {
     switch (action.type) {
       case "LOGIN":
         console.log("LOGIN");
+
         return {
           data: {
             isAuthenticated: true,
@@ -22,6 +23,7 @@ const AuthProvider = (props) => {
         };
         break;
       case "LOG_OUT":
+        localStorage.removeItem("access_token");
         return {
           data: {
             isAuthenticated: false,
