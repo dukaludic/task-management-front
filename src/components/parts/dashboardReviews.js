@@ -6,9 +6,6 @@ import Dropdown from "react-bootstrap/Dropdown";
 
 import * as datahandler from "../../helpers/dataHandler";
 
-// import Dropdown from "react-dropdown";
-import "react-dropdown/style.css";
-
 function DashboardReviews(props) {
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
