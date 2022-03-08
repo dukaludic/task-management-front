@@ -6,6 +6,9 @@ function DashboardReviews(props) {
   return (
     <div className="main-card">
       <h3>Pending Reviews</h3>
+      {props.inReview.length === 0 && (
+        <p>You currently have no pending reviews</p>
+      )}
       {props.inReview.map((task) => {
         return (
           <div className="d-flex justify-content-between align-items-center">

@@ -20,16 +20,27 @@ function DashboardProjectSummary(props) {
             <div>End</div>
             <div>Progress</div>
           </div>
+          {props.projects.length < 1 && (
+            <p>You are currently not assigned to any project</p>
+          )}
           {props.projects.map((project, index) => {
             return (
               <div key={index} className="project-summary-item">
-                <div>{project.title}</div>
+                <div
+                  onClick={() => props.changeProject(project)}
+                  style={{ cursor: "pointer" }}
+                >
+                  {project.title}
+                </div>
                 <div>{moment(project.start_date).format("MMM Do YY")}</div>
                 <div>{moment(project.end_date).format("MMM Do YY")}</div>
                 <div>{props.projectProgresses[index]}</div>
               </div>
             );
           })}
+          <p style={{ cursor: "pointer" }} onClick={() => props.resetData()}>
+            All Projects
+          </p>
         </Col>
       </Row>
     </div>

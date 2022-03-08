@@ -22,10 +22,54 @@ const Overview = () => {
   const [projectProgresses, setProjectProgresses] = useState([]);
   const [events, setEvents] = useState([]);
 
+  //All Data
+  const [allTasks, setAllTasks] = useState([]);
+
+  const [isReset, callReset] = useState(false);
+
   const context = useContext(Auth);
 
-  const showContext = () => {
-    console.log("context", context.state.data);
+  const getInitialProjectsData = (projects) => {
+    // sort tasks in state by status
+    const tasks = [];
+    const todo = [];
+    const inProgress = [];
+    const inReview = [];
+    const nearDeadline = [];
+    const overDue = [];
+
+    for (let i = 0; i < projects.length; i++) {
+      console.log(i, "===i");
+      for (let j = 0; j < projects[i].tasks.length; j++) {
+        tasks.push(projects[i].tasks[j]);
+        switch (projects[i].tasks[j].status) {
+          case "to_do":
+            todo.push(projects[i].tasks[j]);
+
+            break;
+          case "in_progress":
+            inProgress.push(projects[i].tasks[j]);
+
+            break;
+          case "in_review":
+            inReview.push(projects[i].tasks[j]);
+
+            break;
+          case "done":
+            inReview.push(projects[i].tasks[j]);
+
+            break;
+
+          default:
+            break;
+        }
+      }
+    }
+    setProjects(projects);
+    setTodo(todo);
+    setInProgress(inProgress);
+    setInReview(inReview);
+    setEvents(events);
   };
 
   useEffect(() => {
@@ -37,50 +81,7 @@ const Overview = () => {
         `events/user/${context.state.data.user.id}`
       );
 
-      console.log(context.state.data.user.id);
-
-      console.log(events, "===events");
-
-      // sort tasks in state by status
-      const tasks = [];
-      const todo = [];
-      const inProgress = [];
-      const inReview = [];
-      const nearDeadline = [];
-      const overDue = [];
-
-      for (let i = 0; i < projects.length; i++) {
-        console.log(i, "===i");
-        for (let j = 0; j < projects[i].tasks.length; j++) {
-          tasks.push(projects[i].tasks[j]);
-          switch (projects[i].tasks[j].status) {
-            case "to_do":
-              todo.push(projects[i].tasks[j]);
-
-              break;
-            case "in_progress":
-              inProgress.push(projects[i].tasks[j]);
-
-              break;
-            case "in_review":
-              inReview.push(projects[i].tasks[j]);
-
-              break;
-            case "done":
-              inReview.push(projects[i].tasks[j]);
-
-              break;
-
-            default:
-              break;
-          }
-        }
-      }
-      setProjects(projects);
-      setTodo(todo);
-      setInProgress(inProgress);
-      setInReview(inReview);
-      setEvents(events);
+      getInitialProjectsData(projects);
 
       //Calculate project progresses
       const projectProgresses = [];
@@ -108,6 +109,52 @@ const Overview = () => {
     })();
   }, []);
 
+  const resetData = () => {
+    getInitialProjectsData(projects);
+  };
+
+  const changeProject = (project) => {
+    console.log(project, "project change project");
+
+    // sort tasks in state by status
+    const tasks = [];
+    const todo = [];
+    const inProgress = [];
+    const inReview = [];
+    const nearDeadline = [];
+    const overDue = [];
+
+    for (let j = 0; j < project.tasks.length; j++) {
+      tasks.push(project.tasks[j]);
+      switch (project.tasks[j].status) {
+        case "to_do":
+          todo.push(project.tasks[j]);
+
+          break;
+        case "in_progress":
+          inProgress.push(project.tasks[j]);
+
+          break;
+        case "in_review":
+          inReview.push(project.tasks[j]);
+
+          break;
+        case "done":
+          inReview.push(project.tasks[j]);
+
+          break;
+
+        default:
+          break;
+      }
+    }
+    setTodo(todo);
+    setInProgress(inProgress);
+    setInReview(inReview);
+
+    console.log(todo, inProgress, inReview);
+  };
+
   return (
     <div className="d-flex">
       {/* <h1>Overview</h1> */}
@@ -125,6 +172,8 @@ const Overview = () => {
               todo={todo}
               inProgress={inProgress}
               inReview={inReview}
+              changeProject={changeProject}
+              resetData={resetData}
             />
           </Col>
         </Row>
@@ -136,6 +185,7 @@ const Overview = () => {
               todo={todo}
               inProgress={inProgress}
               inReview={inReview}
+              changeProject={changeProject}
             />
           </Col>
           <Col lg={6}>

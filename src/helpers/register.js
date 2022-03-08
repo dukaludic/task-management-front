@@ -27,6 +27,7 @@ const Login = () => {
   const [emailAvailable, setEmailAvailable] = useState(false);
   const [requirementsMet, setRequirementsMet] = useState(false);
   const [userRole, setUserRole] = useState("worker");
+  const [userRoleValid, setUserRoleValid] = useState(false);
 
   const [reqNotMetShown, setReqNotMetShown] = useState(false);
 
@@ -51,7 +52,7 @@ const Login = () => {
   //   },
   // });
 
-  const login = async () => {
+  const login = async (username, password) => {
     console.log("login");
     axios
       .post(`${process.env.REACT_APP_API_URL}/login`, {
@@ -62,15 +63,12 @@ const Login = () => {
         localStorage.setItem("access_token", response.data.access_token);
         const decoded = jwt_decode(response.data.access_token);
         console.log(decoded, "===decoded");
-        // Gde da cuvam podatke o useru, dal u contextu ili localstorage
-        // const userData = await datahandler.show("users", decoded.id);
         authContext.dispatch({ type: "LOGIN", payload: decoded });
-        navigate("dashboard");
+        navigate("/dashboard");
       })
       .catch((error) => {
         console.log(error);
       });
-    // console.log(state, "===state");
   };
 
   const register = async () => {
@@ -82,11 +80,31 @@ const Login = () => {
       firstNameValid &&
       lastNameValid &&
       usernameValid &&
+      usernameAvailable &&
       emailValid &&
       passwordValid &&
-      confirmPasswordValid
+      confirmPasswordValid &&
+      userRoleValid
     ) {
       console.log("req met");
+
+      const newUserObj = {
+        first_name: firstName,
+        last_name: lastName,
+        username: username,
+        email: email,
+        role: role,
+        password: password,
+      };
+
+      console.log(newUserObj, "newuserobj");
+
+      const newUserRes = await datahandler.create("users", newUserObj);
+
+      console.log(newUserRes, "newuserres");
+
+      await login(username, password);
+
       return;
     } else {
       setReqNotMetShown(true);
@@ -177,13 +195,16 @@ const Login = () => {
         return false;
       }
     }
+    if (e.target.value.length > 3) {
+      setUsernameValid(true);
+    }
     setUsernameAvailable(true);
     return true;
   };
 
   const passwordHandler = (e) => {
     setPassword(e.target.value);
-    if (e.target.value.length > 7) {
+    if (e.target.value.length > 3) {
       setPasswordValid(true);
     } else {
       setPasswordValid(false);
@@ -197,6 +218,11 @@ const Login = () => {
     } else {
       setConfirmPasswordValid(false);
     }
+  };
+
+  const roleHandler = (e) => {
+    setRole(e.target.value);
+    setUserRoleValid(true);
   };
 
   return (
@@ -255,11 +281,12 @@ const Login = () => {
         {!confirmPasswordValid && reqNotMetShown && (
           <p>Passwords don't match</p>
         )}
-        <div onChange={(e) => userTypeHandler(e)}>
+        <div value={role} onChange={(e) => roleHandler(e)}>
           <input type="radio" value="worker" name="role" /> Worker
           <input type="radio" value="project_manager" name="role" /> Project
           Manager
         </div>
+        {!userRoleValid && reqNotMetShown && <p>Please select a role</p>}
         <button onClick={register}>Register</button>
       </div>
     </div>
