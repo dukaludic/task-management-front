@@ -17,7 +17,7 @@ function ProjectsList(props) {
   const [newEntryStartDate, setNewEntryStartDate] = useState("");
   const [newEntryEndDate, setNewEntryEndDate] = useState("");
   const [newEntryDescription, setNewEntryDescription] = useState("");
-  const [reloadCounter, reload] = useState(0);
+
   const [newEntryTitleValid, setNewEntryTitleValid] = useState(true);
 
   useEffect(() => {
@@ -45,7 +45,7 @@ function ProjectsList(props) {
       setAllWorkers(workers);
       setAllProjectManagers(projectManagers);
     })();
-  }, [reloadCounter]);
+  }, []);
 
   const addProject = async () => {
     if (newEntryTitle.length < 3) {
@@ -76,7 +76,7 @@ function ProjectsList(props) {
     };
 
     const newProjectRes = await datahandler.create("projects", newProjectObj);
-    reload(reloadCounter + 1);
+    props.reload(props.reloadCounter + 1);
     setNewProjectMenuOpen(false);
   };
 
@@ -99,7 +99,7 @@ function ProjectsList(props) {
                 }
                 return (
                   <img
-                    src={user.profile_picture.base_64}
+                    src={user.profile_picture?.base_64}
                     className="team-small-image-circle"
                   ></img>
                 );

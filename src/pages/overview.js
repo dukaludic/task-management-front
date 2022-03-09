@@ -29,7 +29,12 @@ const Overview = () => {
 
   const context = useContext(Auth);
 
-  const getInitialProjectsData = (projects) => {
+  const sortProjectsData = (projects) => {
+    const today = new Date();
+    const sevenBefore = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+
+    console.log(sevenBefore, today, "warningDay");
+
     // sort tasks in state by status
     const tasks = [];
     const todo = [];
@@ -78,7 +83,7 @@ const Overview = () => {
         `events/user/${context.state.data.user.id}`
       );
 
-      getInitialProjectsData(projects);
+      sortProjectsData(projects);
 
       //Calculate project progresses
       const projectProgresses = [];
@@ -107,13 +112,14 @@ const Overview = () => {
   }, []);
 
   const resetData = () => {
-    getInitialProjectsData(projects);
+    sortProjectsData(projects);
   };
 
   const changeProject = (project) => {
     console.log(project, "project change project");
 
     // sort tasks in state by status
+
     const tasks = [];
     const todo = [];
     const inProgress = [];

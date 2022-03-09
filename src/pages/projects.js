@@ -8,6 +8,7 @@ import * as datahandler from "../helpers/dataHandler";
 function Projects() {
   const [projects, setProjects] = useState([]);
   const [projectProgresses, setProjectProgresses] = useState([]);
+  const [reloadCounter, reload] = useState(0);
 
   useEffect(() => {
     (async () => {
@@ -47,7 +48,7 @@ function Projects() {
       setProjects(projects);
       setProjectProgresses(projectProgresses);
     })();
-  }, []);
+  }, [reloadCounter]);
 
   return (
     <div className="d-flex">
@@ -62,6 +63,8 @@ function Projects() {
             <ProjectsList
               projects={projects}
               projectProgresses={projectProgresses}
+              reloadCounter={reloadCounter}
+              reload={reload}
             />
           </Col>
         </Row>
