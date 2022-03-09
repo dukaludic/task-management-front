@@ -17,6 +17,8 @@ function ProjectsList(props) {
   const [newEntryStartDate, setNewEntryStartDate] = useState("");
   const [newEntryEndDate, setNewEntryEndDate] = useState("");
   const [newEntryDescription, setNewEntryDescription] = useState("");
+  const [reloadCounter, reload] = useState(0);
+  const [newEntryTitleValid, setNewEntryTitleValid] = useState(true);
 
   useEffect(() => {
     (async () => {
@@ -43,9 +45,14 @@ function ProjectsList(props) {
       setAllWorkers(workers);
       setAllProjectManagers(projectManagers);
     })();
-  }, []);
+  }, [reloadCounter]);
 
-  const addProject = () => {
+  const addProject = async () => {
+    if (newEntryTitle.length < 3) {
+      setNewEntryTitleValid(false);
+      return;
+    }
+
     console.log(
       newEntryTitle,
       newEntryAssignedUsers,
@@ -54,13 +61,23 @@ function ProjectsList(props) {
       newEntryEndDate
     );
 
+    const assignedUsersIds = [];
+    for (let i = 0; i < newEntryAssignedUsers.length; i++) {
+      assignedUsersIds.push(newEntryAssignedUsers[i].id);
+    }
+
     const newProjectObj = {
       title: newEntryTitle,
       start_date: newEntryStartDate,
       end_date: newEntryEndDate,
-      assigned_users: newEntryAssignedUsers,
-      project_manager: newEntryProjectManager,
+      assigned_users: assignedUsersIds,
+      project_manager_id: newEntryProjectManager.id,
+      status: "to_do",
     };
+
+    const newProjectRes = await datahandler.create("projects", newProjectObj);
+    reload(reloadCounter + 1);
+    setNewProjectMenuOpen(false);
   };
 
   return (
@@ -77,6 +94,9 @@ function ProjectsList(props) {
             <Link to={`/project/${project.id}`}>{project.title}</Link>
             <div className="d-flex align-items-center">
               {project.assigned_users.map((user) => {
+                {
+                  console.log(user, "user");
+                }
                 return (
                   <img
                     src={user.profile_picture.base_64}
@@ -102,6 +122,9 @@ function ProjectsList(props) {
                 type="text"
                 className=""
               />
+              {!newEntryTitleValid && (
+                <p>Title must be at least 3 letter long</p>
+              )}
             </div>
             <div>
               <p>Description</p>
