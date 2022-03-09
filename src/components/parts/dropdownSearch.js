@@ -40,11 +40,12 @@ function DropdownSearch({
   };
 
   window.onclick = () => {
-    console.log("window click");
     setFiltered([]);
   };
 
   const onClickItem = (item, type) => {
+    console.log(item, type, filtered, "===============================");
+
     switch (type) {
       case "projects":
         setSearch(item.title);
@@ -52,16 +53,12 @@ function DropdownSearch({
         setFiltered([]);
         break;
       case "workers":
-        console.log(type);
-        console.log(item.title, "item title");
-
         setNewEntryAssignedUsers([...newEntryAssignedUsers, item]);
-        //Remove selected from data array
         const tmpData = data.filter((el) => el.title !== item.title);
 
         console.log(tmpData, "tmpData");
         setData(tmpData);
-
+        setFiltered([]);
         break;
       case "project_managers":
         console.log(type);

@@ -16,6 +16,7 @@ function ProjectsList(props) {
   const [newEntryTitle, setNewEntryTitle] = useState("");
   const [newEntryStartDate, setNewEntryStartDate] = useState("");
   const [newEntryEndDate, setNewEntryEndDate] = useState("");
+  const [newEntryDescription, setNewEntryDescription] = useState("");
 
   useEffect(() => {
     (async () => {
@@ -52,6 +53,14 @@ function ProjectsList(props) {
       newEntryStartDate,
       newEntryEndDate
     );
+
+    const newProjectObj = {
+      title: newEntryTitle,
+      start_date: newEntryStartDate,
+      end_date: newEntryEndDate,
+      assigned_users: newEntryAssignedUsers,
+      project_manager: newEntryProjectManager,
+    };
   };
 
   return (
@@ -92,6 +101,13 @@ function ProjectsList(props) {
                 onChange={(e) => setNewEntryTitle(e.target.value)}
                 type="text"
                 className=""
+              />
+            </div>
+            <div>
+              <p>Description</p>
+              <textarea
+                value={newEntryDescription}
+                onChange={(e) => setNewEntryDescription(e.target.value)}
               />
             </div>
             <div>
