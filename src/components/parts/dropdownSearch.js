@@ -2,23 +2,26 @@ import React, { useEffect, useState, useRef } from "react";
 import axios from "axios";
 import { AiOutlineClose } from "react-icons/ai";
 
-function TasksDropdown({
+function DropdownSearch({
   items,
   type,
-  setNewTaskProject,
-  setNewTaskAssignedUsers,
-  setNewTaskProjectManager,
-  newTaskAssignedUsers,
+  setNewEntryProject,
+  setNewEntryAssignedUsers,
+  setNewEntryProjectManager,
+  newEntryAssignedUsers,
 }) {
   const [data, setData] = useState(items);
   const [search, setSearch] = useState("");
   const [project, setProject] = useState("");
   const [filtered, setFiltered] = useState([]);
 
+  console.log(items, "props.items dropdown");
+
   const [team, setTeam] = useState([]);
 
   useEffect(() => {
-    console.log(items, "===items");
+    console.log("useEffect");
+    setData(items);
   }, []);
 
   //   const onInput = (e) => setSearch(e.target.value);
@@ -27,14 +30,17 @@ function TasksDropdown({
     e.target.parentNode.parentNode.classList.remove("focus");
 
   const onInput = (e) => {
+    console.log(data, "data", items);
     const filtered = data?.filter((item) =>
       item.title.toLowerCase().includes(search.toLowerCase())
     );
+    console.log(filtered, "filtered");
     setFiltered(filtered);
     setSearch(e.target.value);
   };
 
   window.onclick = () => {
+    console.log("window click");
     setFiltered([]);
   };
 
@@ -42,14 +48,14 @@ function TasksDropdown({
     switch (type) {
       case "projects":
         setSearch(item.title);
-        setNewTaskProject(item);
+        setNewEntryProject(item);
         setFiltered([]);
         break;
       case "workers":
         console.log(type);
         console.log(item.title, "item title");
 
-        setNewTaskAssignedUsers([...newTaskAssignedUsers, item]);
+        setNewEntryAssignedUsers([...newEntryAssignedUsers, item]);
         //Remove selected from data array
         const tmpData = data.filter((el) => el.title !== item.title);
 
@@ -61,7 +67,7 @@ function TasksDropdown({
         console.log(type);
         console.log(item.title, "item title");
         setSearch(item.title);
-        setNewTaskProjectManager(item);
+        setNewEntryProjectManager(item);
         setFiltered([]);
         break;
 
@@ -71,12 +77,12 @@ function TasksDropdown({
   };
 
   const removeTeamMember = (item) => {
-    const tmpTeam = newTaskAssignedUsers.filter(
+    const tmpTeam = newEntryAssignedUsers.filter(
       (el) => el.title !== item.title
     );
 
     console.log(tmpTeam, "===tmpTeam");
-    setNewTaskAssignedUsers(tmpTeam);
+    setNewEntryAssignedUsers(tmpTeam);
     setData([...data, item]);
     // console.log([...data, tmpTeam[index]]);
   };
@@ -102,7 +108,7 @@ function TasksDropdown({
           </ul>
         )}
       </div>
-      {newTaskAssignedUsers?.map((item, i) => {
+      {newEntryAssignedUsers?.map((item, i) => {
         {
           console.log(item);
         }
@@ -119,4 +125,4 @@ function TasksDropdown({
   );
 }
 
-export default TasksDropdown;
+export default DropdownSearch;

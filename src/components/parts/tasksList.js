@@ -11,7 +11,7 @@ import * as datahandler from "../../helpers/dataHandler";
 
 import { BsThreeDotsVertical } from "react-icons/bs";
 import { AiFillPlusCircle } from "react-icons/ai";
-import TasksDropdown from "./tasksDropdown";
+import DropdownSearch from "./dropdownSearch";
 
 import { Auth } from "../../context/AuthContext";
 
@@ -39,34 +39,6 @@ function TasksList(props) {
   const [update, setUpdate] = useState("");
 
   const authContext = useContext(Auth);
-
-  //DND
-  const initialData = {
-    tasks: {},
-    columns: {
-      to_do: {
-        id: "to_do",
-        title: "To do",
-        taskIds: [],
-      },
-      in_progress: {
-        id: "in_progress",
-        title: "In Progress",
-        taskIds: [],
-      },
-      in_review: {
-        id: "in_review",
-        title: "In Review",
-        taskIds: [],
-      },
-      done: {
-        id: "done",
-        title: "Done",
-        taskIds: [],
-      },
-    },
-    columnOrder: ["to_do", "in_progress", "in_review", "done"],
-  };
 
   // Drag and drop state
   const [state, setState] = useState({});
@@ -419,10 +391,10 @@ function TasksList(props) {
                         ></input>
                         <p>Project</p>
                         {console.log(projectTitles, "projectTitles")}
-                        <TasksDropdown
+                        <DropdownSearch
                           items={projectTitles}
                           type="projects"
-                          setNewTaskProject={setNewTaskProject}
+                          setNewEntryProject={setNewTaskProject}
                         />
                         <p>Description</p>
                         <textarea
@@ -433,17 +405,17 @@ function TasksList(props) {
                           placeholder="Description"
                         ></textarea>
                         <p>Project Manager</p>
-                        <TasksDropdown
+                        <DropdownSearch
                           items={projectManagers}
                           type="project_managers"
-                          setNewTaskProjectManager={setNewTaskProjectManager}
+                          setNewEntryProjectManager={setNewTaskProjectManager}
                         />
                         <p>Team</p>
-                        <TasksDropdown
+                        <DropdownSearch
                           items={workers}
                           type="workers"
-                          setNewTaskAssignedUsers={setNewTaskAssignedUsers}
-                          newTaskAssignedUsers={newTaskAssignedUsers}
+                          setNewEntryAssignedUsers={setNewTaskAssignedUsers}
+                          newEntryAssignedUsers={newTaskAssignedUsers}
                         />
                         <p>Due Date</p>
                         <input

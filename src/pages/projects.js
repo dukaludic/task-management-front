@@ -3,7 +3,7 @@ import Sidebar from "../components/shared/sidebar";
 import { Container, Col, Row } from "react-bootstrap";
 import ProjectsList from "../components/parts/projectsList";
 
-import * as dataHandler from "../helpers/dataHandler";
+import * as datahandler from "../helpers/dataHandler";
 
 function Projects() {
   const [projects, setProjects] = useState([]);
@@ -11,7 +11,16 @@ function Projects() {
 
   useEffect(() => {
     (async () => {
-      const projects = await dataHandler.show("projects");
+      const projects = await datahandler.show("projects");
+      const users = [];
+      for (let i = 0; i < projects?.length; i++) {
+        for (let j = 0; j < projects[i].assigned_users.length; j++) {
+          const user = projects[i].assigned_users[j];
+          users.push(user);
+        }
+      }
+
+      console.log(users, "===users");
 
       //Calculate project progresses
       const projectProgresses = [];
