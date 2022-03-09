@@ -55,16 +55,13 @@ const Overview = () => {
             inReview.push(projects[i].tasks[j]);
 
             break;
-          case "done":
-            inReview.push(projects[i].tasks[j]);
-
-            break;
 
           default:
             break;
         }
       }
     }
+    console.log(inReview, "===inReview");
     setProjects(projects);
     setTodo(todo);
     setInProgress(inProgress);
@@ -137,13 +134,7 @@ const Overview = () => {
           break;
         case "in_review":
           inReview.push(project.tasks[j]);
-
           break;
-        case "done":
-          inReview.push(project.tasks[j]);
-
-          break;
-
         default:
           break;
       }
@@ -200,8 +191,8 @@ const Overview = () => {
           </Col>
         </Row>
       </Container>
-      <DashboardRecent events={events} />
-      <button onClick={() => console.log(context.state)}></button>
+      {/* <DashboardRecent events={events} /> */}
+      {/* <button onClick={() => console.log(context.state)}></button> */}
     </div>
   );
 };

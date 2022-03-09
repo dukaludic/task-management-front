@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 
 import { BsThreeDotsVertical } from "react-icons/bs";
@@ -8,6 +8,7 @@ import * as datahandler from "../../helpers/dataHandler";
 
 function DashboardReviews(props) {
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [inReview, setInReview] = useState([]);
 
   const toggle = () => {
     setDropdownOpen(!dropdownOpen);
@@ -15,13 +16,14 @@ function DashboardReviews(props) {
   };
 
   const optionsClick = async (option, task) => {
-    console.log(task);
+    console.log(option);
     let newStatus;
     switch (option) {
       case "Resolve":
         newStatus = "done";
         break;
       case "Send back":
+        console.log("send back");
         newStatus = "in_progress";
         break;
 
@@ -32,11 +34,14 @@ function DashboardReviews(props) {
       status: newStatus,
     });
 
+    console.log(updatedTask, "updatedTask");
+
     const tmpInReviewArr = props.inReview;
     const index = tmpInReviewArr.findIndex((i) => i.id === task.id);
     console.log(index, "i");
     tmpInReviewArr.splice(index, 1);
-    props.setInReview(tmpInReviewArr);
+    props.setInReview(props.inReview);
+    setInReview(props.inReview);
     console.log(tmpInReviewArr, "===tmpInReviewArr");
   };
 
@@ -71,7 +76,11 @@ function DashboardReviews(props) {
                 >
                   Resolve
                 </Dropdown.Item>
-                <Dropdown.Item>Send back</Dropdown.Item>
+                <Dropdown.Item
+                  onClick={(e) => optionsClick(e.target.innerHTML, task)}
+                >
+                  Send back
+                </Dropdown.Item>
               </Dropdown.Menu>
             </Dropdown>
           </div>

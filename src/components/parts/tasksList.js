@@ -44,28 +44,28 @@ function TasksList(props) {
   const initialData = {
     tasks: {},
     columns: {
-      "column-1": {
-        id: "column-1",
+      to_do: {
+        id: "to_do",
         title: "To do",
         taskIds: [],
       },
-      "column-2": {
-        id: "column-2",
+      in_progress: {
+        id: "in_progress",
         title: "In Progress",
         taskIds: [],
       },
-      "column-3": {
-        id: "column-3",
+      in_review: {
+        id: "in_review",
         title: "In Review",
         taskIds: [],
       },
-      "column-4": {
-        id: "column-4",
+      done: {
+        id: "done",
         title: "Done",
         taskIds: [],
       },
     },
-    columnOrder: ["column-1", "column-2", "column-3", "column-4"],
+    columnOrder: ["to_do", "in_progress", "in_review", "done"],
   };
 
   // Drag and drop state
@@ -86,28 +86,28 @@ function TasksList(props) {
       const sortedTasks = {
         tasks: {},
         columns: {
-          "column-1": {
-            id: "column-1",
+          to_do: {
+            id: "to_do",
             title: "To do",
             taskIds: [],
           },
-          "column-2": {
-            id: "column-2",
+          in_progress: {
+            id: "in_progress",
             title: "In Progress",
             taskIds: [],
           },
-          "column-3": {
-            id: "column-3",
+          in_review: {
+            id: "in_review",
             title: "In Review",
             taskIds: [],
           },
-          "column-4": {
-            id: "column-4",
+          done: {
+            id: "done",
             title: "Done",
             taskIds: [],
           },
         },
-        columnOrder: ["column-1", "column-2", "column-3", "column-4"],
+        columnOrder: ["to_do", "in_progress", "in_review", "done"],
       };
 
       console.log(tasks, "tasks");
@@ -118,16 +118,16 @@ function TasksList(props) {
         console.log(tasks[i].status);
         switch (tasks[i].status) {
           case "to_do":
-            sortedTasks.columns["column-1"].taskIds.push(tasks[i].id);
+            sortedTasks.columns["to_do"].taskIds.push(tasks[i].id);
             break;
           case "in_progress":
-            sortedTasks.columns["column-2"].taskIds.push(tasks[i].id);
+            sortedTasks.columns["in_progress"].taskIds.push(tasks[i].id);
             break;
           case "in_review":
-            sortedTasks.columns["column-3"].taskIds.push(tasks[i].id);
+            sortedTasks.columns["in_review"].taskIds.push(tasks[i].id);
             break;
           case "done":
-            sortedTasks.columns["column-4"].taskIds.push(tasks[i].id);
+            sortedTasks.columns["done"].taskIds.push(tasks[i].id);
             break;
 
           default:
@@ -257,22 +257,22 @@ function TasksList(props) {
     switch (status) {
       case "to_do":
         tmpTasksObj.tasks[taskObj.id] = taskObj;
-        tmpTasksObj.columns["column-1"].taskIds.push(taskObj.id);
+        tmpTasksObj.columns["to_do"].taskIds.push(taskObj.id);
         setState(tmpTasksObj);
         break;
       case "in_progress":
         tmpTasksObj.tasks[taskObj.id] = taskObj;
-        tmpTasksObj.columns["column-2"].taskIds.push(taskObj.id);
+        tmpTasksObj.columns["in_progress"].taskIds.push(taskObj.id);
         setState(tmpTasksObj);
         break;
       case "in_review":
         tmpTasksObj.tasks[taskObj.id] = taskObj;
-        tmpTasksObj.columns["column-3"].taskIds.push(taskObj.id);
+        tmpTasksObj.columns["in_review"].taskIds.push(taskObj.id);
         setState(tmpTasksObj);
         break;
       case "done":
         tmpTasksObj.tasks[taskObj.id] = taskObj;
-        tmpTasksObj.columns["column-4"].taskIds.push(taskObj.id);
+        tmpTasksObj.columns["done"].taskIds.push(taskObj.id);
         setState(tmpTasksObj);
         break;
 
@@ -366,6 +366,17 @@ function TasksList(props) {
         [newFinish.id]: newFinish,
       },
     };
+    console.log(draggableId, "draggable");
+
+    //API call to update
+    (async () => {
+      const droppedInto = finish.id;
+      const updateTaskRes = await datahandler.update("tasks", draggableId, {
+        status: droppedInto,
+      });
+      console.log(updateTaskRes, "updateTaskRes");
+    })();
+
     setState(newState);
   };
 
