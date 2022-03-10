@@ -42,7 +42,7 @@ const Overview = () => {
     const inProgress = [];
     const inReview = [];
     const nearDeadline = [];
-    const overDue = [];
+    const overdue = [];
 
     for (let i = 0; i < projects.length; i++) {
       for (let j = 0; j < projects[i].tasks.length; j++) {
@@ -66,8 +66,9 @@ const Overview = () => {
           default:
             break;
         }
-        if (!projects[i].tasks[j].due_date) continue;
-        if (dueDate < today) {
+        if (!projects[i].tasks[j].due_date) {
+          continue;
+        } else if (dueDate < today) {
           console.log(projects[i].tasks[j].title);
           overdue.push(projects[i].tasks[j]);
         } else if (dueDate < inSevenDays) {
@@ -76,7 +77,7 @@ const Overview = () => {
         }
       }
     }
-    console.log(overdue, nearDeadline, "overdue nearDeadline");
+    console.log(overdue, "overdue");
     setProjects(projects);
     setTodo(todo);
     setInProgress(inProgress);
@@ -84,7 +85,6 @@ const Overview = () => {
     setEvents(events);
     setOverdue(overdue);
     setNearDeadline(nearDeadline);
-    console.log(nearDeadline, "nearDeadline");
   };
 
   useEffect(() => {
@@ -140,7 +140,7 @@ const Overview = () => {
     const inProgress = [];
     const inReview = [];
     const nearDeadline = [];
-    const overDue = [];
+    const overdue = [];
 
     for (let j = 0; j < project.tasks.length; j++) {
       const dueDate = Date.parse(project.tasks[j].due_date);

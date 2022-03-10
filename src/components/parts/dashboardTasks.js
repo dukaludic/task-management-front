@@ -8,19 +8,19 @@ ChartJS.register(ArcElement, Tooltip, Legend);
 
 function DashboardTasks(props) {
   const [projectTitle, setProjectTitle] = useState("All Tasks");
-  // const [todo, setTodo] = useState(props.todo);
-  // const [inProgress, setInProgress] = useState(props.inProgress);
-  // const [inReview, setInReview] = useState(props.inReview);
-  // const [done, setDone] = useState(props.done);
-  // const [nearDeadline, setNearDeadline] = useState([]);
-  // const [overdue, setOverdue] = useState([]);
+  const [todo, setTodo] = useState(props.todo);
+  const [inProgress, setInProgress] = useState(props.inProgress);
+  const [inReview, setInReview] = useState(props.inReview);
+  const [done, setDone] = useState(props.done);
+  const [nearDeadline, setNearDeadline] = useState([]);
+  const [overdue, setOverdue] = useState([]);
 
-  //On load
-  // useEffect(() => {
-  //   setTodo(props.todo);
-  //   setInProgress(props.inProgress);
-  //   setInReview(props.inReview);
-  // }, []);
+  // On load
+  useEffect(() => {
+    setTodo(props.todo);
+    setInProgress(props.inProgress);
+    setInReview(props.inReview);
+  }, []);
 
   // On Change project
   // useEffect(() => {

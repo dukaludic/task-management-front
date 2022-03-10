@@ -1,9 +1,11 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import Sidebar from "../components/shared/sidebar";
 import { Container, Col, Row } from "react-bootstrap";
 import TasksList from "../components/parts/tasksList";
 
 import * as datahandler from "../helpers/dataHandler";
+
+import { Auth } from "../context/AuthContext";
 
 function Tasks() {
   const [tasks, setTasks] = useState([]);
@@ -12,10 +14,15 @@ function Tasks() {
   const [inReview, setInReview] = useState([]);
   const [done, setDone] = useState([]);
 
+  const authContext = useContext(Auth);
+
+  const { user } = authContext.state.data;
+
   useEffect(() => {
     console.log("refetch");
     (async () => {
-      const tasks = await datahandler.show("tasks");
+      const tasks = await datahandler.show(`tasks/user/${user.id}`);
+      console.log(tasks, "TASKS");
       setTasks(tasks);
     })();
   }, []);

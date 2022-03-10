@@ -39,6 +39,7 @@ function TasksList(props) {
   const [update, setUpdate] = useState("");
 
   const authContext = useContext(Auth);
+  const { user } = authContext.state.data;
 
   // Drag and drop state
   const [state, setState] = useState({});
@@ -51,9 +52,10 @@ function TasksList(props) {
   // };
 
   useEffect(async () => {
-    console.log(props.tasks, "tasks");
+    console.log(props.tasks, "tasks TASKS");
     (async () => {
-      const tasks = await datahandler.show("tasks");
+      // const tasks = props.tasks;
+      const tasks = await datahandler.show(`tasks/user/${user.id}`);
 
       const sortedTasks = {
         tasks: {},
@@ -82,7 +84,7 @@ function TasksList(props) {
         columnOrder: ["to_do", "in_progress", "in_review", "done"],
       };
 
-      console.log(tasks, "tasks");
+      // console.log(tasks, "tasks");
 
       for (let i = 0; i < tasks.length; i++) {
         sortedTasks.tasks[tasks[i].id] = tasks[i];

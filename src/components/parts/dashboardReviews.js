@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { Link } from "react-router-dom";
 
 import { BsThreeDotsVertical } from "react-icons/bs";
@@ -6,9 +6,16 @@ import Dropdown from "react-bootstrap/Dropdown";
 
 import * as datahandler from "../../helpers/dataHandler";
 
+import { Auth } from "../../context/AuthContext";
+
 function DashboardReviews(props) {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [inReview, setInReview] = useState([]);
+
+  const authContext = useContext(Auth);
+  const { user } = authContext.state.data;
+
+  console.log(user, "USER");
 
   const toggle = () => {
     setDropdownOpen(!dropdownOpen);
@@ -49,7 +56,7 @@ function DashboardReviews(props) {
 
   return (
     <div className="main-card">
-      <h3>Pending Reviews</h3>
+      <h3>Reviews</h3>
       {props.inReview.length === 0 && (
         <p>You currently have no pending reviews</p>
       )}
@@ -66,23 +73,27 @@ function DashboardReviews(props) {
               >{`${task.assigned_users[0].first_name} ${task.assigned_users[0].last_name}`}</span>
               <span style={{ fontSize: "11px" }}>4 Days ago</span>
             </div>
-            <Dropdown isOpen={true} toggle={toggle}>
-              <Dropdown.Toggle>
-                <BsThreeDotsVertical />
-              </Dropdown.Toggle>
-              <Dropdown.Menu>
-                <Dropdown.Item
-                  onClick={(e) => optionsClick(e.target.innerHTML, task)}
-                >
-                  Resolve
-                </Dropdown.Item>
-                <Dropdown.Item
-                  onClick={(e) => optionsClick(e.target.innerHTML, task)}
-                >
-                  Send back
-                </Dropdown.Item>
-              </Dropdown.Menu>
-            </Dropdown>
+            {user.role === "project_manager" ? (
+              <Dropdown isOpen={true} toggle={toggle}>
+                <Dropdown.Toggle>
+                  <BsThreeDotsVertical />
+                </Dropdown.Toggle>
+                <Dropdown.Menu>
+                  <Dropdown.Item
+                    onClick={(e) => optionsClick(e.target.innerHTML, task)}
+                  >
+                    Resolve
+                  </Dropdown.Item>
+                  <Dropdown.Item
+                    onClick={(e) => optionsClick(e.target.innerHTML, task)}
+                  >
+                    Send back
+                  </Dropdown.Item>
+                </Dropdown.Menu>
+              </Dropdown>
+            ) : (
+              <p>{`${task.approved ? `Approved` : `Pending`}`}</p>
+            )}
           </div>
         );
       })}
