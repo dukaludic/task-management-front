@@ -32,8 +32,8 @@ function DashboardTasks(props) {
 
   const data = {
     labels: [
-      "Overdue",
-      "Near Deadline",
+      `Overdue: ${props.overdue.length}`,
+      `Near Deadline: ${props.nearDeadline.length}`,
       `In Progress: ${props.inProgress.length}`,
       `To do: ${props.todo.length}`,
       `In Review ${props.inReview.length}`,
@@ -41,12 +41,11 @@ function DashboardTasks(props) {
     datasets: [
       {
         data: [
-          12,
-          19,
+          props.overdue.length,
+          props.nearDeadline.length,
           props.inProgress.length,
           props.todo.length,
           props.inReview.length,
-          3,
         ],
         backgroundColor: [
           "rgba(255, 99, 132, 0.6)",

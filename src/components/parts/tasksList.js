@@ -180,6 +180,7 @@ function TasksList(props) {
 
     const created_by = authContext.state.data.user.id;
     const creation_time = new Date();
+    const due_date = dueDate;
 
     const taskObj = {
       project_id,
@@ -189,6 +190,7 @@ function TasksList(props) {
       status,
       created_by,
       creation_time,
+      due_date,
     };
     const insertTaskRes = await datahandler.create("tasks", taskObj);
 

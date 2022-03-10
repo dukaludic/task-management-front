@@ -8,6 +8,7 @@ import DashboardProjectSummary from "../components/parts/dashboardProjectSummary
 import DashboardTasks from "../components/parts/dashboardTasks";
 import DashboardReviews from "../components/parts/dashboardReviews";
 import DashboardRecent from "../components/parts/dashboardRecent";
+import moment from "moment";
 
 import { Auth } from "../context/AuthContext";
 
@@ -30,10 +31,10 @@ const Overview = () => {
   const context = useContext(Auth);
 
   const sortProjectsData = (projects) => {
-    const today = new Date();
-    const sevenBefore = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
-
-    console.log(sevenBefore, today, "warningDay");
+    let today = Date.parse(new Date());
+    let inSevenDays = Date.parse(
+      new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+    );
 
     // sort tasks in state by status
     const tasks = [];
@@ -44,9 +45,10 @@ const Overview = () => {
     const overDue = [];
 
     for (let i = 0; i < projects.length; i++) {
-      console.log(i, "===i");
       for (let j = 0; j < projects[i].tasks.length; j++) {
+        const dueDate = Date.parse(projects[i].tasks[j].due_date);
         tasks.push(projects[i].tasks[j]);
+
         switch (projects[i].tasks[j].status) {
           case "to_do":
             todo.push(projects[i].tasks[j]);
@@ -64,14 +66,25 @@ const Overview = () => {
           default:
             break;
         }
+        if (!projects[i].tasks[j].due_date) continue;
+        if (dueDate < today) {
+          console.log(projects[i].tasks[j].title);
+          overdue.push(projects[i].tasks[j]);
+        } else if (dueDate < inSevenDays) {
+          console.log(projects[i].tasks[j].title);
+          nearDeadline.push(projects[i].tasks[j]);
+        }
       }
     }
-    console.log(inReview, "===inReview");
+    console.log(overdue, nearDeadline, "overdue nearDeadline");
     setProjects(projects);
     setTodo(todo);
     setInProgress(inProgress);
     setInReview(inReview);
     setEvents(events);
+    setOverdue(overdue);
+    setNearDeadline(nearDeadline);
+    console.log(nearDeadline, "nearDeadline");
   };
 
   useEffect(() => {
@@ -100,7 +113,6 @@ const Overview = () => {
           continue;
         }
 
-        console.log(done.length, projects[i].tasks.length, "===difference");
         projectProgress = Math.round(
           (done.length / projects[i].tasks.length) * 100
         );
@@ -116,9 +128,12 @@ const Overview = () => {
   };
 
   const changeProject = (project) => {
-    console.log(project, "project change project");
-
     // sort tasks in state by status
+
+    let today = Date.parse(new Date());
+    let inSevenDays = Date.parse(
+      new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+    );
 
     const tasks = [];
     const todo = [];
@@ -128,6 +143,7 @@ const Overview = () => {
     const overDue = [];
 
     for (let j = 0; j < project.tasks.length; j++) {
+      const dueDate = Date.parse(project.tasks[j].due_date);
       tasks.push(project.tasks[j]);
       switch (project.tasks[j].status) {
         case "to_do":
@@ -144,12 +160,20 @@ const Overview = () => {
         default:
           break;
       }
+      if (!project.tasks[j].due_date) continue;
+      if (dueDate < today) {
+        console.log(project.tasks[j].title);
+        overdue.push(project.tasks[j]);
+      } else if (dueDate < inSevenDays) {
+        console.log(project.tasks[j].title);
+        nearDeadline.push(project.tasks[j]);
+      }
     }
     setTodo(todo);
     setInProgress(inProgress);
     setInReview(inReview);
-
-    console.log(todo, inProgress, inReview);
+    setOverdue(overdue);
+    setNearDeadline(nearDeadline);
   };
 
   return (
@@ -182,6 +206,8 @@ const Overview = () => {
               todo={todo}
               inProgress={inProgress}
               inReview={inReview}
+              nearDeadline={nearDeadline}
+              overdue={overdue}
               changeProject={changeProject}
             />
           </Col>
@@ -198,7 +224,6 @@ const Overview = () => {
         </Row>
       </Container>
       {/* <DashboardRecent events={events} /> */}
-      {/* <button onClick={() => console.log(context.state)}></button> */}
     </div>
   );
 };
