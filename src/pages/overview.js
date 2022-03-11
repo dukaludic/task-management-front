@@ -23,12 +23,22 @@ const Overview = () => {
   const [projectProgresses, setProjectProgresses] = useState([]);
   const [events, setEvents] = useState([]);
 
+  const [userOnlyTasks, setUserOnlyTasks] = useState(false);
+
+  const [userTasks, setUserTasks] = useState([]);
+  const [userTodo, setUserTodo] = useState([]);
+  const [userInProgress, setUserInProgress] = useState([]);
+  const [userInReview, setUserInReview] = useState([]);
+  const [userNearDeadline, setUserNearDeadline] = useState([]);
+  const [userOverdue, setUserOverdue] = useState([]);
+
   //All Data
   const [allTasks, setAllTasks] = useState([]);
 
   const [isReset, callReset] = useState(false);
 
-  const context = useContext(Auth);
+  const authContext = useContext(Auth);
+  const { user } = authContext.state.data;
 
   const sortProjectsData = (projects) => {
     let today = Date.parse(new Date());
@@ -44,23 +54,81 @@ const Overview = () => {
     const nearDeadline = [];
     const overdue = [];
 
+    // Only active user tasks
+    const userTasks = [];
+    const userTodo = [];
+    const userInProgress = [];
+    const userInReview = [];
+    const userNearDeadline = [];
+    const userOverdue = [];
+
     for (let i = 0; i < projects.length; i++) {
       for (let j = 0; j < projects[i].tasks.length; j++) {
+        //If only active user tasks are enabled otherwise whole project
+        // if (userOnlyTasks === "user") {
+        //   //if user doesn't exist in this task's assigned users array
+        //   if (!projects[i].tasks[j].assigned_users.includes(user.id)) {
+        //     continue;
+        //   }
+        // }
+
         const dueDate = Date.parse(projects[i].tasks[j].due_date);
         tasks.push(projects[i].tasks[j]);
+
+        console.log(projects[i].tasks[j].assigned_users, "TEST USERTASKS");
 
         switch (projects[i].tasks[j].status) {
           case "to_do":
             todo.push(projects[i].tasks[j]);
 
+            if (
+              projects[i].tasks[j].assigned_users.some(
+                (el) => el.username === user.username
+              )
+            ) {
+              userTodo.push(projects[i].tasks[j]);
+            }
+
             break;
           case "in_progress":
             inProgress.push(projects[i].tasks[j]);
+
+            if (
+              projects[i].tasks[j].assigned_users.some(
+                (el) => el.username === user.username
+              )
+            ) {
+              userInProgress.push(projects[i].tasks[j]);
+            }
 
             break;
           case "in_review":
             inReview.push(projects[i].tasks[j]);
 
+            if (
+              projects[i].tasks[j].assigned_users.some(
+                (el) => el.username === user.username
+              )
+            ) {
+              userInReview.push(projects[i].tasks[j]);
+            }
+
+            break;
+          case "done":
+            if (
+              user.role === "worker" &&
+              projects[i].tasks[j].still_visible_to_worker
+            ) {
+              inReview.push(projects[i].tasks[j]);
+
+              if (
+                projects[i].tasks[j].assigned_users.some(
+                  (el) => el.username === user.username
+                )
+              ) {
+                userInReview.push(projects[i].tasks[j]);
+              }
+            }
             break;
 
           default:
@@ -71,9 +139,26 @@ const Overview = () => {
         } else if (dueDate < today) {
           console.log(projects[i].tasks[j].title);
           overdue.push(projects[i].tasks[j]);
+
+          if (
+            projects[i].tasks[j].assigned_users.some(
+              (el) => el.username === user.username
+            )
+          ) {
+            userOverdue.push(projects[i].tasks[j]);
+          }
         } else if (dueDate < inSevenDays) {
           console.log(projects[i].tasks[j].title);
+
           nearDeadline.push(projects[i].tasks[j]);
+
+          if (
+            projects[i].tasks[j].assigned_users.some(
+              (el) => el.username === user.username
+            )
+          ) {
+            userNearDeadline.push(projects[i].tasks[j]);
+          }
         }
       }
     }
@@ -85,15 +170,23 @@ const Overview = () => {
     setEvents(events);
     setOverdue(overdue);
     setNearDeadline(nearDeadline);
+
+    console.log(userTodo, "userTodo");
+
+    setUserTodo(userTodo);
+    setUserInProgress(userInProgress);
+    setUserInReview(userInReview);
+    setUserOverdue(userOverdue);
+    setUserNearDeadline(userNearDeadline);
   };
 
   useEffect(() => {
     (async () => {
       const projects = await dataHandler.show(
-        `projects/user/${context.state.data.user.id}`
+        `projects/user/${authContext.state.data.user.id}`
       );
       const events = await dataHandler.show(
-        `events/user/${context.state.data.user.id}`
+        `events/user/${authContext.state.data.user.id}`
       );
 
       sortProjectsData(projects);
@@ -127,6 +220,11 @@ const Overview = () => {
     sortProjectsData(projects);
   };
 
+  const toggleUserProjectTasks = () => {
+    console.log("roggle");
+    setUserOnlyTasks(!userOnlyTasks);
+  };
+
   const changeProject = (project) => {
     // sort tasks in state by status
 
@@ -142,6 +240,12 @@ const Overview = () => {
     const nearDeadline = [];
     const overdue = [];
 
+    const userTodo = [];
+    const userInProgress = [];
+    const userInReview = [];
+    const userNearDeadline = [];
+    const userOverdue = [];
+
     for (let j = 0; j < project.tasks.length; j++) {
       const dueDate = Date.parse(project.tasks[j].due_date);
       tasks.push(project.tasks[j]);
@@ -149,24 +253,80 @@ const Overview = () => {
         case "to_do":
           todo.push(project.tasks[j]);
 
+          if (
+            project.tasks[j].assigned_users.some(
+              (el) => el.username === user.username
+            )
+          ) {
+            userTodo.push(project.tasks[j]);
+          }
+
           break;
         case "in_progress":
           inProgress.push(project.tasks[j]);
 
+          if (
+            project.tasks[j].assigned_users.some(
+              (el) => el.username === user.username
+            )
+          ) {
+            userInProgress.push(project.tasks[j]);
+          }
+
           break;
         case "in_review":
           inReview.push(project.tasks[j]);
+
+          if (
+            project.tasks[j].assigned_users.some(
+              (el) => el.username === user.username
+            )
+          ) {
+            userInReview.push(project.tasks[j]);
+          }
+
+          break;
+
+        case "done":
+          if (
+            user.role === "worker" &&
+            project.tasks[j].still_visible_to_worker
+          ) {
+            inReview.push(project.tasks[j]);
+
+            if (
+              project.tasks[j].assigned_users.some(
+                (el) => el.username === user.username
+              )
+            ) {
+              userInReview.push(project.tasks[j]);
+            }
+          }
           break;
         default:
           break;
       }
       if (!project.tasks[j].due_date) continue;
       if (dueDate < today) {
-        console.log(project.tasks[j].title);
         overdue.push(project.tasks[j]);
+
+        if (
+          project.tasks[j].assigned_users.some(
+            (el) => el.username === user.username
+          )
+        ) {
+          userOverdue.push(project.tasks[j]);
+        }
       } else if (dueDate < inSevenDays) {
-        console.log(project.tasks[j].title);
         nearDeadline.push(project.tasks[j]);
+
+        if (
+          project.tasks[j].assigned_users.some(
+            (el) => el.username === user.username
+          )
+        ) {
+          userNearDeadline.push(project.tasks[j]);
+        }
       }
     }
     setTodo(todo);
@@ -174,6 +334,12 @@ const Overview = () => {
     setInReview(inReview);
     setOverdue(overdue);
     setNearDeadline(nearDeadline);
+
+    setUserTodo(userTodo);
+    setUserInProgress(userInProgress);
+    setUserInReview(userInReview);
+    setUserOverdue(userOverdue);
+    setUserNearDeadline(userNearDeadline);
   };
 
   return (
@@ -200,15 +366,18 @@ const Overview = () => {
         </Row>
         <Row style={{ marginTop: "20px" }}>
           <Col lg={6}>
+            <p onClick={toggleUserProjectTasks}>user/project</p>
             <DashboardTasks
               projects={projects}
               projectProgresses={projectProgresses}
-              todo={todo}
-              inProgress={inProgress}
-              inReview={inReview}
-              nearDeadline={nearDeadline}
-              overdue={overdue}
+              todo={userOnlyTasks ? userTodo : todo}
+              inProgress={userOnlyTasks ? userInProgress : inProgress}
+              inReview={userOnlyTasks ? userInReview : inReview}
+              nearDeadline={userOnlyTasks ? userNearDeadline : nearDeadline}
+              overdue={userOnlyTasks ? userOverdue : overdue}
               changeProject={changeProject}
+              userOnlyTasks={userOnlyTasks}
+              setUserOnlyTasks={setUserOnlyTasks}
             />
           </Col>
           <Col lg={6}>
@@ -217,8 +386,10 @@ const Overview = () => {
               projectProgresses={projectProgresses}
               todo={todo}
               inProgress={inProgress}
-              inReview={inReview}
+              inReview={userOnlyTasks ? userInReview : inReview}
+              userInReview={userInReview}
               setInReview={setInReview}
+              setUserInReview={setUserInReview}
             />
           </Col>
         </Row>

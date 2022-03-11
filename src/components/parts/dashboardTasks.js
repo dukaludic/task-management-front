@@ -58,9 +58,19 @@ function DashboardTasks(props) {
     ],
   };
 
+  const toggleUserProjectTasks = () => {
+    if (props.userProjectTasks === "user") {
+      props.setUserProjectTasks("project");
+    } else if (props.userProjectTasks === "project") {
+      props.setUserProjectTasks("user");
+    }
+  };
+
   return (
     <div className="main-card">
       <h3>Tasks</h3>
+      <p onClick={toggleUserProjectTasks}>Mine/Project</p>
+
       {projectTitle !== "All Tasks" && <p>All Tasks</p>}
 
       <div className="d-flex justify-content-between">

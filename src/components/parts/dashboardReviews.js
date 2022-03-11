@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useContext } from "react";
 import { Link } from "react-router-dom";
+import moment from "moment";
 
 import { BsThreeDotsVertical } from "react-icons/bs";
 import Dropdown from "react-bootstrap/Dropdown";
@@ -15,44 +16,57 @@ function DashboardReviews(props) {
   const authContext = useContext(Auth);
   const { user } = authContext.state.data;
 
-  console.log(user, "USER");
-
   const toggle = () => {
     setDropdownOpen(!dropdownOpen);
-    console.log("toggle");
   };
 
   const optionsClick = async (option, task) => {
-    console.log(option);
     let newStatus;
     switch (option) {
       case "Resolve":
         newStatus = "done";
         break;
       case "Send back":
-        console.log("send back");
         newStatus = "in_progress";
         break;
 
       default:
         break;
     }
+
+    console.log(user.id);
+
     const updatedTask = await datahandler.update("tasks", task.id, {
       status: newStatus,
+      approved: true,
+      approved_by: user.id,
+      time_approved: new Date(),
+      still_visible_to_worker: true,
     });
-
-    console.log(updatedTask, "updatedTask");
 
     const tmpInReviewArr = props.inReview;
     const index = tmpInReviewArr.findIndex((i) => i.id === task.id);
-    console.log(index, "i");
+
     tmpInReviewArr.splice(index, 1);
     props.setInReview(props.inReview);
     setInReview(props.inReview);
-    console.log(tmpInReviewArr, "===tmpInReviewArr");
   };
 
   const options = ["one", "two", "three"];
+
+  const setNotVisibleToWorker = async (id) => {
+    const updatedTask = await datahandler.update("tasks", id, {
+      still_visible_to_worker: false,
+    });
+
+    const tmpUserInReviewArr = props.userInReview.filter((el) => el.id !== id);
+    const tmpInReviewArr = props.inReview.filter((el) => el.id !== id);
+
+    props.setUserInReview(tmpUserInReviewArr);
+    props.setInReview(tmpInReviewArr);
+
+    console.log(tmpInReviewArr, "tmpInReviewArr");
+  };
 
   return (
     <div className="main-card">
@@ -67,11 +81,23 @@ function DashboardReviews(props) {
               <Link to={`/task/${task.id}`}>
                 <p>{task.title}</p>
               </Link>
-
+              {task.approved && (
+                <>
+                  <p onClick={() => setNotVisibleToWorker(task.id)}>X</p>
+                  <p>
+                    {`${task.approved_by.first_name} ${task.approved_by.last_name}`}{" "}
+                    {moment(task.time_approved).format("MMM Do YY")}
+                  </p>
+                </>
+              )}
               <span
                 style={{ fontSize: "11px" }}
               >{`${task.assigned_users[0].first_name} ${task.assigned_users[0].last_name}`}</span>
-              <span style={{ fontSize: "11px" }}>4 Days ago</span>
+              <span style={{ fontSize: "11px" }}>
+                {user.role === "project_manager"
+                  ? moment(task.time_sent_to_review).format("MMM Do YY")
+                  : moment(task.time_approved).format("MMM Do YY")}
+              </span>
             </div>
             {user.role === "project_manager" ? (
               <Dropdown isOpen={true} toggle={toggle}>
@@ -92,7 +118,9 @@ function DashboardReviews(props) {
                 </Dropdown.Menu>
               </Dropdown>
             ) : (
-              <p>{`${task.approved ? `Approved` : `Pending`}`}</p>
+              <>
+                <p>{`${task.approved ? `Approved` : `Pending`}`}</p>
+              </>
             )}
           </div>
         );
