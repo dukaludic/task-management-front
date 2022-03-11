@@ -164,7 +164,12 @@ function TasksList(props) {
     for (let i = 0; i < newTaskAssignedUsers.length; i++) {
       assigned_users.push(newTaskAssignedUsers[i].id);
     }
-    const project_manager_id = newTaskProjectManager.id;
+
+    const project = await datahandler.show(`projects/basic/${project_id}`);
+
+    console.log(project.project_manager, "project_manager_id");
+
+    const project_manager_id = project.project_manager;
 
     function toSnakeCase(str) {
       return (
@@ -342,16 +347,46 @@ function TasksList(props) {
         [newFinish.id]: newFinish,
       },
     };
-    console.log(draggableId, "draggable");
+    console.log(state.tasks, "NEWSTATE");
 
-    //API call to update
+    const task = state.tasks[draggableId];
+
     (async () => {
+      const project = await datahandler.show(
+        `projects/basic/${task.project_id}`
+      );
+
+      console.log(task, "TASK");
+      console.log(project, "projectBasic");
+
+      const reviewObj = {
+        task_id: draggableId,
+        approval: "pending",
+        project_id: task.project_id,
+        reviewed_by: project.project_manager,
+        sent_to_review_time: new Date(),
+        assignee_id: user.id,
+      };
+
       const droppedInto = finish.id;
-      const updateTaskRes = await datahandler.update("tasks", draggableId, {
+
+      const updateTask = await datahandler.update("tasks", draggableId, {
         status: droppedInto,
       });
-      console.log(updateTaskRes, "updateTaskRes");
+      if (droppedInto === "in_review") {
+        const createReview = await datahandler.create("reviews", reviewObj);
+      }
+      if (start.id === "in_review") {
+        // remove from database that review
+      }
     })();
+
+    //API call to update
+    // (async () => {
+    //   const droppedInto = finish.id;
+    //   const createReview = await datahandler.update("reviews", draggableId);
+    //   console.log(updateTaskRes, "updateTaskRes");
+    // })();
 
     setState(newState);
   };
@@ -408,12 +443,12 @@ function TasksList(props) {
                           }
                           placeholder="Description"
                         ></textarea>
-                        <p>Project Manager</p>
-                        <DropdownSearch
+                        {/* <p>Project Manager</p> */}
+                        {/* <DropdownSearch
                           items={projectManagers}
                           type="project_managers"
                           setNewEntryProjectManager={setNewTaskProjectManager}
-                        />
+                        /> */}
                         <p>Team</p>
                         <DropdownSearch
                           items={workers}

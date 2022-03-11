@@ -20,13 +20,16 @@ function DashboardReviews(props) {
     setDropdownOpen(!dropdownOpen);
   };
 
-  const optionsClick = async (option, task) => {
+  const reviewOptionSelect = async (option, review) => {
     let newStatus;
+    let approval;
     switch (option) {
       case "Resolve":
+        approval = "approved";
         newStatus = "done";
         break;
       case "Send back":
+        approval = "rejected";
         newStatus = "in_progress";
         break;
 
@@ -34,69 +37,75 @@ function DashboardReviews(props) {
         break;
     }
 
-    console.log(user.id);
+    console.log(review, "review");
 
-    const updatedTask = await datahandler.update("tasks", task.id, {
-      status: newStatus,
-      approved: true,
-      approved_by: user.id,
-      time_approved: new Date(),
-      still_visible_to_worker: true,
+    const updatedReview = await datahandler.update("reviews", review.id, {
+      approval: approval,
+      reviewed_by: user.id,
+      time_reviewed: new Date(),
     });
 
-    const tmpInReviewArr = props.inReview;
-    const index = tmpInReviewArr.findIndex((i) => i.id === task.id);
+    const updatedTask = await datahandler.update("tasks", review.task.id, {
+      status: newStatus,
+    });
 
-    tmpInReviewArr.splice(index, 1);
-    props.setInReview(props.inReview);
-    setInReview(props.inReview);
+    const tmpReviewsArr = props.reviews.filter((item) => item.id !== review.id);
+    const tmpUserReviewsArr = props.userReviews.filter(
+      (item) => item.id !== review.id
+    );
+
+    props.setReviews(tmpReviewsArr);
+    props.setUserReviews(tmpUserReviewsArr);
+
+    // tmpInReviewArr.splice(index, 1);
+    // props.setInReview(props.inReview);
+    // setInReview(props.inReview);
   };
 
-  const options = ["one", "two", "three"];
+  const removeReview = async (id) => {
+    const deletedReview = await datahandler.deleteItem("reviews", id);
 
-  const setNotVisibleToWorker = async (id) => {
-    const updatedTask = await datahandler.update("tasks", id, {
-      still_visible_to_worker: false,
-    });
+    const tmpReviewsArr = props.reviews.filter((item) => item.id !== id);
+    const tmpUserReviewsArr = props.userReviews.filter(
+      (item) => item.id !== id
+    );
 
-    const tmpUserInReviewArr = props.userInReview.filter((el) => el.id !== id);
-    const tmpInReviewArr = props.inReview.filter((el) => el.id !== id);
+    props.setReviews(tmpReviewsArr);
+    props.setUserReviews(tmpUserReviewsArr);
 
-    props.setUserInReview(tmpUserInReviewArr);
-    props.setInReview(tmpInReviewArr);
-
-    console.log(tmpInReviewArr, "tmpInReviewArr");
+    console.log(tmpReviewsArr, "tmpReviewsArr");
   };
 
   return (
     <div className="main-card">
       <h3>Reviews</h3>
-      {props.inReview.length === 0 && (
+      {props.reviews.length === 0 && (
         <p>You currently have no pending reviews</p>
       )}
-      {props.inReview.map((task) => {
+      {props.reviews.map((review) => {
         return (
           <div className="d-flex justify-content-between align-items-center">
             <div>
-              <Link to={`/task/${task.id}`}>
-                <p>{task.title}</p>
+              <Link to={`/task/${review.task.id}`}>
+                <p>{review.task.title}</p>
               </Link>
-              {task.approved && (
+              {(review.approval === "approved" ||
+                review.approval === "rejected") && (
                 <>
-                  <p onClick={() => setNotVisibleToWorker(task.id)}>X</p>
+                  <p onClick={() => removeReview(review.id)}>X</p>
                   <p>
-                    {`${task.approved_by.first_name} ${task.approved_by.last_name}`}{" "}
-                    {moment(task.time_approved).format("MMM Do YY")}
+                    {`${review.reviewed_by.first_name} ${review.reviewed_by.last_name}`}{" "}
+                    {moment(review.time_reviewed).format("MMM Do YY")}
                   </p>
                 </>
               )}
-              <span
+              {/* <span
                 style={{ fontSize: "11px" }}
-              >{`${task.assigned_users[0].first_name} ${task.assigned_users[0].last_name}`}</span>
+              >{`${task.assigned_users[0].first_name} ${task.assigned_users[0].last_name}`}</span> */}
               <span style={{ fontSize: "11px" }}>
                 {user.role === "project_manager"
-                  ? moment(task.time_sent_to_review).format("MMM Do YY")
-                  : moment(task.time_approved).format("MMM Do YY")}
+                  ? moment(review.time_sent_to_review).format("MMM Do YY")
+                  : moment(review.time_reviewed).format("MMM Do YY")}
               </span>
             </div>
             {user.role === "project_manager" ? (
@@ -106,12 +115,16 @@ function DashboardReviews(props) {
                 </Dropdown.Toggle>
                 <Dropdown.Menu>
                   <Dropdown.Item
-                    onClick={(e) => optionsClick(e.target.innerHTML, task)}
+                    onClick={(e) =>
+                      reviewOptionSelect(e.target.innerHTML, review)
+                    }
                   >
                     Resolve
                   </Dropdown.Item>
                   <Dropdown.Item
-                    onClick={(e) => optionsClick(e.target.innerHTML, task)}
+                    onClick={(e) =>
+                      reviewOptionSelect(e.target.innerHTML, review)
+                    }
                   >
                     Send back
                   </Dropdown.Item>
@@ -119,7 +132,7 @@ function DashboardReviews(props) {
               </Dropdown>
             ) : (
               <>
-                <p>{`${task.approved ? `Approved` : `Pending`}`}</p>
+                <p>{`${review.approval}`}</p>
               </>
             )}
           </div>

@@ -13,6 +13,20 @@ const Container = styled.div`
   background-color: white;
 `;
 
+const checkUrgency = (task) => {
+  const today = Date.parse(new Date());
+  const inSevenDays = Date.parse(
+    new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+  );
+  const dueDate = Date.parse(task.due_date);
+
+  if (dueDate < today) {
+    return "OVERDUE";
+  } else if (dueDate < inSevenDays) {
+    return "NEAR DEADLINE";
+  }
+};
+
 function TaskItem(props) {
   return (
     <Draggable draggableId={props.task.id} index={props.index}>
@@ -36,7 +50,7 @@ function TaskItem(props) {
               >
                 <span>John Doe </span>
                 <span>6 days ago</span>
-                <div className="task-flag">OVERDUE</div>
+                <div className="task-flag">{checkUrgency(props.task)}</div>
               </div>
               <div>{props.task.description}</div>
             </div>

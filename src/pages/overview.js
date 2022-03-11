@@ -32,6 +32,10 @@ const Overview = () => {
   const [userNearDeadline, setUserNearDeadline] = useState([]);
   const [userOverdue, setUserOverdue] = useState([]);
 
+  // Reviews (not tasks in review)
+  const [reviews, setReviews] = useState([]);
+  const [userReviews, setUserReviews] = useState([]);
+
   //All Data
   const [allTasks, setAllTasks] = useState([]);
 
@@ -45,6 +49,8 @@ const Overview = () => {
     let inSevenDays = Date.parse(
       new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
     );
+
+    console.log(projects, "PROJECTS");
 
     // sort tasks in state by status
     const tasks = [];
@@ -81,9 +87,11 @@ const Overview = () => {
           case "to_do":
             todo.push(projects[i].tasks[j]);
 
+            console.log(projects[i].tasks[j].assigned_users, "USER");
+
             if (
               projects[i].tasks[j].assigned_users.some(
-                (el) => el.username === user.username
+                (el) => el.id === user.id
               )
             ) {
               userTodo.push(projects[i].tasks[j]);
@@ -114,22 +122,22 @@ const Overview = () => {
             }
 
             break;
-          case "done":
-            if (
-              user.role === "worker" &&
-              projects[i].tasks[j].still_visible_to_worker
-            ) {
-              inReview.push(projects[i].tasks[j]);
+          // case "done":
+          //   if (
+          //     user.role === "worker" &&
+          //     projects[i].tasks[j].still_visible_to_worker
+          //   ) {
+          //     inReview.push(projects[i].tasks[j]);
 
-              if (
-                projects[i].tasks[j].assigned_users.some(
-                  (el) => el.username === user.username
-                )
-              ) {
-                userInReview.push(projects[i].tasks[j]);
-              }
-            }
-            break;
+          //     if (
+          //       projects[i].tasks[j].assigned_users.some(
+          //         (el) => el.username === user.username
+          //       )
+          //     ) {
+          //       userInReview.push(projects[i].tasks[j]);
+          //     }
+          //   }
+          //   break;
 
           default:
             break;
@@ -188,6 +196,14 @@ const Overview = () => {
       const events = await dataHandler.show(
         `events/user/${authContext.state.data.user.id}`
       );
+
+      const reviews = await dataHandler.show(
+        `reviews/user/${authContext.state.data.user.id}`
+      );
+
+      console.log(reviews, "reviews");
+
+      setReviews(reviews);
 
       sortProjectsData(projects);
 
@@ -287,22 +303,22 @@ const Overview = () => {
 
           break;
 
-        case "done":
-          if (
-            user.role === "worker" &&
-            project.tasks[j].still_visible_to_worker
-          ) {
-            inReview.push(project.tasks[j]);
+        // case "done":
+        //   if (
+        //     user.role === "worker" &&
+        //     project.tasks[j].still_visible_to_worker
+        //   ) {
+        //     inReview.push(project.tasks[j]);
 
-            if (
-              project.tasks[j].assigned_users.some(
-                (el) => el.username === user.username
-              )
-            ) {
-              userInReview.push(project.tasks[j]);
-            }
-          }
-          break;
+        //     if (
+        //       project.tasks[j].assigned_users.some(
+        //         (el) => el.username === user.username
+        //       )
+        //     ) {
+        //       userInReview.push(project.tasks[j]);
+        //     }
+        //   }
+        //   break;
         default:
           break;
       }
@@ -390,6 +406,10 @@ const Overview = () => {
               userInReview={userInReview}
               setInReview={setInReview}
               setUserInReview={setUserInReview}
+              reviews={reviews}
+              setReviews={setReviews}
+              userReviews={userReviews}
+              setUserReviews={setUserReviews}
             />
           </Col>
         </Row>
