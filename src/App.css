@@ -68,7 +68,7 @@
 .task-flag {
   height: 20px;
   border-radius: 5px;
-  width: 50px;
+  padding: 2px;
   border: 1px solid #903636;
   color: #903636;
   font-size: 10px;
@@ -213,6 +213,24 @@
   border-style: dashed;
   background-color: #fafafa;
   height: 300px;
+  color: #bdbdbd;
+  outline: none;
+  transition: border 0.24s ease-in-out;
+}
+
+.dropzone-task {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+  border-width: 2;
+  border-radius: 2;
+  border-color: #eeeeee;
+  border-style: dashed;
+  background-color: #fafafa;
+  height: 150px;
+  width: 150px;
   color: #bdbdbd;
   outline: none;
   transition: border 0.24s ease-in-out;

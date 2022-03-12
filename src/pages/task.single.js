@@ -6,31 +6,50 @@ import * as dataHandler from "../helpers/dataHandler";
 
 import { useDropzone } from "react-dropzone";
 
+import * as datahandler from "../helpers/dataHandler";
+
 function TaskSingle() {
   const { id } = useParams();
-  const [task, settask] = useState("");
+  const [task, setTask] = useState("");
   const [taskProgress, setTaskProgress] = useState(0);
+  const [subTasks, setSubTasks] = useState([]);
+  const [addSubTaskOpen, setAddSubTaskOpen] = useState(false);
+  const [subTaskContent, setSubTaskContent] = useState("");
+
+  const calcTaskProgress = (subTasks) => {
+    console.log("calcTaskProgress");
+    if (subTasks.length < 1) {
+      return;
+    }
+    const done = [];
+    let taskProgress = 0;
+    console.log("subTasks", subTasks);
+    for (let i = 0; i < subTasks.length; i++) {
+      console.log(subTasks[i].done, "subtasks[]done");
+      if (subTasks[i].done) {
+        done.push(subTasks[i]);
+      }
+    }
+    console.log(done, "done");
+    if (done.length < 1) {
+      taskProgress = 0;
+    }
+
+    taskProgress = Math.round((done.length / subTasks.length) * 100);
+    console.log(taskProgress, "taskProgress");
+    setTaskProgress(taskProgress);
+  };
 
   useEffect(() => {
     (async () => {
       const task = await dataHandler.showSingle("tasks", id);
-      settask(task);
+      setTask(task);
 
-      //Calc task progress
+      setSubTasks(task.sub_tasks);
 
-      const done = [];
-      let taskProgress = 0;
-      for (let i = 0; i < task.sub_tasks.length; i++) {
-        if (task.sub_tasks[i].status === "done") {
-          done.push(task.sub_tasks[i]);
-        }
-      }
-      if (done.length < 1) {
-        taskProgress = 0;
-      }
+      calcTaskProgress(task.sub_tasks);
 
-      taskProgress = Math.round((done.length / task.sub_tasks.length) * 100);
-      setTaskProgress(taskProgress);
+      console.log(task, "TASK");
     })();
   }, []);
 
@@ -46,13 +65,52 @@ function TaskSingle() {
       <div {...getRootProps()}>
         <input {...getInputProps()} />
         {isDragActive ? (
-          <p>Drop the files here ...</p>
+          <div className="dropzone-task">Drop the files here ...</div>
         ) : (
-          <p>Drag 'n' drop some files here, or click to select files</p>
+          <div className="dropzone-task">
+            Drag 'n' drop some files here, or click to select files
+          </div>
         )}
       </div>
     );
   }
+
+  useEffect(() => {
+    console.log("use effect");
+    calcTaskProgress(subTasks);
+  }, [subTasks]);
+
+  const addSubTask = async () => {
+    const subTaskObj = {
+      task_id: id,
+      content: subTaskContent,
+      done: false,
+    };
+
+    console.log(subTaskObj, "subTaskObj");
+
+    const createSubTaskRes = await datahandler.create("subtasks", subTaskObj);
+
+    console.log(createSubTaskRes, "createSubTaskRes");
+
+    subTaskObj.id = createSubTaskRes.id;
+
+    console.log(task, "task asd");
+    // calcTaskProgress(subTasks);
+    setSubTasks([subTaskObj, ...subTasks]);
+  };
+
+  const subTaskCheck = (index, isChecked) => {
+    console.log("subtaskchecke");
+    const tmpSubTasksArr = subTasks;
+
+    tmpSubTasksArr[index].done = !isChecked;
+
+    console.log(tmpSubTasksArr[index], "tmpSubTasksArr");
+    console.log(tmpSubTasksArr, "tmpSubTasksArr");
+
+    setSubTasks(tmpSubTasksArr);
+  };
 
   return (
     <div className="d-flex">
@@ -60,6 +118,8 @@ function TaskSingle() {
         <Row>
           <p>Task</p>
           <h1>{task?.title}</h1>
+          {console.log(subTasks, "subTasks . lenght")}
+          {subTasks?.length > 0 && <div>{taskProgress}</div>}
           <p>{task?.status}</p>
         </Row>
         <Row>
@@ -89,11 +149,32 @@ function TaskSingle() {
           <Col lg={4}>
             <div>
               <h3>Subtasks</h3>
-              {task &&
-                task?.sub_tasks.map((item) => {
+              {addSubTaskOpen && (
+                <div>
+                  <input
+                    value={subTaskContent}
+                    onChange={(e) => setSubTaskContent(e.target.value)}
+                    type="text"
+                    placeholder="Add an item"
+                  ></input>
+                  <button onClick={addSubTask}>Add</button>
+                </div>
+              )}
+              {!addSubTaskOpen && (
+                <button onClick={() => setAddSubTaskOpen(true)}>
+                  Add an item
+                </button>
+              )}
+              {console.log(subTasks[0])}
+              {subTasks &&
+                subTasks.map((item, index) => {
                   return (
                     <div className="d-flex">
-                      <input checked={item.status} type="checkbox"></input>
+                      <input
+                        onChange={() => subTaskCheck(index, item.done)}
+                        value={item.done}
+                        type="checkbox"
+                      ></input>
                       <p>{item.content}</p>
                     </div>
                   );

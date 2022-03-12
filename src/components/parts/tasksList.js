@@ -154,9 +154,6 @@ function TasksList(props) {
   }, [state]);
 
   const insertTask = async () => {
-    console.log("insert task");
-
-    console.log(props, "props");
     //Prepare objects as IDs
     const project_id = props.project?.id || newTaskProject.id;
     const title = newTaskTitle;
@@ -167,9 +164,8 @@ function TasksList(props) {
 
     const project = await datahandler.show(`projects/basic/${project_id}`);
 
-    console.log(project.project_manager, "project_manager_id");
-
     const project_manager_id = project.project_manager;
+    assigned_users.unshift(project_manager_id);
 
     function toSnakeCase(str) {
       return (
@@ -188,6 +184,7 @@ function TasksList(props) {
     const created_by = authContext.state.data.user.id;
     const creation_time = new Date();
     const due_date = dueDate;
+    const description = newTaskDescription;
 
     const taskObj = {
       project_id,
@@ -198,39 +195,30 @@ function TasksList(props) {
       created_by,
       creation_time,
       due_date,
+      description,
     };
     const insertTaskRes = await datahandler.create("tasks", taskObj);
 
     taskObj.id = insertTaskRes.id;
 
-    console.log(status, "newTaskType");
+    if (status === "in_review") {
+      (async () => {
+        const project = await datahandler.show(
+          `projects/basic/${taskObj.project_id}`
+        );
 
-    // const initialData = {
-    //   tasks: {},
-    //   columns: {
-    //     "column-1": {
-    //       id: "column-1",
-    //       title: "To do",
-    //       taskIds: [],
-    //     },
-    //     "column-2": {
-    //       id: "column-2",
-    //       title: "In Progress",
-    //       taskIds: [],
-    //     },
-    //     "column-3": {
-    //       id: "column-3",
-    //       title: "In Review",
-    //       taskIds: [],
-    //     },
-    //     "column-4": {
-    //       id: "column-4",
-    //       title: "Done",
-    //       taskIds: [],
-    //     },
-    //   },
-    //   columnOrder: ["column-1", "column-2", "column-3", "column-4"],
-    // };
+        const reviewObj = {
+          task_id: taskObj.id,
+          approval: "pending",
+          project_id: taskObj.project_id,
+          reviewed_by: project.project_manager,
+          sent_to_review_time: new Date(),
+          assignee_id: user.id,
+        };
+
+        const createReview = await datahandler.create("reviews", reviewObj);
+      })();
+    }
 
     // Insert task in front end temp memory since I don't know how to refetch immediately
     const tmpTasksObj = state;
