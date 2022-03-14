@@ -414,7 +414,7 @@ const Overview = () => {
           </Col>
         </Row>
       </Container>
-      {/* <DashboardRecent events={events} /> */}
+      <DashboardRecent events={events} />
     </div>
   );
 };
