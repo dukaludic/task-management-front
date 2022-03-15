@@ -1,4 +1,10 @@
-import React, { useEffect, useState, useCallback, useRef } from "react";
+import React, {
+  useEffect,
+  useState,
+  useCallback,
+  useContext,
+  useRef,
+} from "react";
 import Sidebar from "../components/shared/sidebar";
 import { Container, Col, Row } from "react-bootstrap";
 import { useParams } from "react-router";
@@ -8,10 +14,12 @@ import { IoMdClose } from "react-icons/io";
 import Modal from "react-modal";
 
 import { useDropzone } from "react-dropzone";
+import moment from "moment";
 
 import * as datahandler from "../helpers/dataHandler";
 import DropdownSearch from "../components/parts/dropdownSearch";
 import TaskSingleTeamDropdown from "../components/parts/task.single.team.dropdown";
+import { Auth } from "../context/AuthContext";
 
 Modal.setAppElement("#root");
 
@@ -28,9 +36,7 @@ function TaskSingle() {
   const [editTitle, setEditTitle] = useState(false);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [allImages, setAllImages] = useState([]);
-  const [newImages, setNewImages] = useState([]);
-  const [imagesShown, setImagesShown] = useState([]);
+  const [uploadedImages, setUploadedImages] = useState([]);
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [modalImage, setModalImage] = useState("");
   const [status, setStatus] = useState("");
@@ -38,8 +44,8 @@ function TaskSingle() {
   const [assignedUsers, setAssignedUsers] = useState([]);
   const [projectUsers, setProjectUsers] = useState([]);
   const [hoveringOverImage, setHoveringOverImage] = useState(null);
-
-  const [newImageId, setNewImageId] = useState(0);
+  const [newComment, setNewComment] = useState("");
+  const [comments, setComments] = useState([]);
 
   const [, updateState] = useState();
   const forceUpdate = useCallback(() => updateState({}), []);
@@ -66,6 +72,10 @@ function TaskSingle() {
     setTaskProgress(taskProgress);
   };
 
+  const AuthContext = useContext(Auth);
+
+  const { user } = AuthContext.state.data;
+
   useEffect(() => {
     (async () => {
       const task = await dataHandler.showSingle("tasks", id);
@@ -77,6 +87,8 @@ function TaskSingle() {
       const uploadedImages = await datahandler.show(
         `imagesassigned/assignment_id/${id}`
       );
+
+      console.log(uploadedImages, "upload");
 
       const projectUsers = fetchedProjectUsers.map((user) => {
         return {
@@ -122,8 +134,7 @@ function TaskSingle() {
       setAssignedUsers(assignedUsers);
 
       setProjectUsers(projectUsers);
-      setAllImages(uploadedImages);
-      setImagesShown(imagesShown);
+      setUploadedImages(uploadedImages);
     })();
   }, []);
 
@@ -143,19 +154,27 @@ function TaskSingle() {
     });
   };
 
+  useEffect(() => {
+    console.log(uploadedImages, "uploadedImages");
+  }, [uploadedImages]);
+
   function MyDropzone() {
     const onDrop = useCallback((acceptedFiles) => {
       acceptedFiles.forEach((file) => {
-        getBase64(file).then((data) => {
-          setAllImages((prevState) => [
+        getBase64(file).then(async (data) => {
+          const uploadedImageRes = await datahandler.create("images", {
+            base_64: data,
+          });
+
+          const createImageAssigned = await datahandler.create(
+            "imagesassigned",
+            { assignment_id: task.id, image_id: uploadedImageRes.id }
+          );
+
+          setUploadedImages((prevState) => [
             ...prevState,
-            { _id: newImageId, base_64: data },
+            { _id: uploadedImageRes.id, base_64: data },
           ]);
-          setImagesShown((prevState) => [
-            ...prevState,
-            { _id: newImageId, base_64: data },
-          ]);
-          setNewImageId((prevState) => prevState + 1);
         });
       });
     }, []);
@@ -177,6 +196,7 @@ function TaskSingle() {
     );
   }
 
+  // Calculate progress on every sub task edit
   useEffect(() => {
     calcTaskProgress(subTasks);
   }, [subTasks]);
@@ -229,77 +249,89 @@ function TaskSingle() {
     }
   };
 
-  const saveChanges = async () => {
-    const assignedUsersIds = [];
+  // const saveChanges = async () => {
+  //   const assignedUsersIds = [];
+  //   for (let i = 0; i < assignedUsers.length; i++) {
+  //     assignedUsersIds.push(assignedUsers[i].id);
+  //   }
 
-    for (let i = 0; i < assignedUsers.length; i++) {
-      assignedUsersIds.push(assignedUsers[i].id);
-    }
+  //   const updateTaskObj = {
+  //     title: title,
+  //     description: description,
+  //     status: status,
+  //     assigned_users: assignedUsersIds,
+  //   };
 
-    const updateTaskObj = {
-      title: title,
-      description: description,
-      status: status,
-      assigned_users: assignedUsersIds,
-    };
+  //   const updateTaskRes = await datahandler.update(
+  //     "tasks",
+  //     task.id,
+  //     updateTaskObj
+  //   );
 
-    console.log(updateTaskObj);
+  //   console.log(updateTaskObj);
 
-    console.log(allImages, "allImages");
-    console.log(imagesShown, "imagesShown");
+  //   // console.log(allImages, "allImages");
 
-    // console.log(allImages, "allImages");
+  //   // const notInImagesShown = allImages.filter(
+  //   //   ({ _id }) => !imagesShown.some((img) => img._id === _id)
+  //   // );
 
-    const notInImagesShown = allImages.filter(
-      ({ _id }) => !imagesShown.some((img) => img._id === _id)
-    );
+  //   // console.log(notInImagesShown, "notInImagesShown");
 
-    console.log(notInImagesShown, "notInImagesShown");
+  //   // for (let i = 0; i < allImages.length; i++) {
+  //   //   console.log("uploaeded");
+  //   //   if (!imagesShown.some((el) => el._id === allImages[i]._id)) {
+  //   //     if (allImages[i]._id.toString().length > 3) {
+  //   //       const deletedImage = await datahandler.deleteItem(
+  //   //         "images",
+  //   //         allImages[i]._id
+  //   //       );
+  //   //     }
+  //   //   }
+  //   // }
 
-    // for (let i = 0; i < allImages.length; i++) {
-    //   console.log("uploaeded");
-    //   if (!imagesShown.some((el) => el._id === allImages[i]._id)) {
-    //     console.log(allImages[i]._id);
-    //     const deletedImage = await datahandler.deleteItem(
-    //       "images",
-    //       allImages[i]._id
-    //     );
-    //   }
-    // }
+  //   // for (let i = 0; i < allImages.length; i++) {
+  //   //   // if (imagesShown[i]._id) {
+  //   //   //   const deletedImage = await datahandler.deleteItem(
+  //   //   //     "imagesassigned",
+  //   //   //     imagesShown[index]._id
+  //   //   //   );
+  //   //   // }
 
-    // for (let i = 0; i < allImages.length; i++) {
-    //   // if (imagesShown[i]._id) {
-    //   //   const deletedImage = await datahandler.deleteItem(
-    //   //     "imagesassigned",
-    //   //     imagesShown[index]._id
-    //   //   );
-    //   // }
+  //   //   if (allImages[i]._id === undefined) {
+  //   //     const createImageRes = await datahandler.create("images", {
+  //   //       base_64: allImages[i].base_64,
+  //   //     });
 
-    //   if (allImages[i]._id === undefined) {
-    //     const createImageRes = await datahandler.create("images", {
-    //       base_64: allImages[i].base_64,
-    //     });
+  //   //     const createImageassignedRes = await datahandler.create(
+  //   //       "imagesassigned",
+  //   //       {
+  //   //         assignment_id: task.id,
+  //   //         image_id: createImageRes.id,
+  //   //       }
+  //   //     );
+  //   //   }
+  //   // }
+  // };
 
-    //     const createImageassignedRes = await datahandler.create(
-    //       "imagesassigned",
-    //       {
-    //         assignment_id: task.id,
-    //         image_id: createImageRes.id,
-    //       }
-    //     );
-    //   }
-    // }
-
-    // const updateTaskRes = await datahandler.update(
-    //   "tasks",
-    //   task.id,
-    //   updateTaskObj
-    // );
-  };
-
-  const unassignUser = (user) => {
+  const unassignUser = async (user) => {
     setAssignedUsers(assignedUsers.filter((el) => el.id !== user.id));
     childData.current.setData((prevState) => [...prevState, user]);
+
+    const assignedUsersIds = [];
+    for (let i = 0; i < assignedUsers.length; i++) {
+      if (assignedUsers[i].id === user.id) {
+        continue;
+      } else {
+        assignedUsersIds.push(assignedUsers[i].id);
+      }
+    }
+
+    console.log(assignedUsersIds, "assignedUsersIds");
+
+    const updatedTask = await datahandler.update("tasks", task.id, {
+      assigned_users: assignedUsersIds,
+    });
   };
 
   function openModal(image) {
@@ -311,29 +343,84 @@ function TaskSingle() {
     setModalIsOpen(false);
   }
 
-  const statusChange = (value) => {
+  const childData = useRef();
+
+  const removeImage = async (image) => {
+    setUploadedImages((prevState) =>
+      prevState.filter((el) => el._id !== image._id)
+    );
+
+    const deletedImage = await datahandler.deleteItem("images", image._id);
+
+    // console.log(index);
+    // const tmpImagesShown = imagesShown;
+    // tmpImagesShown.splice(index, 1);
+    // console.log(tmpImagesShown, "tmpImagesShown");
+    // setImagesShown(tmpImagesShown);
+    // forceUpdate();
+  };
+
+  const saveTitle = async () => {
+    if (task.title !== title) {
+      const updatedTask = await datahandler.update("tasks", task.id, {
+        title: title,
+      });
+    }
+    const tmpTask = task;
+    tmpTask.title = title;
+    setTask(tmpTask);
+    console.log(task, "TASK");
+    setEditTitle(!editTitle);
+  };
+
+  const statusChange = async (value) => {
+    if (task.status !== value) {
+      const updatedTask = await datahandler.update("tasks", task.id, {
+        status: value,
+      });
+    }
+    const tmpTask = task;
+    tmpTask.status = value;
+    setTask(tmpTask);
     setStatus(value);
   };
 
-  const childData = useRef();
+  const saveDescription = async () => {
+    if (task.description !== description) {
+      const updatedTask = await datahandler.update("tasks", task.id, {
+        description: description,
+      });
+    }
+    const tmpTask = task;
+    tmpTask.description = description;
+    setTask(tmpTask);
 
-  const removeImage = async (index) => {
-    console.log(index);
-
-    console.log(imagesShown, allImages, "imagesShown");
-
-    const tmpImagesShown = imagesShown;
-    tmpImagesShown.splice(index, 1);
-
-    console.log(tmpImagesShown, "tmpImagesShown");
-
-    setImagesShown(tmpImagesShown);
-    forceUpdate();
+    setEditDescription(!editDescription);
   };
 
-  useEffect(() => {
-    console.log(imagesShown, "imagesShown");
-  }, [imagesShown]);
+  const submitComment = async () => {
+    const time = new Date();
+
+    const newCommentObj = {
+      user_id: user.id,
+      date_time: time,
+      content: newComment,
+      assignment_id: task.id,
+    };
+
+    const newCommentRes = await datahandler.create("comments", {
+      newCommentObj,
+    });
+
+    newCommentObj._id = newCommentRes.id;
+
+    const newCommentassignedRes = await datahandler.create("commentsassigned", {
+      assignment_id: task.id,
+      comment_id: newCommentRes.id,
+    });
+
+    setComments((prevState) => [...prevState]);
+  };
 
   return (
     <div className="d-flex">
@@ -359,6 +446,7 @@ function TaskSingle() {
                     <AiFillEdit onClick={() => setEditTitle(!editTitle)} />
                   ) : (
                     <div>
+                      <AiOutlineCheck onClick={saveTitle} />
                       <IoMdClose onClick={() => setEditTitle(!editTitle)} />
                     </div>
                   )
@@ -404,9 +492,12 @@ function TaskSingle() {
                       onClick={() => setEditDescription(!editDescription)}
                     />
                   ) : (
-                    <IoMdClose
-                      onClick={() => setEditDescription(!editDescription)}
-                    />
+                    <>
+                      <AiOutlineCheck onClick={saveDescription} />
+                      <IoMdClose
+                        onClick={() => setEditDescription(!editDescription)}
+                      />
+                    </>
                   )
                 ) : null}
               </span>
@@ -453,6 +544,7 @@ function TaskSingle() {
                   setParentData={setAssignedUsers}
                   assignedUsers={assignedUsers}
                   ref={childData}
+                  task={task}
                 />
               )}
               {!assignMoreOpen && (
@@ -464,7 +556,7 @@ function TaskSingle() {
             <div>
               <p>Images</p>
               <div className="d-flex">
-                {imagesShown.map((item, index) => {
+                {uploadedImages.map((item, index) => {
                   return (
                     <div
                       onMouseEnter={() => {
@@ -477,7 +569,7 @@ function TaskSingle() {
                     >
                       {hoveringOverImage === index && (
                         <IoMdClose
-                          onClick={() => removeImage(index)}
+                          onClick={() => removeImage(item)}
                           style={{ position: "absolute", cursor: "pointer" }}
                         />
                       )}
@@ -507,7 +599,7 @@ function TaskSingle() {
                 </MyDropzone>
               </div>
             </div>
-            <button onClick={saveChanges}>SAVE</button>
+            {/* <button onClick={saveChanges}>SAVE</button> */}
           </Col>
           <Col lg={4}>
             <div>
@@ -551,8 +643,14 @@ function TaskSingle() {
           </Col>
         </Row>
         <Row>
-          <Col>
+          <Col lg={8}>
             <h3>Comments</h3>
+            <textarea
+              value={newComment}
+              onChange={(e) => setNewComment(e.target.value)}
+              style={{ width: "100%", height: "100px" }}
+            ></textarea>
+            <button>Submit</button>
           </Col>
         </Row>
       </Container>

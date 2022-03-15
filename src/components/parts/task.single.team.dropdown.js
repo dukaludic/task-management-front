@@ -5,6 +5,8 @@ import React, {
   useImperativeHandle,
 } from "react";
 
+import * as datahandler from "../../helpers/dataHandler";
+
 const TaskSingleTeamDropdown = forwardRef((props, ref) => {
   const [data, setData] = useState([]);
   const [search, setSearch] = useState("");
@@ -59,10 +61,19 @@ const TaskSingleTeamDropdown = forwardRef((props, ref) => {
   const onBlur = (e) =>
     e.target.parentNode.parentNode.classList.remove("focus");
 
-  const onClickItem = (item) => {
+  const onClickItem = async (item) => {
     // console.log(props.setAssignedUsers);
 
     props.setParentData([...props.assignedUsers, item]);
+
+    const assignedUsersIds = [...props.assignedUsers, item].map((el) => el.id);
+
+    console.log(assignedUsersIds, "assignedUsers");
+
+    const updatedTask = await datahandler.update("tasks", props.task.id, {
+      assigned_users: assignedUsersIds,
+    });
+
     setData((prevState) => prevState.filter((user) => user.id !== item.id));
     setFiltered([]);
   };
