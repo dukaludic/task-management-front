@@ -29,12 +29,12 @@ function ProjectsList(props) {
       for (let i = 0; i < users.length; i++) {
         if (users[i].role === "project_manager") {
           projectManagers.push({
-            id: users[i].id,
+            _id: users[i]._id,
             title: `${users[i].first_name} ${users[i].last_name}`,
           });
         } else {
           workers.push({
-            id: users[i].id,
+            _id: users[i]._id,
             title: `${users[i].first_name} ${users[i].last_name}`,
           });
         }
@@ -63,7 +63,7 @@ function ProjectsList(props) {
 
     const assignedUsersIds = [];
     for (let i = 0; i < newEntryAssignedUsers.length; i++) {
-      assignedUsersIds.push(newEntryAssignedUsers[i].id);
+      assignedUsersIds.push(newEntryAssignedUsers[i]._id);
     }
 
     const newProjectObj = {
@@ -71,7 +71,7 @@ function ProjectsList(props) {
       start_date: newEntryStartDate,
       end_date: newEntryEndDate,
       assigned_users: assignedUsersIds,
-      project_manager_id: newEntryProjectManager.id,
+      project_manager_id: newEntryProjectManager._id,
       status: "to_do",
     };
 
@@ -91,7 +91,7 @@ function ProjectsList(props) {
       {props.projects.map((project, index) => {
         return (
           <div className="project-list-info">
-            <Link to={`/project/${project.id}`}>{project.title}</Link>
+            <Link to={`/project/${project._id}`}>{project.title}</Link>
             <div className="d-flex align-items-center">
               {project.assigned_users.map((user) => {
                 {

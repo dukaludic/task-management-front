@@ -21,7 +21,7 @@ function Tasks() {
   useEffect(() => {
     console.log("refetch");
     (async () => {
-      const tasks = await datahandler.show(`tasks/user/${user.id}`);
+      const tasks = await datahandler.show(`tasks/user/${user._id}`);
       console.log(tasks, "TASKS");
       setTasks(tasks);
     })();

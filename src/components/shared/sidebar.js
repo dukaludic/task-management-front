@@ -36,7 +36,7 @@ function Sidebar() {
     const decoded = jwt_decode(token);
 
     (async () => {
-      const userData = await datahandler.show(`users/basic/${decoded.id}`);
+      const userData = await datahandler.show(`users/basic/${decoded._id}`);
       setUser(userData);
       console.log(userData, "===userData 2131231");
     })();
@@ -113,10 +113,10 @@ function Sidebar() {
   }
 
   const modalSaveHandler = async () => {
-    console.log(user.id, "===user.id");
+    console.log(user._id, "===user._id");
 
     const imageAssignedExists = await datahandler.show(
-      `imagesassigned/assignment_id/${user.id}`
+      `imagesassigned/assignment_id/${user._id}`
     );
 
     console.log(imageAssignedExists, "imageassignedExists");
@@ -135,13 +135,13 @@ function Sidebar() {
       const insertImageAssignedRes = await datahandler.create(
         "imagesassigned",
         {
-          assignment_id: user.id,
-          image_id: insertImageRes.id,
+          assignment_id: user._id,
+          image_id: insertImageRes._id,
         }
       );
 
-      const updateUserRes = await datahandler.update("users", user.id, {
-        profile_picture: insertImageAssignedRes.id,
+      const updateUserRes = await datahandler.update("users", user._id, {
+        profile_picture: insertImageAssignedRes._id,
       });
     }
 

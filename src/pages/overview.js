@@ -73,7 +73,7 @@ const Overview = () => {
         //If only active user tasks are enabled otherwise whole project
         // if (userOnlyTasks === "user") {
         //   //if user doesn't exist in this task's assigned users array
-        //   if (!projects[i].tasks[j].assigned_users.includes(user.id)) {
+        //   if (!projects[i].tasks[j].assigned_users.includes(user._id)) {
         //     continue;
         //   }
         // }
@@ -91,7 +91,7 @@ const Overview = () => {
 
             if (
               projects[i].tasks[j].assigned_users.some(
-                (el) => el.id === user.id
+                (el) => el._id === user._id
               )
             ) {
               userTodo.push(projects[i].tasks[j]);
@@ -191,14 +191,14 @@ const Overview = () => {
   useEffect(() => {
     (async () => {
       const projects = await dataHandler.show(
-        `projects/user/${authContext.state.data.user.id}`
+        `projects/user/${authContext.state.data.user._id}`
       );
       const events = await dataHandler.show(
-        `events/user/${authContext.state.data.user.id}`
+        `events/user/${authContext.state.data.user._id}`
       );
 
       const reviews = await dataHandler.show(
-        `reviews/user/${authContext.state.data.user.id}`
+        `reviews/user/${authContext.state.data.user._id}`
       );
 
       console.log(reviews, "reviews");

@@ -39,19 +39,21 @@ function DashboardReviews(props) {
 
     console.log(review, "review");
 
-    const updatedReview = await datahandler.update("reviews", review.id, {
+    const updatedReview = await datahandler.update("reviews", review._id, {
       approval: approval,
-      reviewed_by: user.id,
+      reviewed_by: user._id,
       time_reviewed: new Date(),
     });
 
-    const updatedTask = await datahandler.update("tasks", review.task.id, {
+    const updatedTask = await datahandler.update("tasks", review.task._id, {
       status: newStatus,
     });
 
-    const tmpReviewsArr = props.reviews.filter((item) => item.id !== review.id);
+    const tmpReviewsArr = props.reviews.filter(
+      (item) => item._id !== review._id
+    );
     const tmpUserReviewsArr = props.userReviews.filter(
-      (item) => item.id !== review.id
+      (item) => item._id !== review._id
     );
 
     props.setReviews(tmpReviewsArr);
@@ -62,12 +64,12 @@ function DashboardReviews(props) {
     // setInReview(props.inReview);
   };
 
-  const removeReview = async (id) => {
-    const deletedReview = await datahandler.deleteItem("reviews", id);
+  const removeReview = async (_id) => {
+    const deletedReview = await datahandler.deleteItem("reviews", _id);
 
-    const tmpReviewsArr = props.reviews.filter((item) => item.id !== id);
+    const tmpReviewsArr = props.reviews.filter((item) => item._id !== _id);
     const tmpUserReviewsArr = props.userReviews.filter(
-      (item) => item.id !== id
+      (item) => item._id !== _id
     );
 
     props.setReviews(tmpReviewsArr);
@@ -86,13 +88,13 @@ function DashboardReviews(props) {
         return (
           <div className="d-flex justify-content-between align-items-center">
             <div>
-              <Link to={`/task/${review.task.id}`}>
+              <Link to={`/task/${review.task._id}`}>
                 <p>{review.task.title}</p>
               </Link>
               {(review.approval === "approved" ||
                 review.approval === "rejected") && (
                 <>
-                  <p onClick={() => removeReview(review.id)}>X</p>
+                  <p onClick={() => removeReview(review._id)}>X</p>
                   <p>
                     {`${review.reviewed_by.first_name} ${review.reviewed_by.last_name}`}{" "}
                     {moment(review.time_reviewed).format("MMM Do YY")}

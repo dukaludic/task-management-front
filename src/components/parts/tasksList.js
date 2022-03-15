@@ -55,28 +55,28 @@ function TasksList(props) {
     console.log(props.tasks, "tasks TASKS");
     (async () => {
       // const tasks = props.tasks;
-      const tasks = await datahandler.show(`tasks/user/${user.id}`);
+      const tasks = await datahandler.show(`tasks/user/${user._id}`);
 
       const sortedTasks = {
         tasks: {},
         columns: {
           to_do: {
-            id: "to_do",
+            _id: "to_do",
             title: "To do",
             taskIds: [],
           },
           in_progress: {
-            id: "in_progress",
+            _id: "in_progress",
             title: "In Progress",
             taskIds: [],
           },
           in_review: {
-            id: "in_review",
+            _id: "in_review",
             title: "In Review",
             taskIds: [],
           },
           done: {
-            id: "done",
+            _id: "done",
             title: "Done",
             taskIds: [],
           },
@@ -87,21 +87,21 @@ function TasksList(props) {
       // console.log(tasks, "tasks");
 
       for (let i = 0; i < tasks.length; i++) {
-        sortedTasks.tasks[tasks[i].id] = tasks[i];
+        sortedTasks.tasks[tasks[i]._id] = tasks[i];
 
         console.log(tasks[i].status);
         switch (tasks[i].status) {
           case "to_do":
-            sortedTasks.columns["to_do"].taskIds.push(tasks[i].id);
+            sortedTasks.columns["to_do"].taskIds.push(tasks[i]._id);
             break;
           case "in_progress":
-            sortedTasks.columns["in_progress"].taskIds.push(tasks[i].id);
+            sortedTasks.columns["in_progress"].taskIds.push(tasks[i]._id);
             break;
           case "in_review":
-            sortedTasks.columns["in_review"].taskIds.push(tasks[i].id);
+            sortedTasks.columns["in_review"].taskIds.push(tasks[i]._id);
             break;
           case "done":
-            sortedTasks.columns["done"].taskIds.push(tasks[i].id);
+            sortedTasks.columns["done"].taskIds.push(tasks[i]._id);
             break;
 
           default:
@@ -120,12 +120,12 @@ function TasksList(props) {
       for (let i = 0; i < users.length; i++) {
         if (users[i].role === "project_manager") {
           projectManagers.push({
-            id: users[i].id,
+            _id: users[i]._id,
             title: `${users[i].first_name} ${users[i].last_name}`,
           });
         } else {
           workers.push({
-            id: users[i].id,
+            _id: users[i]._id,
             title: `${users[i].first_name} ${users[i].last_name}`,
           });
         }
@@ -155,11 +155,11 @@ function TasksList(props) {
 
   const insertTask = async () => {
     //Prepare objects as IDs
-    const project_id = props.project?.id || newTaskProject.id;
+    const project_id = props.project?._id || newTaskProject._id;
     const title = newTaskTitle;
     const assigned_users = [];
     for (let i = 0; i < newTaskAssignedUsers.length; i++) {
-      assigned_users.push(newTaskAssignedUsers[i].id);
+      assigned_users.push(newTaskAssignedUsers[i]._id);
     }
 
     const project = await datahandler.show(`projects/basic/${project_id}`);
@@ -181,7 +181,7 @@ function TasksList(props) {
     const status = toSnakeCase(newTaskType);
     console.log(status, "===status");
 
-    const created_by = authContext.state.data.user.id;
+    const created_by = authContext.state.data.user._id;
     const creation_time = new Date();
     const due_date = dueDate;
     const description = newTaskDescription;
@@ -199,7 +199,7 @@ function TasksList(props) {
     };
     const insertTaskRes = await datahandler.create("tasks", taskObj);
 
-    taskObj.id = insertTaskRes.id;
+    taskObj._id = insertTaskRes._id;
 
     if (status === "in_review") {
       (async () => {
@@ -208,12 +208,12 @@ function TasksList(props) {
         );
 
         const reviewObj = {
-          task_id: taskObj.id,
+          task_id: taskObj._id,
           approval: "pending",
           project_id: taskObj.project_id,
           reviewed_by: project.project_manager,
           sent_to_review_time: new Date(),
-          assignee_id: user.id,
+          assignee_id: user._id,
         };
 
         const createReview = await datahandler.create("reviews", reviewObj);
@@ -225,23 +225,23 @@ function TasksList(props) {
 
     switch (status) {
       case "to_do":
-        tmpTasksObj.tasks[taskObj.id] = taskObj;
-        tmpTasksObj.columns["to_do"].taskIds.push(taskObj.id);
+        tmpTasksObj.tasks[taskObj._id] = taskObj;
+        tmpTasksObj.columns["to_do"].taskIds.push(taskObj._id);
         setState(tmpTasksObj);
         break;
       case "in_progress":
-        tmpTasksObj.tasks[taskObj.id] = taskObj;
-        tmpTasksObj.columns["in_progress"].taskIds.push(taskObj.id);
+        tmpTasksObj.tasks[taskObj._id] = taskObj;
+        tmpTasksObj.columns["in_progress"].taskIds.push(taskObj._id);
         setState(tmpTasksObj);
         break;
       case "in_review":
-        tmpTasksObj.tasks[taskObj.id] = taskObj;
-        tmpTasksObj.columns["in_review"].taskIds.push(taskObj.id);
+        tmpTasksObj.tasks[taskObj._id] = taskObj;
+        tmpTasksObj.columns["in_review"].taskIds.push(taskObj._id);
         setState(tmpTasksObj);
         break;
       case "done":
-        tmpTasksObj.tasks[taskObj.id] = taskObj;
-        tmpTasksObj.columns["done"].taskIds.push(taskObj.id);
+        tmpTasksObj.tasks[taskObj._id] = taskObj;
+        tmpTasksObj.columns["done"].taskIds.push(taskObj._id);
         setState(tmpTasksObj);
         break;
 
@@ -260,11 +260,11 @@ function TasksList(props) {
     switch (action) {
       case "edit":
         //navigate
-        navigate(`/task/${item.id}`);
+        navigate(`/task/${item._id}`);
         break;
       case "delete":
-        const task = props.tasks.find((el) => el.id === item.id);
-        const deleted = await datahandler.deleteItem("tasks", task.id);
+        const task = props.tasks.find((el) => el._id === item._id);
+        const deleted = await datahandler.deleteItem("tasks", task._id);
         console.log("delete", task, deleted);
         break;
 
@@ -304,7 +304,7 @@ function TasksList(props) {
         ...state,
         columns: {
           ...state.columns,
-          [newColumn.id]: newColumn,
+          [newColumn._id]: newColumn,
         },
       };
 
@@ -331,8 +331,8 @@ function TasksList(props) {
       ...state,
       columns: {
         ...state.columns,
-        [newStart.id]: newStart,
-        [newFinish.id]: newFinish,
+        [newStart._id]: newStart,
+        [newFinish._id]: newFinish,
       },
     };
     console.log(state.tasks, "NEWSTATE");
@@ -353,10 +353,10 @@ function TasksList(props) {
         project_id: task.project_id,
         reviewed_by: project.project_manager,
         sent_to_review_time: new Date(),
-        assignee_id: user.id,
+        assignee_id: user._id,
       };
 
-      const droppedInto = finish.id;
+      const droppedInto = finish._id;
 
       const updateTask = await datahandler.update("tasks", draggableId, {
         status: droppedInto,
@@ -364,14 +364,14 @@ function TasksList(props) {
       if (droppedInto === "in_review") {
         const createReview = await datahandler.create("reviews", reviewObj);
       }
-      if (start.id === "in_review") {
+      if (start._id === "in_review") {
         // remove from database that review
       }
     })();
 
     //API call to update
     // (async () => {
-    //   const droppedInto = finish.id;
+    //   const droppedInto = finish._id;
     //   const createReview = await datahandler.update("reviews", draggableId);
     //   console.log(updateTaskRes, "updateTaskRes");
     // })();
@@ -465,7 +465,7 @@ function TasksList(props) {
                         className="add-new-task-btn"
                       ></div>
                     )}
-                    <Column key={column.id} column={column} tasks={tasks} />
+                    <Column key={column._id} column={column} tasks={tasks} />
                   </Col>
                 );
               })}

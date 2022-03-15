@@ -56,7 +56,7 @@ function TaskItem(props) {
   }, []);
 
   return (
-    <Draggable draggableId={props.task.id} index={props.index}>
+    <Draggable draggableId={props.task._id} index={props.index}>
       {(provided, snapshot) => (
         <Container
           ref={provided.innerRef}
@@ -67,7 +67,7 @@ function TaskItem(props) {
           <div>
             <div>
               <div className="d-flex justify-content-between">
-                <Link to={`/task/${props.task.id}`}>{props.task.title}</Link>
+                <Link to={`/task/${props.task._id}`}>{props.task.title}</Link>
                 <div {...provided.dragHandleProps}>
                   <BsThreeDotsVertical />
                 </div>

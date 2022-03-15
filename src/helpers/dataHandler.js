@@ -27,10 +27,10 @@ export const show = async (resource) => {
   return result;
 };
 
-export function showSingle(resource, id) {
-  console.log(resource, id, "resource/id");
+export function showSingle(resource, _id) {
+  console.log(resource, _id, "resource/_id");
   const result = axios
-    .get(`${process.env.REACT_APP_API_URL}/${resource}/${id}`)
+    .get(`${process.env.REACT_APP_API_URL}/${resource}/${_id}`)
     .then((response) => {
       return response.data;
     })
@@ -41,9 +41,9 @@ export function showSingle(resource, id) {
   return result;
 }
 
-export function update(resource, id, data) {
+export function update(resource, _id, data) {
   const result = axios
-    .patch(`${process.env.REACT_APP_API_URL}/${resource}/${id}`, {
+    .patch(`${process.env.REACT_APP_API_URL}/${resource}/${_id}`, {
       ...data,
     })
     .then((response) => {
@@ -56,9 +56,9 @@ export function update(resource, id, data) {
   return result;
 }
 
-export function deleteItem(resource, id) {
+export function deleteItem(resource, _id) {
   const result = axios
-    .delete(`${process.env.REACT_APP_API_URL}/${resource}/${id}`)
+    .delete(`${process.env.REACT_APP_API_URL}/${resource}/${_id}`)
     .then(console.log("DELETED"))
     .catch((error) => {
       console.log(error);

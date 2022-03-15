@@ -33,8 +33,8 @@ const Dashboard = () => {
           <Route exact path="/dashboard" element={<Overview />}></Route>
           <Route exact path="/projects" element={<Projects />}></Route>
           <Route exact path="/tasks" element={<Tasks />}></Route>
-          <Route exact path="/task/:id" element={<TaskSingle />}></Route>
-          <Route exact path="/project/:id" element={<ProjectSingle />}></Route>
+          <Route exact path="/task/:_id" element={<TaskSingle />}></Route>
+          <Route exact path="/project/:_id" element={<ProjectSingle />}></Route>
         </Routes>
       </div>
     </>

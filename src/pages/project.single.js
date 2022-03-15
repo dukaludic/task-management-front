@@ -10,7 +10,7 @@ import ProjectBlockers from "../components/parts/project.blockers";
 import ProjectGeneralDiscussion from "../components/parts/project.general.discussion";
 
 function ProjectSingle() {
-  const { id } = useParams();
+  const { _id } = useParams();
   const [project, setProject] = useState("");
   const [todo, setTodo] = useState([]);
   const [inProgress, setInProgress] = useState([]);
@@ -19,7 +19,7 @@ function ProjectSingle() {
 
   useEffect(() => {
     (async () => {
-      const project = await dataHandler.showSingle("projects", id);
+      const project = await dataHandler.showSingle("projects", _id);
       setProject(project);
       console.log(project, "===project");
 

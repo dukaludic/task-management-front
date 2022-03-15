@@ -15,7 +15,7 @@ function Column(props) {
         flexDirection: "column",
       }}
     >
-      <Droppable droppableId={props.column.id}>
+      <Droppable droppableId={props.column._id}>
         {(provided) => (
           <div
             style={{
@@ -28,7 +28,7 @@ function Column(props) {
             {props.tasks.map((task, index) => {
               return (
                 <TaskItem
-                  key={task.id}
+                  key={task._id}
                   task={task}
                   item={props.item}
                   index={index}

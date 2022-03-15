@@ -20,7 +20,7 @@ const TaskSingleTeamDropdown = forwardRef((props, ref) => {
 
     // const projectUsers = props.data.map((user) => {
     //   return {
-    //     id: user.id,
+    //     _id: user._id,
     //     name: `${user.first_name} ${user.last_name}`,
     //     role: user.role,
     //     username: user.username,
@@ -36,7 +36,7 @@ const TaskSingleTeamDropdown = forwardRef((props, ref) => {
 
     //difference between arrays because some are already assigned and shouldn't appear in search
     const remainingUsers = projectUsers.filter(
-      ({ id }) => !props.assignedUsers.some((user) => user.id === id)
+      ({ _id }) => !props.assignedUsers.some((user) => user._id === _id)
     );
 
     console.log(remainingUsers, "remainingUsers");
@@ -66,15 +66,15 @@ const TaskSingleTeamDropdown = forwardRef((props, ref) => {
 
     props.setParentData([...props.assignedUsers, item]);
 
-    const assignedUsersIds = [...props.assignedUsers, item].map((el) => el.id);
+    const assignedUsersIds = [...props.assignedUsers, item].map((el) => el._id);
 
     console.log(assignedUsersIds, "assignedUsers");
 
-    const updatedTask = await datahandler.update("tasks", props.task.id, {
+    const updatedTask = await datahandler.update("tasks", props.task._id, {
       assigned_users: assignedUsersIds,
     });
 
-    setData((prevState) => prevState.filter((user) => user.id !== item.id));
+    setData((prevState) => prevState.filter((user) => user._id !== item._id));
     setFiltered([]);
   };
 
@@ -87,7 +87,7 @@ const TaskSingleTeamDropdown = forwardRef((props, ref) => {
       <div className="wrapper">
         <div className="search">
           <input
-            id="search"
+            _id="search"
             type="search"
             value={search}
             onChange={onInput}

@@ -89,7 +89,7 @@ function DropdownSearch({
       <div className="wrapper">
         <div className="search">
           <input
-            id="search"
+            _id="search"
             value={search}
             onChange={onInput}
             onFocus={onFocus}

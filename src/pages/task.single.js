@@ -24,7 +24,7 @@ import { Auth } from "../context/AuthContext";
 Modal.setAppElement("#root");
 
 function TaskSingle() {
-  const { id } = useParams();
+  const { _id } = useParams();
   const [task, setTask] = useState("");
   const [taskProgress, setTaskProgress] = useState(0);
   const [subTasks, setSubTasks] = useState([]);
@@ -78,21 +78,21 @@ function TaskSingle() {
 
   useEffect(() => {
     (async () => {
-      const task = await dataHandler.showSingle("tasks", id);
+      const task = await dataHandler.showSingle("tasks", _id);
 
       const fetchedProjectUsers = await datahandler.show(
         `users/project/${task.project_id}`
       );
 
       const uploadedImages = await datahandler.show(
-        `imagesassigned/assignment_id/${id}`
+        `imagesassigned/assignment_id/${_id}`
       );
 
       console.log(uploadedImages, "upload");
 
       const projectUsers = fetchedProjectUsers.map((user) => {
         return {
-          id: user.id,
+          _id: user._id,
           name: `${user.first_name} ${user.last_name}`,
           role: user.role,
           username: user.username,
@@ -104,7 +104,7 @@ function TaskSingle() {
 
       const assignedUsers = task.assigned_users.map((user) => {
         return {
-          id: user.id,
+          _id: user._id,
           name: `${user.first_name} ${user.last_name}`,
           role: user.role,
           username: user.username,
@@ -168,12 +168,12 @@ function TaskSingle() {
 
           const createImageAssigned = await datahandler.create(
             "imagesassigned",
-            { assignment_id: task.id, image_id: uploadedImageRes.id }
+            { assignment_id: task._id, image_id: uploadedImageRes._id }
           );
 
           setUploadedImages((prevState) => [
             ...prevState,
-            { _id: uploadedImageRes.id, base_64: data },
+            { _id: uploadedImageRes._id, base_64: data },
           ]);
         });
       });
@@ -203,14 +203,14 @@ function TaskSingle() {
 
   const addSubTask = async () => {
     const subTaskObj = {
-      task_id: id,
+      task_id: _id,
       content: subTaskContent,
       done: false,
     };
 
     const createSubTaskRes = await datahandler.create("subtasks", subTaskObj);
 
-    subTaskObj.id = createSubTaskRes.id;
+    subTaskObj._id = createSubTaskRes._id;
 
     // calcTaskProgress(subTasks);
     setSubTasks([subTaskObj, ...subTasks]);
@@ -233,12 +233,12 @@ function TaskSingle() {
     setSubTasks(tmpSubTasksArr);
   };
 
-  const removeSubtask = (index, id) => {
-    console.log(index, id);
+  const removeSubtask = (index, _id) => {
+    console.log(index, _id);
 
-    const deleteSubtaskRes = datahandler.deleteItem("subtasks", id);
+    const deleteSubtaskRes = datahandler.deleteItem("subtasks", _id);
 
-    setSubTasks((prevState) => prevState.filter((el) => el._id !== id));
+    setSubTasks((prevState) => prevState.filter((el) => el._id !== _id));
   };
 
   const setEdit = (element, value) => {
@@ -252,7 +252,7 @@ function TaskSingle() {
   // const saveChanges = async () => {
   //   const assignedUsersIds = [];
   //   for (let i = 0; i < assignedUsers.length; i++) {
-  //     assignedUsersIds.push(assignedUsers[i].id);
+  //     assignedUsersIds.push(assignedUsers[i]._id);
   //   }
 
   //   const updateTaskObj = {
@@ -264,7 +264,7 @@ function TaskSingle() {
 
   //   const updateTaskRes = await datahandler.update(
   //     "tasks",
-  //     task.id,
+  //     task._id,
   //     updateTaskObj
   //   );
 
@@ -306,8 +306,8 @@ function TaskSingle() {
   //   //     const createImageassignedRes = await datahandler.create(
   //   //       "imagesassigned",
   //   //       {
-  //   //         assignment_id: task.id,
-  //   //         image_id: createImageRes.id,
+  //   //         assignment_id: task._id,
+  //   //         image_id: createImageRes._id,
   //   //       }
   //   //     );
   //   //   }
@@ -315,21 +315,21 @@ function TaskSingle() {
   // };
 
   const unassignUser = async (user) => {
-    setAssignedUsers(assignedUsers.filter((el) => el.id !== user.id));
+    setAssignedUsers(assignedUsers.filter((el) => el._id !== user._id));
     childData.current.setData((prevState) => [...prevState, user]);
 
     const assignedUsersIds = [];
     for (let i = 0; i < assignedUsers.length; i++) {
-      if (assignedUsers[i].id === user.id) {
+      if (assignedUsers[i]._id === user._id) {
         continue;
       } else {
-        assignedUsersIds.push(assignedUsers[i].id);
+        assignedUsersIds.push(assignedUsers[i]._id);
       }
     }
 
     console.log(assignedUsersIds, "assignedUsersIds");
 
-    const updatedTask = await datahandler.update("tasks", task.id, {
+    const updatedTask = await datahandler.update("tasks", task._id, {
       assigned_users: assignedUsersIds,
     });
   };
@@ -362,7 +362,7 @@ function TaskSingle() {
 
   const saveTitle = async () => {
     if (task.title !== title) {
-      const updatedTask = await datahandler.update("tasks", task.id, {
+      const updatedTask = await datahandler.update("tasks", task._id, {
         title: title,
       });
     }
@@ -375,7 +375,7 @@ function TaskSingle() {
 
   const statusChange = async (value) => {
     if (task.status !== value) {
-      const updatedTask = await datahandler.update("tasks", task.id, {
+      const updatedTask = await datahandler.update("tasks", task._id, {
         status: value,
       });
     }
@@ -387,7 +387,7 @@ function TaskSingle() {
 
   const saveDescription = async () => {
     if (task.description !== description) {
-      const updatedTask = await datahandler.update("tasks", task.id, {
+      const updatedTask = await datahandler.update("tasks", task._id, {
         description: description,
       });
     }
@@ -402,21 +402,21 @@ function TaskSingle() {
     const time = new Date();
 
     const newCommentObj = {
-      user_id: user.id,
+      user_id: user._id,
       date_time: time,
       content: newComment,
-      assignment_id: task.id,
+      assignment_id: task._id,
     };
 
     const newCommentRes = await datahandler.create("comments", {
       newCommentObj,
     });
 
-    newCommentObj._id = newCommentRes.id;
+    newCommentObj._id = newCommentRes._id;
 
     const newCommentassignedRes = await datahandler.create("commentsassigned", {
-      assignment_id: task.id,
-      comment_id: newCommentRes.id,
+      assignment_id: task._id,
+      comment_id: newCommentRes._id,
     });
 
     setComments((prevState) => [...prevState]);
@@ -458,7 +458,7 @@ function TaskSingle() {
             <select
               onChange={(e) => statusChange(e.target.value)}
               name="status"
-              id="status"
+              _id="status"
             >
               <option value="to_do" selected={task?.status === "to_do"}>
                 To do
