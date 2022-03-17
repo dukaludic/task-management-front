@@ -39,8 +39,6 @@ function ProjectsList(props) {
           });
         }
       }
-      console.log(workers, "workers");
-      console.log(projectManagers, "projectManagers");
 
       setAllWorkers(workers);
       setAllProjectManagers(projectManagers);
@@ -52,14 +50,6 @@ function ProjectsList(props) {
       setNewEntryTitleValid(false);
       return;
     }
-
-    console.log(
-      newEntryTitle,
-      newEntryAssignedUsers,
-      newEntryProjectManager,
-      newEntryStartDate,
-      newEntryEndDate
-    );
 
     const assignedUsersIds = [];
     for (let i = 0; i < newEntryAssignedUsers.length; i++) {
@@ -94,9 +84,6 @@ function ProjectsList(props) {
             <Link to={`/project/${project._id}`}>{project.title}</Link>
             <div className="d-flex align-items-center">
               {project.assigned_users.map((user) => {
-                {
-                  console.log(user, "user");
-                }
                 return (
                   <img
                     src={user.profile_picture?.base_64}

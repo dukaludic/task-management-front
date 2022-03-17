@@ -4,7 +4,8 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import jwt_decode from "jwt-decode";
 import { Auth } from "../context/AuthContext";
-
+import logoMark from "../assets/images/grape-logo-mark-160322.svg";
+import logoDark from "../assets/images/grape-logo-dark-160322.svg";
 // import globalState from "../authContext/globalState";
 
 const Login = () => {
@@ -18,7 +19,7 @@ const Login = () => {
   const [passwordValid, setPasswordValid] = useState(false);
   const [confirmPassword, setConfirmPassword] = useState("");
   const [confirmPasswordValid, setConfirmPasswordValid] = useState(false);
-  const [role, setRole] = useState("worker");
+  const [role, setRole] = useState(null);
   const [usernameAvailable, setUsernameAvailable] = useState(false);
   const [usedUsernames, setUsedUsernames] = useState([]);
   const [email, setEmail] = useState("");
@@ -30,6 +31,7 @@ const Login = () => {
   const [userRoleValid, setUserRoleValid] = useState(false);
 
   const [reqNotMetShown, setReqNotMetShown] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("Please select role");
 
   const authContext = useContext(Auth);
 
@@ -72,10 +74,6 @@ const Login = () => {
   };
 
   const register = async () => {
-    //check requirements
-    checkIfUsernameAvailable(username);
-    checkIfEmailAvailable(email);
-    checkEmail(email);
     if (
       firstNameValid &&
       lastNameValid &&
@@ -107,21 +105,26 @@ const Login = () => {
 
       return;
     } else {
-      setReqNotMetShown(true);
-      console.log("req not met");
-    }
-  };
-
-  const checkIfUsernameAvailable = (username) => {
-    for (let i = 0; i < usedUsernames.length; i++) {
-      if (usedUsernames[i].toLowerCase() === username.toLowerCase()) {
-        setUsernameAvailable(false);
-        console.log("exists");
-        return false;
+      if (!firstNameValid) {
+        console.log("not valid firtnam");
+        setErrorMessage("First name must be at least 2 characters long");
+      } else if (!lastNameValid) {
+        setErrorMessage("Last name must be at least 2 characters");
+      } else if (!emailValid) {
+        setErrorMessage("Email is not valid");
+      } else if (!usernameValid) {
+        setErrorMessage("Username is not valid");
+      } else if (!usernameAvailable) {
+        setErrorMessage("Username already in use");
+      } else if (!passwordValid) {
+        setErrorMessage("Password needs to be at least 4 characters long");
+      } else if (!confirmPasswordValid) {
+        setErrorMessage("Passwords do not match");
+      } else if (!role) {
+        setErrorMessage("Please select a role");
       }
     }
-    setUsernameAvailable(true);
-    return true;
+    setReqNotMetShown(true);
   };
 
   const checkIfEmailAvailable = (email) => {
@@ -146,29 +149,29 @@ const Login = () => {
       return false;
     }
     setEmailValid(true);
+    setErrorMessage("");
     return true;
-  };
-
-  const userTypeHandler = (e) => {
-    setUserRole(e.target.value);
-    console.log(e.target.value);
   };
 
   const firstNameHandler = (e) => {
     setFirstName(e.target.value);
-    if (e.target.value.length > 2) {
+    if (e.target.value.length > 1) {
       setFirstNameValid(true);
+      setErrorMessage("");
     } else {
       setFirstNameValid(false);
+      setErrorMessage("First name must be at least 2 characters long");
     }
   };
 
   const lastNameHandler = (e) => {
     setLastName(e.target.value);
-    if (e.target.value.length > 2) {
+    if (e.target.value.length > 1) {
       setLastNameValid(true);
+      setErrorMessage("");
     } else {
       setLastNameValid(false);
+      setErrorMessage("Last name must be at least 2 characters");
     }
   };
 
@@ -178,36 +181,59 @@ const Login = () => {
       /^(("[\w-\s]+")|([\w-]+(?:\.[\w-]+)*)|("[\w-\s]+")([\w-]+(?:\.[\w-]+)*))(@((?:[\w-]+\.)*\w[\w-]{0,66})\.([a-z]{2,6}(?:\.[a-z]{2})?)$)|(@\[?((25[0-5]\.|2[0-4][0-9]\.|1[0-9]{2}\.|[0-9]{1,2}\.))((25[0-5]|2[0-4][0-9]|1[0-9]{2}|[0-9]{1,2})\.){2}(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[0-9]{1,2})\]?$)/i
     );
     if (!pattern.test(e.target.value)) {
-      console.log("Invalid email");
       setEmailValid(false);
+      setErrorMessage("Email is not valid");
       return false;
     }
+    setErrorMessage("");
     setEmailValid(true);
     return true;
   };
 
+  useEffect(() => {
+    console.log("usernameValid", usernameValid);
+  }, [usernameValid]);
+
   const usernameHandler = (e) => {
     setUsername(e.target.value);
-    for (let i = 0; i < usedUsernames.length; i++) {
-      if (usedUsernames[i].toLowerCase() === e.target.value.toLowerCase()) {
-        setUsernameAvailable(false);
-        console.log("exists");
-        return false;
+    let valid;
+    if (e.target.value.length > 3) {
+      setErrorMessage("");
+      valid = true;
+    } else {
+      setErrorMessage("Username needs to be at least 4 characters long");
+      valid = false;
+    }
+
+    let available = true;
+    if (valid) {
+      for (let i = 0; i < usedUsernames.length; i++) {
+        if (usedUsernames[i].toLowerCase() === e.target.value.toLowerCase()) {
+          console.log("IN USE");
+          available = false;
+          setErrorMessage("Username already in use");
+          break;
+        } else {
+          console.log("NOT IN USE");
+          available = true;
+        }
       }
     }
-    if (e.target.value.length > 3) {
-      setUsernameValid(true);
-    }
-    setUsernameAvailable(true);
-    return true;
+
+    setUsernameValid(valid);
+    console.log(available, "===available");
+    console.log(valid, "===valid");
+    setUsernameAvailable(available);
   };
 
   const passwordHandler = (e) => {
     setPassword(e.target.value);
     if (e.target.value.length > 3) {
       setPasswordValid(true);
+      setErrorMessage("");
     } else {
       setPasswordValid(false);
+      setErrorMessage("Password needs to be at least 4 characters long");
     }
   };
 
@@ -215,79 +241,203 @@ const Login = () => {
     setConfirmPassword(e.target.value);
     if (password === e.target.value) {
       setConfirmPasswordValid(true);
+      setErrorMessage("");
     } else {
       setConfirmPasswordValid(false);
+      setErrorMessage("Passwords do not match");
     }
   };
 
   const roleHandler = (e) => {
     setRole(e.target.value);
     setUserRoleValid(true);
+    setErrorMessage("");
+  };
+
+  const requrementsChecker = () => {
+    if (reqNotMetShown) {
+      if (!firstNameValid) {
+        return "First name must be at least 2 characters long";
+      } else if (!lastNameValid) {
+        return "Last name must be at least 2 characters";
+      } else if (!emailValid) {
+        return "Email is not valid";
+      } else if (!usernameValid) {
+        return "Username is not valid";
+      } else if (!usernameAvailable) {
+        return "Username already in use";
+      } else if (!passwordValid) {
+        return "Password needs to be at least 4 characters long";
+      } else if (!confirmPasswordValid) {
+        return "Passwords do not match";
+      }
+    } else {
+      console.log("else");
+      return;
+    }
   };
 
   return (
     <div style={{ backgroundColor: "#ddd", height: "100vh" }}>
-      <div className="register-wrapper">
-        <h1>Register</h1>
-        <p>First Name</p>
-        <input
-          value={firstName}
-          onChange={(e) => firstNameHandler(e)}
-          name="firstName"
-        ></input>
-        {!firstNameValid && reqNotMetShown && <p>First name not valid</p>}
-        <p>Last Name</p>
-        <input
-          value={lastName}
-          onChange={(e) => lastNameHandler(e)}
-          name="lastName"
-        ></input>
-        {!lastNameValid && reqNotMetShown && <p>Last name not valid</p>}
-        <p>Email</p>
-        <input
-          value={email}
-          onChange={(e) => emailHandler(e)}
-          name="email"
-        ></input>
-        {!emailValid && reqNotMetShown && <p>Email not valid</p>}
-
-        <p>Username</p>
-        <input
-          value={username}
-          onChange={(e) => usernameHandler(e)}
-          name="username"
-        ></input>
-        {!usernameValid && reqNotMetShown && <p>Username not valid</p>}
-
-        {!usernameAvailable && reqNotMetShown && (
-          <p>Username already in use!</p>
-        )}
-        {console.log(username, "username jsx")}
-        <p>Password</p>
-        <input
-          type="password"
-          value={password}
-          onChange={(e) => passwordHandler(e)}
-          name="password"
-        ></input>
-        {!passwordValid && reqNotMetShown && <p>Password not valid</p>}
-        <p>Confirm Password</p>
-        <input
-          type="password"
-          value={confirmPassword}
-          onChange={(e) => confirmPasswordHandler(e)}
-          name="password"
-        ></input>
-        {!confirmPasswordValid && reqNotMetShown && (
-          <p>Passwords don't match</p>
-        )}
-        <div value={role} onChange={(e) => roleHandler(e)}>
-          <input type="radio" value="worker" name="role" /> Worker
-          <input type="radio" value="project_manager" name="role" /> Project
-          Manager
+      {/* {(firstNameClasses = `login-input login-input-rejected`)} */}
+      <div className="login-register-container">
+        <div className="login-register-image-container">
+          <img className="login-register-image" src={logoMark} />
         </div>
-        {!userRoleValid && reqNotMetShown && <p>Please select a role</p>}
-        <button onClick={register}>Register</button>
+        <div className="login-register-input-container">
+          <div className="b-2 login-register-inputs">
+            <div
+              style={{ marginBottom: "30px", position: "relative" }}
+              className="w-100"
+            >
+              <p
+                style={{ position: "absolute", bottom: "-10px" }}
+                className="b-3"
+              >
+                Register
+              </p>
+              <span className="b-1">Welcome to</span>
+              <span>
+                <img id="loginLogo" src={logoDark} />
+              </span>
+            </div>
+            <div
+              style={{ marginBottom: "30px" }}
+              className="d-flex justify-content-between"
+            >
+              <div style={{ width: "45%" }}>
+                <p>First name</p>
+                <input
+                  className={`login-input`}
+                  value={firstName}
+                  onChange={(e) => firstNameHandler(e)}
+                  name="firstName"
+                  placeholder="First name"
+                ></input>
+                {/* {!firstNameValid && reqNotMetShown && (
+                  <p>First name not valid</p>
+                )} */}
+              </div>
+
+              <div style={{ width: "45%" }}>
+                <p>Last name</p>
+                <input
+                  className="login-input"
+                  value={lastName}
+                  onChange={(e) => lastNameHandler(e)}
+                  name="lastName"
+                  placeholder="Last name"
+                ></input>
+              </div>
+            </div>
+            {/* {!lastNameValid && reqNotMetShown && <p>Last name not valid</p>} */}
+            <div
+              style={{ marginBottom: "30px" }}
+              className="d-flex justify-content-between"
+            >
+              <div style={{ width: "45%" }}>
+                <p>Email</p>
+                <input
+                  className="login-input"
+                  value={email}
+                  onChange={(e) => emailHandler(e)}
+                  name="email"
+                  placeholder="Email"
+                ></input>
+                {/* {!emailValid && reqNotMetShown && <p>Email not valid</p>} */}
+              </div>
+              <div style={{ width: "45%" }}>
+                <p>Username</p>
+                <input
+                  className="login-input"
+                  value={username}
+                  onChange={(e) => usernameHandler(e)}
+                  name="username"
+                  placeholder="Username"
+                ></input>
+                {/* {!usernameValid && reqNotMetShown && <p>Username not valid</p>} */}
+              </div>
+
+              {/* {!usernameAvailable && reqNotMetShown && (
+                <p>Username already in use!</p>
+              )} */}
+            </div>
+            <div
+              style={{ marginBottom: "30px" }}
+              className="d-flex justify-content-between"
+            >
+              <div style={{ width: "45%" }}>
+                <p>Password</p>
+                <input
+                  className="login-input"
+                  type="password"
+                  value={password}
+                  onChange={(e) => passwordHandler(e)}
+                  name="password"
+                  placeholder="Password"
+                ></input>
+                {/* {!passwordValid && reqNotMetShown && <p>Password not valid</p>} */}
+              </div>
+              <div style={{ width: "45%" }}>
+                {" "}
+                <p>Confirm</p>
+                <input
+                  className="login-input"
+                  type="password"
+                  value={confirmPassword}
+                  onChange={(e) => confirmPasswordHandler(e)}
+                  name="password"
+                  placeholder="Confirm"
+                ></input>
+              </div>
+              {/* {!confirmPasswordValid && reqNotMetShown && (
+                <p>Passwords don't match</p>
+              )} */}
+            </div>
+            <div
+              style={{ marginBottom: "30px" }}
+              className="d-flex justify-content-between align-items-center"
+              value={role}
+              onChange={(e) => roleHandler(e)}
+            >
+              <div style={{ flex: 1, marginRight: "20px" }}>
+                <input
+                  style={{ marginRight: "10px" }}
+                  type="radio"
+                  value="worker"
+                  name="role"
+                />
+                <span>Worker</span>
+              </div>
+              <div style={{ flex: 1 }}>
+                <input
+                  style={{ marginRight: "10px" }}
+                  type="radio"
+                  value="project_manager"
+                  name="role"
+                />
+                <span>Manager</span>
+              </div>
+            </div>
+            {/* {!userRoleValid && reqNotMetShown && <p>Please select a role</p>} */}
+            <div className="d-flex justify-content-between align-items-center">
+              <span
+                className="login-register-switch b-3"
+                onClick={() => {
+                  navigate("/login");
+                }}
+              >
+                Already a user?
+              </span>
+              <button className="btn-default-g" onClick={register}>
+                Register
+              </button>
+              {reqNotMetShown && (
+                <span className="register-error b-3">{errorMessage}</span>
+              )}
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );

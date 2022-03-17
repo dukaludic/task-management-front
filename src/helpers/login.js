@@ -6,6 +6,9 @@ import { useNavigate } from "react-router-dom";
 import { Auth } from "../context/AuthContext";
 import jwt_decode from "jwt-decode";
 
+import logoMark from "../assets/images/grape-logo-mark-160322.svg";
+import logoDark from "../assets/images/grape-logo-dark-160322.svg";
+
 // import globalState from "../context/globalState";
 
 const Login = () => {
@@ -21,7 +24,6 @@ const Login = () => {
 
   useEffect(() => {
     console.log("useeffect");
-    // const token = localStorage.getItem("access_token");
 
     console.log(context.state, "===context");
     if (context.state.isAuthenticated) {
@@ -29,14 +31,6 @@ const Login = () => {
       navigate("dashboard");
     }
   }, []);
-
-  // this.context.dispatch({
-  //   type: "SET_DATA",
-  //   payload: {
-  //     ...this.context.state.data,
-  //     cart: cart,
-  //   },
-  // });
 
   const login = async () => {
     console.log("login");
@@ -63,30 +57,70 @@ const Login = () => {
 
   return (
     <div style={{ backgroundColor: "#ddd", height: "100vh" }}>
-      <div className="login-wrapper">
-        <h1>Login</h1>
-        <input
-          type="email"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
-          name="username"
-        ></input>
-
-        <input
-          type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          name="password"
-        ></input>
-        <button onClick={login}>Login</button>
-        <button
-          onClick={() => {
-            navigate("/register");
-          }}
-        >
-          Register
-        </button>
-        {!credentialsValid && <p>Invalid Credentials</p>}
+      <div className="login-register-container">
+        <div className="login-register-image-container">
+          <img className="login-register-image" src={logoMark} />
+        </div>
+        <div className="login-register-input-container">
+          <div className="login-register-inputs">
+            <div
+              style={{ marginBottom: "30px", position: "relative" }}
+              className="w-100"
+            >
+              <span className="b-1">Welcome to</span>
+              <span>
+                <img id="loginLogo" src={logoDark} />
+              </span>
+              <p
+                style={{ position: "absolute", bottom: "-10px" }}
+                className="b-3"
+              >
+                Login
+              </p>
+            </div>
+            <div className="w-100">
+              <p className="b-2">Username</p>
+              <input
+                className="login-input"
+                type="email"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                name="username"
+                placeholder="Your username"
+              ></input>
+            </div>
+            <div
+              style={{ marginTop: "30px", marginBottom: "30px" }}
+              className="w-100"
+            >
+              <p className="b-2">Last name</p>
+              <input
+                className="login-input"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                name="password"
+                placeholder="Your password"
+              ></input>
+            </div>
+            <div className="d-flex justify-content-between align-items-center">
+              <span
+                className="login-register-switch b-3"
+                onClick={() => {
+                  navigate("/register");
+                }}
+              >
+                New user?
+              </span>
+              <button className="btn-default-g b-3" onClick={login}>
+                Login
+              </button>
+              {!credentialsValid && (
+                <span className="credentials-error">Invalid Credentials</span>
+              )}
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );

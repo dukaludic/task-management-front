@@ -88,6 +88,8 @@ function TaskSingle() {
         `imagesassigned/assignment_id/${_id}`
       );
 
+      const comments = await datahandler.show(`comments/assignment_id/${_id}`);
+
       console.log(uploadedImages, "upload");
 
       const projectUsers = fetchedProjectUsers.map((user) => {
@@ -132,7 +134,7 @@ function TaskSingle() {
       setSubTasks(task.sub_tasks);
       calcTaskProgress(task.sub_tasks);
       setAssignedUsers(assignedUsers);
-
+      setComments(comments);
       setProjectUsers(projectUsers);
       setUploadedImages(uploadedImages);
     })();
@@ -402,14 +404,19 @@ function TaskSingle() {
     const time = new Date();
 
     const newCommentObj = {
-      user_id: user._id,
+      user: user,
       date_time: time,
       content: newComment,
       assignment_id: task._id,
     };
 
+    console.log(newCommentObj);
+
     const newCommentRes = await datahandler.create("comments", {
-      newCommentObj,
+      user_id: user._id,
+      date_time: time,
+      content: newComment,
+      assignment_id: task._id,
     });
 
     newCommentObj._id = newCommentRes._id;
@@ -419,7 +426,8 @@ function TaskSingle() {
       comment_id: newCommentRes._id,
     });
 
-    setComments((prevState) => [...prevState]);
+    setComments((prevState) => [...prevState, newCommentObj]);
+    setNewComment("");
   };
 
   return (
@@ -645,12 +653,35 @@ function TaskSingle() {
         <Row>
           <Col lg={8}>
             <h3>Comments</h3>
+            {comments.map((item) => {
+              return (
+                <div style={{ border: "1px solid #ddd" }}>
+                  <div>
+                    <div
+                      style={{
+                        width: "50px",
+                        height: "50px",
+                        backgroundColor: "#ddd",
+                      }}
+                    >
+                      <img
+                        className="profile-picture-default"
+                        src={item.user?.profile_picture?.base_64}
+                      ></img>
+                    </div>
+                    <p>{`${item.user.first_name} ${item.user.last_name}`}</p>
+                    <p>{moment(item.date_time).fromNow()}</p>
+                  </div>
+                  <div>{item.content}</div>
+                </div>
+              );
+            })}
             <textarea
               value={newComment}
               onChange={(e) => setNewComment(e.target.value)}
               style={{ width: "100%", height: "100px" }}
             ></textarea>
-            <button>Submit</button>
+            <button onClick={submitComment}>Submit</button>
           </Col>
         </Row>
       </Container>

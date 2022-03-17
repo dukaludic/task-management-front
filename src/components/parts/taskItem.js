@@ -38,13 +38,11 @@ function TaskItem(props) {
       (async () => {
         const users = [];
         for (let i = 0; i < props.task.assigned_users.length; i++) {
-          console.log("fetched", props.task.assigned_users[i]);
           const user = await datahandler.show(
             `users/basic/${props.task.assigned_users[i]}`
           );
-          console.log("fetched", user);
+
           users.push(user);
-          console.log(users, "users fetched");
         }
         setUsers(users);
       })();
@@ -63,7 +61,6 @@ function TaskItem(props) {
           {...provided.draggableProps}
           innerRef={provided.innerRef}
         >
-          {/* {console.log(props.task)} */}
           <div>
             <div>
               <div className="d-flex justify-content-between">
@@ -76,7 +73,6 @@ function TaskItem(props) {
                 <div>{props.task.description}</div>
                 <div className="d-flex justify-content-between">
                   <div>
-                    {console.log(props.task, "props.task?assignedusers")}
                     {users.map((user) => {
                       return (
                         <img

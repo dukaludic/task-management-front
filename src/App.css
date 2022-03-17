@@ -1,3 +1,8 @@
+* {
+  margin: 0;
+  padding: 0;
+}
+
 .sidebar-wrapper {
   width: 300px;
   height: 100vh;
@@ -260,4 +265,206 @@
 
 .profile-picture-dashboard-modal {
   width: 100%;
+}
+
+/* FONTS AND COLORS */
+
+@font-face {
+  font-family: "Raleway";
+  src: url(./assets/fonts/Raleway-VariableFont_wght.ttf);
+  font-weight: normal;
+}
+
+@font-face {
+  font-family: "OpenSans";
+  src: url(./assets/fonts/OpenSans-VariableFont_wdthwght.ttf);
+  font-weight: normal;
+}
+
+:root {
+  --darkBlue: #212541;
+  --green: #72b547;
+  --red: #e56868;
+  --lightBlue: #4ba9d2;
+  --black: #131313;
+  --blueishWhite: #f3f4f5;
+  --midGrey: #aaaaaa;
+  --whiteGrey: #eeeeee;
+  --darkGrey: #707070;
+  --black: #131314;
+}
+
+/* .open-sans,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+a,
+span,
+input,
+label {
+  font-family: OpenSans !important;
+} */
+
+.h-1 {
+  font-family: Raleway, sans-serif;
+  font-size: 48px;
+  font-weight: bold;
+  color: var(--black);
+}
+
+.h-2 {
+  font-family: Raleway, sans-serif;
+  font-size: 38px;
+  font-weight: bold;
+  color: var(--black);
+}
+
+.h-3 {
+  font-family: Raleway, sans-serif;
+  font-size: 25px;
+  font-weight: bold;
+  color: var(--black);
+}
+
+.b-1 {
+  font-family: OpenSans;
+  font-size: 20px;
+  font-weight: normal;
+  color: var(--black);
+}
+
+.b-2 {
+  font-family: OpenSans, sans-serif;
+  font-size: 16px;
+  font-weight: normal;
+  color: var(--black);
+}
+
+.b-3 {
+  font-family: OpenSans, sans-serif;
+  font-size: 12px;
+  font-weight: normal;
+  color: var(--black);
+}
+
+.b-4 {
+  font-family: OpenSans, sans-serif;
+  font-size: 10px;
+  font-weight: normal;
+  color: var(--black);
+}
+
+/* LOGIN */
+
+.login-register-container {
+  width: 1000px;
+  height: 600px;
+  background-color: white;
+  border-radius: 5px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translateY(-50%) translateX(-50%);
+  display: flex;
+  overflow: hidden;
+}
+
+.login-register-image-container {
+  flex: 1;
+  background-color: var(--darkBlue);
+  display: flex;
+}
+
+.login-register-image {
+  align-self: center;
+  justify-self: center;
+}
+
+.login-register-input-container {
+  flex: 1;
+  position: relative;
+}
+
+.login-register-inputs {
+  display: flex;
+  flex-direction: column;
+  width: 250px;
+  height: 450px;
+  align-self: center;
+  /* align-items: center; */
+  justify-content: center;
+  margin: 0 auto;
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  transform: translateY(-55%);
+}
+
+.login-rejected {
+  /* border: none; */
+  border-bottom: 0.5px solid var(--red);
+  width: 100%;
+  transition: all 0.3s;
+}
+
+#loginLogo {
+  height: 70px;
+}
+
+.login-input {
+  border: none;
+  border-bottom: 0.5px solid var(--whiteGrey);
+  width: 100%;
+  transition: all 0.3s;
+}
+
+/* .login-input:hover {
+  border-bottom: 0.5px solid var(--midGrey);
+} */
+
+.login-input:focus {
+  border-bottom: 0.5px solid var(--midGrey);
+  width: 100%;
+}
+
+.login-input ::-webkit-input-placeholder {
+  padding: 20px;
+}
+
+.btn-default-g {
+  width: 120px;
+  height: 30px;
+  background-color: var(--green);
+  border: none;
+  color: white;
+  border-radius: 5px;
+  transition: all 0.3s;
+}
+
+.btn-default-g:hover {
+  background-color: #5b9736;
+}
+
+.login-register-switch {
+  cursor: pointer;
+  color: var(--lightBlue);
+}
+
+.credentials-error {
+  color: var(--red);
+  margin: 0 auto;
+  position: absolute;
+  bottom: 30px;
+}
+
+.register-error {
+  color: var(--red);
+  margin: 0 auto;
+  position: absolute;
+  bottom: -70px;
+  text-align: center;
 }

@@ -52,10 +52,18 @@ function TasksList(props) {
   // };
 
   useEffect(async () => {
-    console.log(props.tasks, "tasks TASKS");
+    console.log("useEffect tasksList");
+    let tasks;
     (async () => {
-      // const tasks = props.tasks;
-      const tasks = await datahandler.show(`tasks/user/${user._id}`);
+      if (props.projectOnly) {
+        console.log("projectONly");
+        tasks = await datahandler.show(`tasks/project/${props.project._id}`);
+        console.log("tasks, projectOnly");
+      } else {
+        tasks = await datahandler.show(`tasks/user/${user._id}`);
+      }
+
+      console.log(tasks, "TASKS");
 
       const sortedTasks = {
         tasks: {},
@@ -84,12 +92,9 @@ function TasksList(props) {
         columnOrder: ["to_do", "in_progress", "in_review", "done"],
       };
 
-      // console.log(tasks, "tasks");
-
       for (let i = 0; i < tasks.length; i++) {
         sortedTasks.tasks[tasks[i]._id] = tasks[i];
 
-        console.log(tasks[i].status);
         switch (tasks[i].status) {
           case "to_do":
             sortedTasks.columns["to_do"].taskIds.push(tasks[i]._id);
@@ -108,8 +113,6 @@ function TasksList(props) {
             break;
         }
       }
-
-      console.log(sortedTasks, "===sorteTasks");
 
       const titles = await datahandler.show("projects/titles");
       const users = await datahandler.show("users/names");
@@ -131,6 +134,8 @@ function TasksList(props) {
         }
       }
 
+      console.log(sortedTasks, "sortedTasks");
+
       setState(sortedTasks);
       setWorkers(workers);
       setProjectManagers(projectManagers);
@@ -148,10 +153,6 @@ function TasksList(props) {
     setNewTaskProjectManager("");
     setDueDate(new Date());
   };
-
-  useEffect(() => {
-    console.log("state set");
-  }, [state]);
 
   const insertTask = async () => {
     //Prepare objects as IDs
@@ -179,7 +180,6 @@ function TasksList(props) {
       );
     }
     const status = toSnakeCase(newTaskType);
-    console.log(status, "===status");
 
     const created_by = authContext.state.data.user._id;
     const creation_time = new Date();
@@ -249,10 +249,6 @@ function TasksList(props) {
         break;
     }
 
-    // console.log(insertTaskRes, "insertTaskRes");
-
-    console.log(taskObj, "taskObj");
-
     setNewTaskType("");
   };
 
@@ -265,7 +261,6 @@ function TasksList(props) {
       case "delete":
         const task = props.tasks.find((el) => el._id === item._id);
         const deleted = await datahandler.deleteItem("tasks", task._id);
-        console.log("delete", task, deleted);
         break;
 
       default:
@@ -335,7 +330,6 @@ function TasksList(props) {
         [newFinish._id]: newFinish,
       },
     };
-    console.log(state.tasks, "NEWSTATE");
 
     const task = state.tasks[draggableId];
 
@@ -343,9 +337,6 @@ function TasksList(props) {
       const project = await datahandler.show(
         `projects/basic/${task.project_id}`
       );
-
-      console.log(task, "TASK");
-      console.log(project, "projectBasic");
 
       const reviewObj = {
         task_id: draggableId,
@@ -364,17 +355,13 @@ function TasksList(props) {
       if (droppedInto === "in_review") {
         const createReview = await datahandler.create("reviews", reviewObj);
       }
-      if (start._id === "in_review") {
-        // remove from database that review
+      if (start._id === "in_review" && droppedInto !== "in_review") {
+        const deletedReview = await datahandler.deleteItem(
+          "reviews",
+          draggableId
+        );
       }
     })();
-
-    //API call to update
-    // (async () => {
-    //   const droppedInto = finish._id;
-    //   const createReview = await datahandler.update("reviews", draggableId);
-    //   console.log(updateTaskRes, "updateTaskRes");
-    // })();
 
     setState(newState);
   };
@@ -417,7 +404,7 @@ function TasksList(props) {
                           placeholder="Title"
                         ></input>
                         <p>Project</p>
-                        {console.log(projectTitles, "projectTitles")}
+
                         <DropdownSearch
                           items={projectTitles}
                           type="projects"
