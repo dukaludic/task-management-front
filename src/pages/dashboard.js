@@ -3,7 +3,7 @@ import React, { useEffect, useState, useContext } from "react";
 import * as dataHandler from "../helpers/dataHandler";
 import { Container, Row, Col } from "react-bootstrap";
 
-import Sidebar from "../components/shared/sidebar";
+import Sidebar from "../components/shared/sidebarNew";
 import DashboardProjectSummary from "../components/parts/dashboardProjectSummary";
 import DashboardTasks from "../components/parts/dashboardTasks";
 import DashboardReviews from "../components/parts/dashboardReviews";
