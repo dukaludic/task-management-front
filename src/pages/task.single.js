@@ -8,7 +8,6 @@ import React, {
 import Sidebar from "../components/shared/sidebar";
 import { Container, Col, Row } from "react-bootstrap";
 import { useParams } from "react-router";
-import * as dataHandler from "../helpers/dataHandler";
 import { AiFillEdit, AiOutlineCheck } from "react-icons/ai";
 import { IoMdClose } from "react-icons/io";
 import Modal from "react-modal";
@@ -72,23 +71,28 @@ function TaskSingle() {
     setTaskProgress(taskProgress);
   };
 
-  const AuthContext = useContext(Auth);
+  const authContext = useContext(Auth);
 
-  const { user } = AuthContext.state.data;
+  const { user } = authContext.state.data;
 
   useEffect(() => {
     (async () => {
-      const task = await dataHandler.showSingle("tasks", _id);
+      const task = await datahandler.showSingle("tasks", _id);
 
       const fetchedProjectUsers = await datahandler.show(
-        `users/project/${task.project_id}`
+        `users/project/${task.project_id}`,
+        authContext
       );
 
       const uploadedImages = await datahandler.show(
-        `imagesassigned/assignment_id/${_id}`
+        `imagesassigned/assignment_id/${_id}`,
+        authContext
       );
 
-      const comments = await datahandler.show(`comments/assignment_id/${_id}`);
+      const comments = await datahandler.show(
+        `comments/assignment_id/${_id}`,
+        authContext
+      );
 
       console.log(uploadedImages, "upload");
 
@@ -164,13 +168,18 @@ function TaskSingle() {
     const onDrop = useCallback((acceptedFiles) => {
       acceptedFiles.forEach((file) => {
         getBase64(file).then(async (data) => {
-          const uploadedImageRes = await datahandler.create("images", {
-            base_64: data,
-          });
+          const uploadedImageRes = await datahandler.create(
+            "images",
+            {
+              base_64: data,
+            },
+            authContext
+          );
 
           const createImageAssigned = await datahandler.create(
             "imagesassigned",
-            { assignment_id: task._id, image_id: uploadedImageRes._id }
+            { assignment_id: task._id, image_id: uploadedImageRes._id },
+            authContext
           );
 
           setUploadedImages((prevState) => [
@@ -210,7 +219,11 @@ function TaskSingle() {
       done: false,
     };
 
-    const createSubTaskRes = await datahandler.create("subtasks", subTaskObj);
+    const createSubTaskRes = await datahandler.create(
+      "subtasks",
+      subTaskObj,
+      authContext
+    );
 
     subTaskObj._id = createSubTaskRes._id;
 
@@ -222,7 +235,8 @@ function TaskSingle() {
     const updateSubTaskRes = await datahandler.update(
       "subtasks",
       subTasks[index]._id,
-      { done: !isChecked }
+      { done: !isChecked },
+      authContext
     );
 
     const tmpSubTasksArr = [...subTasks];
@@ -238,7 +252,11 @@ function TaskSingle() {
   const removeSubtask = (index, _id) => {
     console.log(index, _id);
 
-    const deleteSubtaskRes = datahandler.deleteItem("subtasks", _id);
+    const deleteSubtaskRes = datahandler.deleteItem(
+      "subtasks",
+      _id,
+      authContext
+    );
 
     setSubTasks((prevState) => prevState.filter((el) => el._id !== _id));
   };
@@ -250,71 +268,6 @@ function TaskSingle() {
       setEditDescription((prevState) => !prevState);
     }
   };
-
-  // const saveChanges = async () => {
-  //   const assignedUsersIds = [];
-  //   for (let i = 0; i < assignedUsers.length; i++) {
-  //     assignedUsersIds.push(assignedUsers[i]._id);
-  //   }
-
-  //   const updateTaskObj = {
-  //     title: title,
-  //     description: description,
-  //     status: status,
-  //     assigned_users: assignedUsersIds,
-  //   };
-
-  //   const updateTaskRes = await datahandler.update(
-  //     "tasks",
-  //     task._id,
-  //     updateTaskObj
-  //   );
-
-  //   console.log(updateTaskObj);
-
-  //   // console.log(allImages, "allImages");
-
-  //   // const notInImagesShown = allImages.filter(
-  //   //   ({ _id }) => !imagesShown.some((img) => img._id === _id)
-  //   // );
-
-  //   // console.log(notInImagesShown, "notInImagesShown");
-
-  //   // for (let i = 0; i < allImages.length; i++) {
-  //   //   console.log("uploaeded");
-  //   //   if (!imagesShown.some((el) => el._id === allImages[i]._id)) {
-  //   //     if (allImages[i]._id.toString().length > 3) {
-  //   //       const deletedImage = await datahandler.deleteItem(
-  //   //         "images",
-  //   //         allImages[i]._id
-  //   //       );
-  //   //     }
-  //   //   }
-  //   // }
-
-  //   // for (let i = 0; i < allImages.length; i++) {
-  //   //   // if (imagesShown[i]._id) {
-  //   //   //   const deletedImage = await datahandler.deleteItem(
-  //   //   //     "imagesassigned",
-  //   //   //     imagesShown[index]._id
-  //   //   //   );
-  //   //   // }
-
-  //   //   if (allImages[i]._id === undefined) {
-  //   //     const createImageRes = await datahandler.create("images", {
-  //   //       base_64: allImages[i].base_64,
-  //   //     });
-
-  //   //     const createImageassignedRes = await datahandler.create(
-  //   //       "imagesassigned",
-  //   //       {
-  //   //         assignment_id: task._id,
-  //   //         image_id: createImageRes._id,
-  //   //       }
-  //   //     );
-  //   //   }
-  //   // }
-  // };
 
   const unassignUser = async (user) => {
     setAssignedUsers(assignedUsers.filter((el) => el._id !== user._id));
@@ -352,7 +305,11 @@ function TaskSingle() {
       prevState.filter((el) => el._id !== image._id)
     );
 
-    const deletedImage = await datahandler.deleteItem("images", image._id);
+    const deletedImage = await datahandler.deleteItem(
+      "images",
+      image._id,
+      authContext
+    );
 
     // console.log(index);
     // const tmpImagesShown = imagesShown;
@@ -364,9 +321,14 @@ function TaskSingle() {
 
   const saveTitle = async () => {
     if (task.title !== title) {
-      const updatedTask = await datahandler.update("tasks", task._id, {
-        title: title,
-      });
+      const updatedTask = await datahandler.update(
+        "tasks",
+        task._id,
+        {
+          title: title,
+        },
+        authContext
+      );
     }
     const tmpTask = task;
     tmpTask.title = title;
@@ -377,9 +339,14 @@ function TaskSingle() {
 
   const statusChange = async (value) => {
     if (task.status !== value) {
-      const updatedTask = await datahandler.update("tasks", task._id, {
-        status: value,
-      });
+      const updatedTask = await datahandler.update(
+        "tasks",
+        task._id,
+        {
+          status: value,
+        },
+        authContext
+      );
     }
     const tmpTask = task;
     tmpTask.status = value;
@@ -389,9 +356,14 @@ function TaskSingle() {
 
   const saveDescription = async () => {
     if (task.description !== description) {
-      const updatedTask = await datahandler.update("tasks", task._id, {
-        description: description,
-      });
+      const updatedTask = await datahandler.update(
+        "tasks",
+        task._id,
+        {
+          description: description,
+        },
+        authContext
+      );
     }
     const tmpTask = task;
     tmpTask.description = description;
@@ -412,19 +384,27 @@ function TaskSingle() {
 
     console.log(newCommentObj);
 
-    const newCommentRes = await datahandler.create("comments", {
-      user_id: user._id,
-      date_time: time,
-      content: newComment,
-      assignment_id: task._id,
-    });
+    const newCommentRes = await datahandler.create(
+      "comments",
+      {
+        user_id: user._id,
+        date_time: time,
+        content: newComment,
+        assignment_id: task._id,
+      },
+      authContext
+    );
 
     newCommentObj._id = newCommentRes._id;
 
-    const newCommentassignedRes = await datahandler.create("commentsassigned", {
-      assignment_id: task._id,
-      comment_id: newCommentRes._id,
-    });
+    const newCommentassignedRes = await datahandler.create(
+      "commentsassigned",
+      {
+        assignment_id: task._id,
+        comment_id: newCommentRes._id,
+      },
+      authContext
+    );
 
     setComments((prevState) => [...prevState, newCommentObj]);
     setNewComment("");

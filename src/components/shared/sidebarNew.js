@@ -21,6 +21,7 @@ import { BiBarChart } from "react-icons/bi";
 import Modal from "react-modal";
 import { useDropzone } from "react-dropzone";
 import { GrProjects } from "react-icons/gr";
+import { Spinner } from "react-bootstrap";
 
 function Sidebar() {
   const [sidebarActive, setSidebarActive] = useState(true);
@@ -31,14 +32,21 @@ function Sidebar() {
   const [modalIsOpen, setIsOpen] = React.useState(false);
   const [modalProfilePicture, setModalProfilePicture] = useState("");
   const [profilePicture, setProfilePicture] = useState(null);
+  const [userIsLoading, setUserIsLoading] = useState(true);
 
   useEffect(() => {
     const token = localStorage.getItem("access_token");
     const decoded = jwt_decode(token);
 
+    console.log(token);
+
     (async () => {
-      const userData = await datahandler.show(`users/basic/${decoded._id}`);
+      const userData = await datahandler.show(
+        `users/basic/${decoded._id}`,
+        authContext
+      );
       setUser(userData);
+      setUserIsLoading(false);
       console.log(userData, "===userData 2131231");
     })();
 
@@ -117,33 +125,45 @@ function Sidebar() {
     console.log(user._id, "===user._id");
 
     const imageAssignedExists = await datahandler.show(
-      `imagesassigned/assignment_id/${user._id}`
+      `imagesassigned/assignment_id/${user._id}`,
+      authContext
     );
 
     console.log(imageAssignedExists, "imageassignedExists");
 
-    if (imageAssignedExists) {
+    if (imageAssignedExists.length > 0) {
       const updatedImageRes = await datahandler.update(
         `images`,
         imageAssignedExists.image_id,
-        { base_64: modalProfilePicture }
+        { base_64: modalProfilePicture },
+        authContext
       );
     } else {
-      const insertImageRes = await datahandler.create("images", {
-        base_64: modalProfilePicture,
-      });
+      const insertImageRes = await datahandler.create(
+        "images",
+        {
+          base_64: modalProfilePicture,
+        },
+        authContext
+      );
 
       const insertImageAssignedRes = await datahandler.create(
         "imagesassigned",
         {
           assignment_id: user._id,
           image_id: insertImageRes._id,
-        }
+        },
+        authContext
       );
 
-      const updateUserRes = await datahandler.update("users", user._id, {
-        profile_picture: insertImageAssignedRes._id,
-      });
+      const updateUserRes = await datahandler.update(
+        "users",
+        user._id,
+        {
+          profile_picture: insertImageAssignedRes._id,
+        },
+        authContext
+      );
     }
 
     console.log(modalProfilePicture, "==modalProfilePicture");
@@ -300,29 +320,44 @@ function Sidebar() {
           {!sidebarActive && <span className="tip">Log out</span>}
         </div>
         <div className="sidebar-profile-container">
-          {!sidebarActive ? (
-            <AiOutlineUser size={20} id="sidebar-user-icon" />
+          {userIsLoading ? (
+            <Spinner
+              style={{ marginTop: "20px" }}
+              variant="white"
+              animation="border"
+              role="status"
+            >
+              <span className="visually-hidden">Loading...</span>
+            </Spinner>
           ) : (
-            <div className="sidebar-profile-img-container">
-              <img
-                onClick={openModal}
-                className="sidebar-profile-img"
-                src={defaultUser}
-              />
-            </div>
-          )}
+            <>
+              {!sidebarActive ? (
+                <AiOutlineUser size={20} id="sidebar-user-icon" />
+              ) : (
+                <div className="sidebar-profile-img-container">
+                  <img
+                    onClick={openModal}
+                    className="sidebar-profile-img"
+                    src={profilePicture || user?.profile_picture?.base_64}
+                  />
+                </div>
+              )}
 
-          {/* <img className="sidebar-profile-img" src={defaultUser} /> */}
+              {/* <img className="sidebar-profile-img" src={defaultUser} /> */}
 
-          {sidebarActive && (
-            <div className="sidebar-profile-info">
-              <div style={{ color: "white" }} className="b-2">
-                John Doe
-              </div>
-              <div style={{ color: "white" }} className="b-3">
-                Worker
-              </div>
-            </div>
+              {sidebarActive && (
+                <div className="sidebar-profile-info">
+                  <div style={{ color: "white" }} className="b-2">
+                    {`${user.first_name} ${user.last_name}`}
+                  </div>
+                  <div style={{ color: "white" }} className="b-3">
+                    {user.role === "project_manager"
+                      ? "Project manager"
+                      : "Worker"}
+                  </div>
+                </div>
+              )}
+            </>
           )}
         </div>
       </div>

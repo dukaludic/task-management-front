@@ -3,11 +3,15 @@ import React, {
   useEffect,
   forwardRef,
   useImperativeHandle,
+  useContext,
 } from "react";
+
+import { Auth } from "../../context/AuthContext";
 
 import * as datahandler from "../../helpers/dataHandler";
 
 const TaskSingleTeamDropdown = forwardRef((props, ref) => {
+  const authContext = useContext(Auth);
   const [data, setData] = useState([]);
   const [search, setSearch] = useState("");
   const [filtered, setFiltered] = useState([]);
@@ -70,9 +74,14 @@ const TaskSingleTeamDropdown = forwardRef((props, ref) => {
 
     console.log(assignedUsersIds, "assignedUsers");
 
-    const updatedTask = await datahandler.update("tasks", props.task._id, {
-      assigned_users: assignedUsersIds,
-    });
+    const updatedTask = await datahandler.update(
+      "tasks",
+      props.task._id,
+      {
+        assigned_users: assignedUsersIds,
+      },
+      authContext
+    );
 
     setData((prevState) => prevState.filter((user) => user._id !== item._id));
     setFiltered([]);

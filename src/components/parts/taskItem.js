@@ -1,9 +1,11 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import { Draggable } from "react-beautiful-dnd";
 import styled from "styled-components";
 import { BsThreeDotsVertical } from "react-icons/bs";
 import { Link } from "react-router-dom";
 import Dropdown from "react-bootstrap/Dropdown";
+
+import { Auth } from "../../context/AuthContext";
 
 import * as datahandler from "../../helpers/dataHandler";
 
@@ -17,6 +19,7 @@ const Container = styled.div`
 
 function TaskItem(props) {
   const [users, setUsers] = useState([]);
+  const authContext = useContext(Auth);
 
   const checkUrgency = (task) => {
     const today = Date.parse(new Date());
@@ -39,7 +42,8 @@ function TaskItem(props) {
         const users = [];
         for (let i = 0; i < props.task.assigned_users.length; i++) {
           const user = await datahandler.show(
-            `users/basic/${props.task.assigned_users[i]}`
+            `users/basic/${props.task.assigned_users[i]}`,
+            authContext
           );
 
           users.push(user);

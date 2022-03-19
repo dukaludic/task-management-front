@@ -24,21 +24,25 @@ function ProjectSingle() {
   const [newComment, setNewComment] = useState("");
   const [comments, setComments] = useState([]);
 
-  const AuthContext = useContext(Auth);
+  const authContext = useContext(Auth);
 
   const [assignedUsers, setAssignedUsers] = useState([]);
   const [assignMoreOpen, setAssignMoreOpen] = useState([]);
   const [allUsers, setAllUsers] = useState([]);
 
-  const { user } = AuthContext.state.data;
+  const { user } = authContext.state.data;
 
   useEffect(() => {
     (async () => {
-      const project = await datahandler.showSingle("projects/single", _id);
+      const project = await datahandler.showSingle(
+        "projects/single",
+        _id,
+        authContext
+      );
       setProject(project);
       console.log(project, "===project");
 
-      const allUsers = await datahandler.show("users/basic");
+      const allUsers = await datahandler.show("users/basic", authContext);
 
       const todo = project.tasks.filter((task) => task.status === "to_do");
       const inProgress = project.tasks.filter(
@@ -101,19 +105,27 @@ function ProjectSingle() {
 
     console.log(newCommentObj);
 
-    const newCommentRes = await datahandler.create("comments", {
-      user_id: user._id,
-      date_time: time,
-      content: newComment,
-      assignment_id: project._id,
-    });
+    const newCommentRes = await datahandler.create(
+      "comments",
+      {
+        user_id: user._id,
+        date_time: time,
+        content: newComment,
+        assignment_id: project._id,
+      },
+      authContext
+    );
 
     newCommentObj._id = newCommentRes._id;
 
-    const newCommentassignedRes = await datahandler.create("commentsassigned", {
-      assignment_id: project._id,
-      comment_id: newCommentRes._id,
-    });
+    const newCommentassignedRes = await datahandler.create(
+      "commentsassigned",
+      {
+        assignment_id: project._id,
+        comment_id: newCommentRes._id,
+      },
+      authContext
+    );
 
     setComments((prevState) => [...prevState, newCommentObj]);
     setNewComment("");
@@ -134,9 +146,14 @@ function ProjectSingle() {
 
     console.log(assignedUsersIds, "assignedUsersIds");
 
-    const updatedProject = await datahandler.update("tasks", project._id, {
-      assigned_users: assignedUsersIds,
-    });
+    const updatedProject = await datahandler.update(
+      "tasks",
+      project._id,
+      {
+        assigned_users: assignedUsersIds,
+      },
+      authContext
+    );
   };
 
   const childData = useRef();

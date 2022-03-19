@@ -10,6 +10,8 @@ import DashboardReviews from "../components/parts/dashboardReviews";
 import DashboardRecent from "../components/parts/dashboardRecent";
 import moment from "moment";
 
+import { useNavigate } from "react-router-dom";
+
 import { Auth } from "../context/AuthContext";
 
 const Overview = () => {
@@ -43,6 +45,7 @@ const Overview = () => {
 
   const authContext = useContext(Auth);
   const { user } = authContext.state.data;
+  const navigate = useNavigate();
 
   const sortProjectsData = (projects) => {
     let today = Date.parse(new Date());
@@ -191,14 +194,23 @@ const Overview = () => {
   useEffect(() => {
     (async () => {
       const projects = await dataHandler.show(
-        `projects/user/${authContext.state.data.user._id}`
+        `projects/user/${authContext.state.data.user._id}`,
+        authContext
       );
+
+      // if (projects.response.data.statusCode === 401) {
+      //   authContext.dispatch({ type: "LOG_OUT" });
+      // }
+
+      // console.log("projects", projects.response.data.statusCode);
       const events = await dataHandler.show(
-        `events/user/${authContext.state.data.user._id}`
+        `events/user/${authContext.state.data.user._id}`,
+        authContext
       );
 
       const reviews = await dataHandler.show(
-        `reviews/user/${authContext.state.data.user._id}`
+        `reviews/user/${authContext.state.data.user._id}`,
+        authContext
       );
 
       console.log(reviews, "reviews");

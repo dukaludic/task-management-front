@@ -1,18 +1,21 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import Sidebar from "../components/shared/sidebar";
 import { Container, Col, Row } from "react-bootstrap";
 import ProjectsList from "../components/parts/projectsList";
 
 import * as datahandler from "../helpers/dataHandler";
+import { Auth } from "../context/AuthContext";
 
 function Projects() {
   const [projects, setProjects] = useState([]);
   const [projectProgresses, setProjectProgresses] = useState([]);
   const [reloadCounter, reload] = useState(0);
 
+  const authContext = useContext(Auth);
+
   useEffect(() => {
     (async () => {
-      const projects = await datahandler.show("projects");
+      const projects = await datahandler.show("projects", authContext);
       const users = [];
       for (let i = 0; i < projects?.length; i++) {
         for (let j = 0; j < projects[i].assigned_users.length; j++) {

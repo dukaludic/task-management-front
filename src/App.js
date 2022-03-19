@@ -1,7 +1,7 @@
 import "./App.css";
 import "bootstrap/dist/css/bootstrap.min.css";
 
-import { useContext } from "react";
+import { useContext, useState } from "react";
 
 import {
   BrowserRouter as Router,
@@ -17,11 +17,22 @@ import { Auth } from "./context/AuthContext";
 import Overview from "./pages/overview";
 import Dashboard from "./pages/dashboard";
 import Register from "./helpers/register";
+import jwt_decode from "jwt-decode";
 
 function App() {
   const authContext = useContext(Auth);
   console.log(authContext.state.data.isAuthenticated);
   const isAuthenticated = authContext.state.data.isAuthenticated;
+
+  //Check if user is authenticated
+  if (!isAuthenticated) {
+    const token = localStorage.getItem("access_token");
+    if (token) {
+      const decoded = jwt_decode(token);
+      authContext.dispatch({ type: "LOGIN", payload: decoded });
+    }
+  }
+
   return (
     <div className="App">
       <Router>

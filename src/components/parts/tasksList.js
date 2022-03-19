@@ -57,10 +57,13 @@ function TasksList(props) {
     (async () => {
       if (props.projectOnly) {
         console.log("projectONly");
-        tasks = await datahandler.show(`tasks/project/${props.project._id}`);
+        tasks = await datahandler.show(
+          `tasks/project/${props.project._id}`,
+          authContext
+        );
         console.log("tasks, projectOnly");
       } else {
-        tasks = await datahandler.show(`tasks/user/${user._id}`);
+        tasks = await datahandler.show(`tasks/user/${user._id}`, authContext);
       }
 
       console.log(tasks, "TASKS");
@@ -114,8 +117,8 @@ function TasksList(props) {
         }
       }
 
-      const titles = await datahandler.show("projects/titles");
-      const users = await datahandler.show("users/names");
+      const titles = await datahandler.show("projects/titles", authContext);
+      const users = await datahandler.show("users/names", authContext);
 
       // firt name and last name to title so it can be passed to dropdown component
       const workers = [];
@@ -163,7 +166,10 @@ function TasksList(props) {
       assigned_users.push(newTaskAssignedUsers[i]._id);
     }
 
-    const project = await datahandler.show(`projects/basic/${project_id}`);
+    const project = await datahandler.show(
+      `projects/basic/${project_id}`,
+      authContext
+    );
 
     const project_manager_id = project.project_manager;
     assigned_users.unshift(project_manager_id);
@@ -197,14 +203,19 @@ function TasksList(props) {
       due_date,
       description,
     };
-    const insertTaskRes = await datahandler.create("tasks", taskObj);
+    const insertTaskRes = await datahandler.create(
+      "tasks",
+      taskObj,
+      authContext
+    );
 
     taskObj._id = insertTaskRes._id;
 
     if (status === "in_review") {
       (async () => {
         const project = await datahandler.show(
-          `projects/basic/${taskObj.project_id}`
+          `projects/basic/${taskObj.project_id}`,
+          authContext
         );
 
         const reviewObj = {
@@ -216,7 +227,11 @@ function TasksList(props) {
           assignee_id: user._id,
         };
 
-        const createReview = await datahandler.create("reviews", reviewObj);
+        const createReview = await datahandler.create(
+          "reviews",
+          reviewObj,
+          authContext
+        );
       })();
     }
 
@@ -260,7 +275,11 @@ function TasksList(props) {
         break;
       case "delete":
         const task = props.tasks.find((el) => el._id === item._id);
-        const deleted = await datahandler.deleteItem("tasks", task._id);
+        const deleted = await datahandler.deleteItem(
+          "tasks",
+          task._id,
+          authContext
+        );
         break;
 
       default:
@@ -335,7 +354,8 @@ function TasksList(props) {
 
     (async () => {
       const project = await datahandler.show(
-        `projects/basic/${task.project_id}`
+        `projects/basic/${task.project_id}`,
+        authContext
       );
 
       const reviewObj = {
@@ -349,16 +369,26 @@ function TasksList(props) {
 
       const droppedInto = finish._id;
 
-      const updateTask = await datahandler.update("tasks", draggableId, {
-        status: droppedInto,
-      });
+      const updateTask = await datahandler.update(
+        "tasks",
+        draggableId,
+        {
+          status: droppedInto,
+        },
+        authContext
+      );
       if (droppedInto === "in_review") {
-        const createReview = await datahandler.create("reviews", reviewObj);
+        const createReview = await datahandler.create(
+          "reviews",
+          reviewObj,
+          authContext
+        );
       }
       if (start._id === "in_review" && droppedInto !== "in_review") {
         const deletedReview = await datahandler.deleteItem(
           "reviews",
-          draggableId
+          draggableId,
+          authContext
         );
       }
     })();

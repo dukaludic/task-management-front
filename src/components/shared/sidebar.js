@@ -36,7 +36,10 @@ function Sidebar() {
     const decoded = jwt_decode(token);
 
     (async () => {
-      const userData = await datahandler.show(`users/basic/${decoded._id}`);
+      const userData = await datahandler.show(
+        `users/basic/${decoded._id}`,
+        authContext
+      );
       setUser(userData);
       console.log(userData, "===userData 2131231");
     })();
@@ -114,9 +117,11 @@ function Sidebar() {
 
   const modalSaveHandler = async () => {
     console.log(user._id, "===user._id");
+    console.log("save handler");
 
     const imageAssignedExists = await datahandler.show(
-      `imagesassigned/assignment_id/${user._id}`
+      `imagesassigned/assignment_id/${user._id}`,
+      authContext
     );
 
     console.log(imageAssignedExists, "imageassignedExists");
@@ -125,24 +130,35 @@ function Sidebar() {
       const updatedImageRes = await datahandler.update(
         `images`,
         imageAssignedExists.image_id,
-        { base_64: modalProfilePicture }
+        { base_64: modalProfilePicture },
+        authContext
       );
     } else {
-      const insertImageRes = await datahandler.create("images", {
-        base_64: modalProfilePicture,
-      });
+      const insertImageRes = await datahandler.create(
+        "images",
+        {
+          base_64: modalProfilePicture,
+        },
+        authContext
+      );
 
       const insertImageAssignedRes = await datahandler.create(
         "imagesassigned",
         {
           assignment_id: user._id,
           image_id: insertImageRes._id,
-        }
+        },
+        authContext
       );
 
-      const updateUserRes = await datahandler.update("users", user._id, {
-        profile_picture: insertImageAssignedRes._id,
-      });
+      const updateUserRes = await datahandler.update(
+        "users",
+        user._id,
+        {
+          profile_picture: insertImageAssignedRes._id,
+        },
+        authContext
+      );
     }
 
     console.log(modalProfilePicture, "==modalProfilePicture");

@@ -39,15 +39,25 @@ function DashboardReviews(props) {
 
     console.log(review, "review");
 
-    const updatedReview = await datahandler.update("reviews", review._id, {
-      approval: approval,
-      reviewed_by: user._id,
-      time_reviewed: new Date(),
-    });
+    const updatedReview = await datahandler.update(
+      "reviews",
+      review._id,
+      {
+        approval: approval,
+        reviewed_by: user._id,
+        time_reviewed: new Date(),
+      },
+      authContext
+    );
 
-    const updatedTask = await datahandler.update("tasks", review.task._id, {
-      status: newStatus,
-    });
+    const updatedTask = await datahandler.update(
+      "tasks",
+      review.task._id,
+      {
+        status: newStatus,
+      },
+      authContext
+    );
 
     const tmpReviewsArr = props.reviews.filter(
       (item) => item._id !== review._id
@@ -65,7 +75,11 @@ function DashboardReviews(props) {
   };
 
   const removeReview = async (_id) => {
-    const deletedReview = await datahandler.deleteItem("reviews", _id);
+    const deletedReview = await datahandler.deleteItem(
+      "reviews",
+      _id,
+      authContext
+    );
 
     const tmpReviewsArr = props.reviews.filter((item) => item._id !== _id);
     const tmpUserReviewsArr = props.userReviews.filter(

@@ -22,7 +22,7 @@ function ProjectsList(props) {
 
   useEffect(() => {
     (async () => {
-      const users = await datahandler.show("users");
+      const users = await datahandler.show("users", authContext);
 
       const workers = [];
       const projectManagers = [];
@@ -65,7 +65,11 @@ function ProjectsList(props) {
       status: "to_do",
     };
 
-    const newProjectRes = await datahandler.create("projects", newProjectObj);
+    const newProjectRes = await datahandler.create(
+      "projects",
+      newProjectObj,
+      authContext
+    );
     props.reload(props.reloadCounter + 1);
     setNewProjectMenuOpen(false);
   };

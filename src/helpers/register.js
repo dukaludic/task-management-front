@@ -39,8 +39,11 @@ const Login = () => {
 
   useEffect(() => {
     (async () => {
-      const usernamesRes = await datahandler.show("users/usernames");
-      const emailsRes = await datahandler.show("users/emails");
+      const usernamesRes = await datahandler.show(
+        "users/usernames",
+        authContext
+      );
+      const emailsRes = await datahandler.show("users/emails", authContext);
       setUsedUsernames(usernamesRes);
       setUsedEmails(emailsRes);
     })();
@@ -97,7 +100,11 @@ const Login = () => {
 
       console.log(newUserObj, "newuserobj");
 
-      const newUserRes = await datahandler.create("users", newUserObj);
+      const newUserRes = await datahandler.create(
+        "users",
+        newUserObj,
+        authContext
+      );
 
       console.log(newUserRes, "newuserres");
 
