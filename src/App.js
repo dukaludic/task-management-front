@@ -39,7 +39,7 @@ function App() {
         <Routes>
           {isAuthenticated ? (
             <>
-              <Route exact path="*" element={<Dashboard />} />
+              <Route exact path="/*" element={<Dashboard />} />
             </>
           ) : (
             <>

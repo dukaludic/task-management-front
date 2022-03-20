@@ -8,11 +8,12 @@ import Dropdown from "react-bootstrap/Dropdown";
 import * as datahandler from "../../helpers/dataHandler";
 
 import { Auth } from "../../context/AuthContext";
+import { AiOutlineClose } from "react-icons/ai";
 
 function DashboardReviews(props) {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [inReview, setInReview] = useState([]);
-
+  const [reviewHovering, setReviewHovering] = useState(null);
   const authContext = useContext(Auth);
   const { user } = authContext.state.data;
 
@@ -24,11 +25,11 @@ function DashboardReviews(props) {
     let newStatus;
     let approval;
     switch (option) {
-      case "Resolve":
+      case "Approve":
         approval = "approved";
         newStatus = "done";
         break;
-      case "Send back":
+      case "Reject":
         approval = "rejected";
         newStatus = "in_progress";
         break;
@@ -74,16 +75,25 @@ function DashboardReviews(props) {
     // setInReview(props.inReview);
   };
 
-  const removeReview = async (_id) => {
+  const removeReview = async (review) => {
+    console.log(review, "review");
+
     const deletedReview = await datahandler.deleteItem(
       "reviews",
-      _id,
+      review._id,
       authContext
     );
 
-    const tmpReviewsArr = props.reviews.filter((item) => item._id !== _id);
+    const updateTaskRes = await datahandler.update("tasks", review.task._id, {
+      status: "in_progress",
+      authContext,
+    });
+
+    const tmpReviewsArr = props.reviews.filter(
+      (item) => item._id !== review._id
+    );
     const tmpUserReviewsArr = props.userReviews.filter(
-      (item) => item._id !== _id
+      (item) => item._id !== review._id
     );
 
     props.setReviews(tmpReviewsArr);
@@ -93,68 +103,105 @@ function DashboardReviews(props) {
   };
 
   return (
-    <div className="main-card">
-      <h3>Reviews</h3>
+    <div className="card-container">
+      <h3 className="h-3">Reviews</h3>
       {props.reviews.length === 0 && (
-        <p>You currently have no pending reviews</p>
+        <p className="b-3">You currently have no pending reviews</p>
       )}
-      {console.log(props.reviews, "props reviews")}
-      {props.reviews.map((review) => {
-        return (
-          <div className="d-flex justify-content-between align-items-center">
-            <div>
-              <Link to={`/task/${review.task._id}`}>
-                <p>{review.task.title}</p>
-              </Link>
-              {(review.approval === "approved" ||
-                review.approval === "rejected") && (
+      <div className="all-reviews-container">
+        {props.reviews.map((review, i) => {
+          return (
+            <div
+              onMouseEnter={() => setReviewHovering(i)}
+              onMouseLeave={() => setReviewHovering(null)}
+              className="review-container"
+            >
+              <div className="d-flex flex-column justify-space-between">
+                <Link to={`/task/${review.task._id}`}>
+                  <p className="b-2">{review.task.title}</p>
+                </Link>
+                {reviewHovering === i && user.role !== "project_manager" && (
+                  <AiOutlineClose
+                    onClick={() => removeReview(review)}
+                    className="remove-review-icon"
+                  />
+                )}
+
+                {review.approval === "approved" ||
+                review.approval === "rejected" ? (
+                  <div>
+                    <p className="b-3">
+                      {`${review.reviewed_by.first_name} ${review.reviewed_by.last_name}`}{" "}
+                      {moment(review.time_reviewed).format("MMM Do YY")}
+                    </p>
+                  </div>
+                ) : (
+                  <div>
+                    <p className="b-3">
+                      {`${review.assignee.first_name} ${review.assignee.last_name}`}{" "}
+                      {moment(review.time_sent_to_review).format("MMM Do YY")}
+                    </p>
+                  </div>
+                )}
+              </div>
+              {user.role === "project_manager" ? (
+                <div className="">
+                  <div
+                    onClick={(e) =>
+                      reviewOptionSelect(e.target.innerHTML, review)
+                    }
+                    style={{ marginBottom: "10px" }}
+                    className="review-approval-green"
+                  >
+                    Approve
+                  </div>
+                  <div
+                    onClick={(e) =>
+                      reviewOptionSelect(e.target.innerHTML, review)
+                    }
+                    className="review-approval-red"
+                  >
+                    Reject
+                  </div>
+                </div>
+              ) : (
+                // <Dropdown isOpen={true} toggle={toggle}>
+                //   <Dropdown.Toggle>
+                //     <BsThreeDotsVertical />
+                //   </Dropdown.Toggle>
+                //   <Dropdown.Menu>
+                //     <Dropdown.Item
+                //       onClick={(e) =>
+                //         reviewOptionSelect(e.target.innerHTML, review)
+                //       }
+                //     >
+                //       Resolve
+                //     </Dropdown.Item>
+                //     <Dropdown.Item
+                //       onClick={(e) =>
+                //         reviewOptionSelect(e.target.innerHTML, review)
+                //       }
+                //     >
+                //       Send back
+                //     </Dropdown.Item>
+                //   </Dropdown.Menu>
+                // </Dropdown>
                 <>
-                  <p onClick={() => removeReview(review._id)}>X</p>
-                  <p>
-                    {`${review.reviewed_by.first_name} ${review.reviewed_by.last_name}`}{" "}
-                    {moment(review.time_reviewed).format("MMM Do YY")}
-                  </p>
+                  <p
+                    className={`review-approval${
+                      review.approval === "pending"
+                        ? ""
+                        : review.approval === "approved"
+                        ? "-worker-green"
+                        : "-worker-red"
+                    }`}
+                  >{`${review.approval}`}</p>
                 </>
               )}
-              {/* <span
-                style={{ fontSize: "11px" }}
-              >{`${task.assigned_users[0].first_name} ${task.assigned_users[0].last_name}`}</span> */}
-              <span style={{ fontSize: "11px" }}>
-                {user.role === "project_manager"
-                  ? moment(review.time_sent_to_review).format("MMM Do YY")
-                  : moment(review.time_reviewed).format("MMM Do YY")}
-              </span>
             </div>
-            {user.role === "project_manager" ? (
-              <Dropdown isOpen={true} toggle={toggle}>
-                <Dropdown.Toggle>
-                  <BsThreeDotsVertical />
-                </Dropdown.Toggle>
-                <Dropdown.Menu>
-                  <Dropdown.Item
-                    onClick={(e) =>
-                      reviewOptionSelect(e.target.innerHTML, review)
-                    }
-                  >
-                    Resolve
-                  </Dropdown.Item>
-                  <Dropdown.Item
-                    onClick={(e) =>
-                      reviewOptionSelect(e.target.innerHTML, review)
-                    }
-                  >
-                    Send back
-                  </Dropdown.Item>
-                </Dropdown.Menu>
-              </Dropdown>
-            ) : (
-              <>
-                <p>{`${review.approval}`}</p>
-              </>
-            )}
-          </div>
-        );
-      })}
+          );
+        })}
+      </div>
     </div>
   );
 }

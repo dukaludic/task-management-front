@@ -235,7 +235,6 @@ function Sidebar() {
                 src={profilePicture || user?.profile_picture?.base_64}
               />
             </div>
-            {console.log(authContext)}
             <p>{`${user.first_name} ${user.last_name}`}</p>
           </div>
           <button onClick={logout}>Log Out</button>

@@ -25,10 +25,12 @@ import {
 import Overview from "./overview";
 
 const Dashboard = () => {
+  const [sidebarActive, setSidebarActive] = useState(true);
+
   return (
     <>
-      <Sidebar />
-      <div style={{ margin: "0 0 0 350px" }}>
+      <Sidebar setSidebarActive={setSidebarActive} />
+      <div className={`shadow-sidebar${sidebarActive ? "-active" : ""}`}>
         <Routes>
           <Route exact path="/dashboard" element={<Overview />}></Route>
           <Route exact path="/projects" element={<Projects />}></Route>

@@ -25,6 +25,8 @@ const Overview = () => {
   const [projectProgresses, setProjectProgresses] = useState([]);
   const [events, setEvents] = useState([]);
 
+  const [projectSelected, setProjectSelected] = useState("All Projects");
+
   const [userOnlyTasks, setUserOnlyTasks] = useState(false);
 
   const [userTasks, setUserTasks] = useState([]);
@@ -201,10 +203,14 @@ const Overview = () => {
       //   authContext
       // );
 
-      const reviews = await dataHandler.show(
+      let reviews = await dataHandler.show(
         `reviews/user/${authContext.state.data.user._id}`,
         authContext
       );
+
+      if (user.role === "project_manager") {
+        reviews = reviews.filter((el) => el.approval === "pending");
+      }
 
       console.log(reviews, "reviews");
 
@@ -238,6 +244,7 @@ const Overview = () => {
   }, []);
 
   const resetData = () => {
+    setProjectSelected("All Projects");
     sortProjectsData(projects);
   };
 
@@ -248,6 +255,7 @@ const Overview = () => {
 
   const changeProject = (project) => {
     // sort tasks in state by status
+    setProjectSelected(project.title);
 
     let today = Date.parse(new Date());
     let inSevenDays = Date.parse(
@@ -369,12 +377,13 @@ const Overview = () => {
       <Container>
         <Row>
           <Col lg={12}>
-            <h1>Overview</h1>
+            <h1 className="h-1 main-heading">Dashboard</h1>
           </Col>
         </Row>
         <Row>
           <Col lg={12}>
             <DashboardProjectSummary
+              projectSelected={projectSelected}
               projects={projects}
               projectProgresses={projectProgresses}
               todo={todo}
@@ -386,9 +395,10 @@ const Overview = () => {
           </Col>
         </Row>
         <Row style={{ marginTop: "20px" }}>
-          <Col lg={6}>
-            <p onClick={toggleUserProjectTasks}>user/project</p>
+          <Col className="overview-col-l" lg={6}>
             <DashboardTasks
+              projectSelected={projectSelected}
+              toggleUserProjectTasks={toggleUserProjectTasks}
               projects={projects}
               projectProgresses={projectProgresses}
               todo={userOnlyTasks ? userTodo : todo}
@@ -401,7 +411,7 @@ const Overview = () => {
               setUserOnlyTasks={setUserOnlyTasks}
             />
           </Col>
-          <Col lg={6}>
+          <Col className="overview-col-r" lg={6}>
             <DashboardReviews
               projects={projects}
               projectProgresses={projectProgresses}
@@ -419,7 +429,7 @@ const Overview = () => {
           </Col>
         </Row>
       </Container>
-      <DashboardRecent events={events} />
+      {/* <DashboardRecent events={events} /> */}
     </div>
   );
 };

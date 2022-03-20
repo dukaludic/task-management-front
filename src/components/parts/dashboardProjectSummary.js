@@ -9,38 +9,59 @@ import moment from "moment";
 function DashboardProjectSummary(props) {
   return (
     <div container={true}>
+      <Row></Row>
       <Row>
-        <h3>Project Summary</h3>
-      </Row>
-      <Row>
-        <Col lg={12} className="project-summary-card col-6">
-          <div className="project-summary-titles">
-            <div>Name</div>
-            <div>Start</div>
-            <div>End</div>
-            <div>Progress</div>
-          </div>
-          {props.projects.length < 1 && (
-            <p>You are currently not assigned to any project</p>
-          )}
-          {props.projects.map((project, index) => {
-            return (
-              <div key={index} className="project-summary-item">
-                <div
-                  onClick={() => props.changeProject(project)}
-                  style={{ cursor: "pointer" }}
-                >
-                  {project.title}
-                </div>
-                <div>{moment(project.start_date).format("MMM Do YY")}</div>
-                <div>{moment(project.end_date).format("MMM Do YY")}</div>
-                <div>{props.projectProgresses[index]}</div>
+        <Col style={{ padding: 0 }} lg={12}>
+          <div className="card-container">
+            <h3 className="h-3 card-title">Project Summary</h3>
+            <div className="card-content">
+              <div className="project-summary-titles b-2-bold">
+                <div>Name</div>
+                <div>Start</div>
+                <div>End</div>
+                <div>Progress</div>
               </div>
-            );
-          })}
-          <p style={{ cursor: "pointer" }} onClick={() => props.resetData()}>
-            All Projects
-          </p>
+              {props.projects.length < 1 && (
+                <p>You are currently not assigned to any project</p>
+              )}
+              {props.projects.map((project, index) => {
+                return (
+                  <div key={index} className="project-summary-item">
+                    <div
+                      onClick={() => props.changeProject(project)}
+                      style={{ cursor: "pointer" }}
+                      className={
+                        props.projectSelected === project.title &&
+                        `project-title-selected`
+                      }
+                    >
+                      {project.title}
+                    </div>
+                    <div>{moment(project.start_date).format("MMM Do YY")}</div>
+                    <div>{moment(project.end_date).format("MMM Do YY")}</div>
+                    <div className="progress-bar-container">
+                      <div className="progress-bar-whole"></div>
+                      <div
+                        style={{ width: `${props.projectProgresses[index]}%` }}
+                        className="progress-bar"
+                      ></div>
+                      <span>{`${props.projectProgresses[index]}%`}</span>
+                    </div>
+                  </div>
+                );
+              })}
+              <p
+                style={{ cursor: "pointer" }}
+                className={
+                  props.projectSelected === "All Projects" &&
+                  "project-title-selected"
+                }
+                onClick={() => props.resetData()}
+              >
+                All Projects
+              </p>
+            </div>
+          </div>
         </Col>
       </Row>
     </div>

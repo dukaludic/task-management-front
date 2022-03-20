@@ -23,7 +23,7 @@ import { useDropzone } from "react-dropzone";
 import { GrProjects } from "react-icons/gr";
 import { Spinner } from "react-bootstrap";
 
-function Sidebar() {
+function Sidebar(props) {
   const [sidebarActive, setSidebarActive] = useState(true);
   const [logoTypo, setLogoTypo] = useState("");
   const [counter, setCounter] = useState(0);
@@ -259,6 +259,7 @@ function Sidebar() {
           onClick={() => {
             setLogoTypo("");
             setSidebarActive((prevState) => !prevState);
+            props.setSidebarActive((prevState) => !prevState);
           }}
           id="hamburger"
         />
@@ -274,7 +275,12 @@ function Sidebar() {
               <BiBarChart className="sidebar-icon" />
               {sidebarActive && <span className="menu-item">Dashboard</span>}
             </NavLink>
-            {!sidebarActive && <span className="tip">Dashboard</span>}
+            {!sidebarActive && (
+              <>
+                {console.log(sidebarActive, "sidebarActive")}
+                <span className="tip">Dashboard</span>
+              </>
+            )}
           </li>
           <li>
             <NavLink
@@ -317,7 +323,7 @@ function Sidebar() {
             <RiLogoutBoxLine className="sidebar-icon" />
             {sidebarActive && <span className="menu-item">Log out</span>}
           </NavLink>
-          {!sidebarActive && <span className="tip">Log out</span>}
+          {!sidebarActive && <span className="tip logout-tip">Log out</span>}
         </div>
         <div className="sidebar-profile-container">
           {userIsLoading ? (
@@ -332,7 +338,11 @@ function Sidebar() {
           ) : (
             <>
               {!sidebarActive ? (
-                <AiOutlineUser size={20} id="sidebar-user-icon" />
+                <AiOutlineUser
+                  onClick={openModal}
+                  size={20}
+                  id="sidebar-user-icon"
+                />
               ) : (
                 <div className="sidebar-profile-img-container">
                   <img
@@ -347,10 +357,13 @@ function Sidebar() {
 
               {sidebarActive && (
                 <div className="sidebar-profile-info">
-                  <div style={{ color: "white" }} className="b-2">
+                  <div
+                    style={{ color: "white" }}
+                    className="b-2 sidebar-full-name"
+                  >
                     {`${user.first_name} ${user.last_name}`}
                   </div>
-                  <div style={{ color: "white" }} className="b-3">
+                  <div style={{ color: "white" }} className="b-3 sidebar-role">
                     {user.role === "project_manager"
                       ? "Project manager"
                       : "Worker"}

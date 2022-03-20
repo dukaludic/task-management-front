@@ -4,6 +4,8 @@ import { Doughnut } from "react-chartjs-2";
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
 // import { Utils } from "react-chartjs-2";
 
+import { AiOutlineTeam, AiOutlineUser } from "react-icons/ai";
+
 ChartJS.register(ArcElement, Tooltip, Legend);
 
 function DashboardTasks(props) {
@@ -58,20 +60,32 @@ function DashboardTasks(props) {
     ],
   };
 
-  const toggleUserProjectTasks = () => {
-    if (props.userProjectTasks === "user") {
-      props.setUserProjectTasks("project");
-    } else if (props.userProjectTasks === "project") {
-      props.setUserProjectTasks("user");
-    }
-  };
+  // const toggleUserProjectTasks = () => {
+  //   if (props.userProjectTasks === "user") {
+  //     props.setUserProjectTasks("project");
+  //   } else if (props.userProjectTasks === "project") {
+  //     props.setUserProjectTasks("user");
+  //   }
+  // };
 
   return (
-    <div className="main-card">
-      <h3>Tasks</h3>
-      <p onClick={toggleUserProjectTasks}>Mine/Project</p>
-
-      {projectTitle !== "All Tasks" && <p>All Tasks</p>}
+    <div className="card-container">
+      <div className="d-flex justify-content-between align-items-center">
+        <span className="h-3">Tasks</span>
+        {props.userOnlyTasks ? (
+          <AiOutlineUser
+            className="user-team-icon"
+            onClick={props.toggleUserProjectTasks}
+          />
+        ) : (
+          <AiOutlineTeam
+            className="user-team-icon"
+            size={20}
+            onClick={props.toggleUserProjectTasks}
+          />
+        )}
+      </div>
+      <p className="b-3">{props.projectSelected}</p>
 
       <div className="d-flex justify-content-between">
         <div style={{ width: "100%" }}>
