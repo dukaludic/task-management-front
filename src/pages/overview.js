@@ -173,7 +173,6 @@ const Overview = () => {
         }
       }
     }
-    console.log(overdue, "overdue");
     setProjects(projects);
     setTodo(todo);
     setInProgress(inProgress);
@@ -181,8 +180,6 @@ const Overview = () => {
     setEvents(events);
     setOverdue(overdue);
     setNearDeadline(nearDeadline);
-
-    console.log(userTodo, "userTodo");
 
     setUserTodo(userTodo);
     setUserInProgress(userInProgress);
@@ -193,20 +190,16 @@ const Overview = () => {
 
   useEffect(() => {
     (async () => {
+      console.log(user, "user");
       const projects = await dataHandler.show(
-        `projects/user/${authContext.state.data.user._id}`,
+        `projects/user/overview/${authContext.state.data.user._id}`,
         authContext
       );
 
-      // if (projects.response.data.statusCode === 401) {
-      //   authContext.dispatch({ type: "LOG_OUT" });
-      // }
-
-      // console.log("projects", projects.response.data.statusCode);
-      const events = await dataHandler.show(
-        `events/user/${authContext.state.data.user._id}`,
-        authContext
-      );
+      // const events = await dataHandler.show(
+      //   `events/user/${authContext.state.data.user._id}`,
+      //   authContext
+      // );
 
       const reviews = await dataHandler.show(
         `reviews/user/${authContext.state.data.user._id}`,

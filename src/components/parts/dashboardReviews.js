@@ -98,6 +98,7 @@ function DashboardReviews(props) {
       {props.reviews.length === 0 && (
         <p>You currently have no pending reviews</p>
       )}
+      {console.log(props.reviews, "props reviews")}
       {props.reviews.map((review) => {
         return (
           <div className="d-flex justify-content-between align-items-center">
