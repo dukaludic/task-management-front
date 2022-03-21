@@ -1,12 +1,10 @@
 import React, { useEffect, useState } from "react";
 import * as dataHandler from "../../helpers/dataHandler";
-import { Doughnut } from "react-chartjs-2";
-import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
-// import { Utils } from "react-chartjs-2";
+import { Bar } from "react-chartjs-2";
+import { Chart, registerables } from "chart.js";
 
 import { AiOutlineTeam, AiOutlineUser } from "react-icons/ai";
-
-ChartJS.register(ArcElement, Tooltip, Legend);
+Chart.register(...registerables);
 
 function DashboardTasks(props) {
   const [projectTitle, setProjectTitle] = useState("All Tasks");
@@ -32,30 +30,53 @@ function DashboardTasks(props) {
   //   setInReview(props.inReview);
   // }, [props.todo, props.inProgress, props.done, props.inReview]);
 
-  const data = {
+  const dataByStatus = {
     labels: [
-      `Overdue: ${props.overdue.length}`,
-      `Near Deadline: ${props.nearDeadline.length}`,
-      `In Progress: ${props.inProgress.length}`,
       `To do: ${props.todo.length}`,
+      `In Progress: ${props.inProgress.length}`,
       `In Review ${props.inReview.length}`,
     ],
+
     datasets: [
       {
         data: [
-          props.overdue.length,
-          props.nearDeadline.length,
-          props.inProgress.length,
           props.todo.length,
+          props.inProgress.length,
           props.inReview.length,
         ],
+
         backgroundColor: [
-          "rgba(255, 99, 132, 0.6)",
           "rgba(54, 162, 235, 0.6)",
           "rgba(255, 206, 86, 0.6)",
           "rgba(75, 192, 192, 0.6)",
           "rgba(153, 102, 255, 0.6)",
         ],
+      },
+    ],
+  };
+
+  const dataByDeadline = {
+    labels: [
+      `Overdue: ${props.overdue.length}`,
+      `Near Deadline: ${props.nearDeadline.length}`,
+    ],
+    options: {
+      plugins: {
+        legend: {
+          labels: {
+            // This more specific font property overrides the global property
+            font: {
+              size: 6,
+            },
+          },
+        },
+      },
+    },
+    datasets: [
+      {
+        data: [props.overdue.length, props.nearDeadline.length],
+
+        backgroundColor: ["rgba(255, 99, 132, 0.6)", "rgba(255, 206, 86, 0.6)"],
       },
     ],
   };
@@ -88,8 +109,46 @@ function DashboardTasks(props) {
       <p className="b-3">{props.projectSelected}</p>
 
       <div className="d-flex justify-content-between">
-        <div style={{ width: "100%" }}>
-          <Doughnut data={data} />
+        <div style={{ maxWidth: "400px" }} className="">
+          <Bar
+            options={{
+              plugins: {
+                legend: {
+                  display: false,
+                  position: "bottom",
+                  labels: {
+                    // This more specific font property overrides the global property
+                    font: {
+                      size: 11,
+                    },
+                  },
+                },
+              },
+            }}
+            data={dataByStatus}
+          />
+          <Bar
+            style={{ width: "300px" }}
+            options={{
+              plugins: {
+                legend: {
+                  display: false,
+                  position: "bottom",
+                  labels: {
+                    // This more specific font property overrides the global property
+                    font: {
+                      size: 6,
+                    },
+                  },
+                },
+              },
+              myScale: {
+                type: "logarithmic",
+                position: "right", // `axis` is determined by the position as `'y'`
+              },
+            }}
+            data={dataByDeadline}
+          />
         </div>
       </div>
     </div>

@@ -94,11 +94,16 @@ const Overview = () => {
 
             console.log(projects[i].tasks[j].assigned_users, "USER");
 
-            if (
-              projects[i].tasks[j].assigned_users.some(
-                (el) => el._id === user._id
-              )
-            ) {
+            // if (
+            //   projects[i].tasks[j].assigned_users.some(
+            //     (el) => el._id === user._id
+            //   )
+            // ) {
+            //   userTodo.push(projects[i].tasks[j]);
+            //   console.log("userTodo");
+            // }
+
+            if (projects[i].tasks[j].assigned_users.includes(user._id)) {
               userTodo.push(projects[i].tasks[j]);
             }
 
@@ -106,11 +111,15 @@ const Overview = () => {
           case "in_progress":
             inProgress.push(projects[i].tasks[j]);
 
-            if (
-              projects[i].tasks[j].assigned_users.some(
-                (el) => el.username === user.username
-              )
-            ) {
+            // if (
+            //   projects[i].tasks[j].assigned_users.some(
+            //     (el) => el.username === user.username
+            //   )
+            // ) {
+            //   userInProgress.push(projects[i].tasks[j]);
+            // }
+
+            if (projects[i].tasks[j].assigned_users.includes(user._id)) {
               userInProgress.push(projects[i].tasks[j]);
             }
 
@@ -118,14 +127,17 @@ const Overview = () => {
           case "in_review":
             inReview.push(projects[i].tasks[j]);
 
-            if (
-              projects[i].tasks[j].assigned_users.some(
-                (el) => el.username === user.username
-              )
-            ) {
+            // if (
+            //   projects[i].tasks[j].assigned_users.some(
+            //     (el) => el.username === user.username
+            //   )
+            // ) {
+            //   userInReview.push(projects[i].tasks[j]);
+            // }
+
+            if (projects[i].tasks[j].assigned_users.includes(user._id)) {
               userInReview.push(projects[i].tasks[j]);
             }
-
             break;
           // case "done":
           //   if (
@@ -153,11 +165,14 @@ const Overview = () => {
           console.log(projects[i].tasks[j].title);
           overdue.push(projects[i].tasks[j]);
 
-          if (
-            projects[i].tasks[j].assigned_users.some(
-              (el) => el.username === user.username
-            )
-          ) {
+          // if (
+          //   projects[i].tasks[j].assigned_users.some(
+          //     (el) => el.username === user.username
+          //   )
+          // ) {
+          //   userOverdue.push(projects[i].tasks[j]);
+          // }
+          if (projects[i].tasks[j].assigned_users.includes(user._id)) {
             userOverdue.push(projects[i].tasks[j]);
           }
         } else if (dueDate < inSevenDays) {
@@ -165,11 +180,15 @@ const Overview = () => {
 
           nearDeadline.push(projects[i].tasks[j]);
 
-          if (
-            projects[i].tasks[j].assigned_users.some(
-              (el) => el.username === user.username
-            )
-          ) {
+          // if (
+          //   projects[i].tasks[j].assigned_users.some(
+          //     (el) => el.username === user.username
+          //   )
+          // ) {
+          //   userNearDeadline.push(projects[i].tasks[j]);
+          // }
+
+          if (projects[i].tasks[j].assigned_users.includes(user._id)) {
             userNearDeadline.push(projects[i].tasks[j]);
           }
         }
@@ -182,6 +201,8 @@ const Overview = () => {
     setEvents(events);
     setOverdue(overdue);
     setNearDeadline(nearDeadline);
+
+    console.log(userTodo, "=====userTodo");
 
     setUserTodo(userTodo);
     setUserInProgress(userInProgress);
@@ -197,6 +218,8 @@ const Overview = () => {
         `projects/user/overview/${authContext.state.data.user._id}`,
         authContext
       );
+
+      console.log(projects, "projects");
 
       // const events = await dataHandler.show(
       //   `events/user/${authContext.state.data.user._id}`,
