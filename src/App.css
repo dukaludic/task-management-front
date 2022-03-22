@@ -528,9 +528,16 @@ body {
   /* border-radius: 50%; */
 }
 
+.sidebar-dropzone-container {
+  position: relative;
+  background-color: lightgray;
+  width: 50%;
+  padding: 50px;
+}
+
 .profile-picture-modal {
-  width: 300px;
-  height: 400px;
+  width: 1000px;
+  height: 600px;
   background-color: #fff;
   border: 1px solid lightgray;
   border-radius: 5px;
@@ -539,11 +546,12 @@ body {
   left: 50%;
   top: 50%;
   transform: translate(-50%, -50%);
+  display: "flex";
+  flex-direction: row;
 }
 
 .dropzone-profile-picture {
   flex: 1;
-  display: flex;
   flex-direction: column;
   align-items: center;
   padding: 20px;
@@ -556,6 +564,13 @@ body {
   color: #bdbdbd;
   outline: none;
   transition: border 0.24s ease-in-out;
+}
+
+.sidebar-profile-modal-inputs {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 }
 
 .dropzone-task {

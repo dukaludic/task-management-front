@@ -10,6 +10,7 @@ import {
   AiOutlinePieChart,
   AiOutlineTeam,
   AiOutlineUser,
+  AiOutlineClose,
 } from "react-icons/ai";
 import { RiLogoutBoxLine } from "react-icons/ri";
 import defaultUser from "../../assets/images/default-user-image.png";
@@ -221,27 +222,42 @@ function Sidebar(props) {
         onRequestClose={closeModal}
         contentLabel="Example Modal"
       >
-        <MyDropzone onDrop={(acceptedFiles) => console.log(acceptedFiles)}>
-          {({ getRootProps, getInputProps }) => (
-            <section>
-              {console.log(modalProfilePicture, "modalProfilePicture")}
-              {modalProfilePicture ? (
-                <img
-                  className="profile-picture-dashboard-modal"
-                  src={modalProfilePicture}
-                />
-              ) : (
-                <div {...getRootProps()}>
-                  <input {...getInputProps()} />
-                  <p>Drag 'n' drop some files here, or click to select files</p>
-                </div>
+        <div className="d-flex">
+          <div className="sidebar-dropzone-container">
+            <MyDropzone onDrop={(acceptedFiles) => console.log(acceptedFiles)}>
+              {({ getRootProps, getInputProps }) => (
+                <section>
+                  {console.log(modalProfilePicture, "modalProfilePicture")}
+                  {modalProfilePicture ? (
+                    <img
+                      className="profile-picture-dashboard-modal"
+                      src={modalProfilePicture}
+                    />
+                  ) : (
+                    <div {...getRootProps()}>
+                      <input {...getInputProps()} />
+                      <p>
+                        Drag 'n' drop some files here, or click to select files
+                      </p>
+                    </div>
+                  )}
+                </section>
               )}
-            </section>
-          )}
-        </MyDropzone>
+            </MyDropzone>
+          </div>
+          <div className="p-2 sidebar-profile-modal-inputs">
+            <p className="h-3">Change Password</p>
+            <p>Current password</p>
+            <input type="password" className="login-input" />
+            <p>New Password</p>
+            <input type="password" className="login-input" />
+            <p>Confirm Password</p>
+            <input type="password" className="login-input" />
+            <button onClick={modalSaveHandler}>Save</button>
+          </div>
+        </div>
         <div className="d-flex justify-content-between">
-          <button onClick={closeModal}>Close</button>
-          <button onClick={modalSaveHandler}>Save</button>
+          <AiOutlineClose className="remove-review-icon" onClick={closeModal} />
         </div>
       </Modal>
       {console.log(sidebarActive)}

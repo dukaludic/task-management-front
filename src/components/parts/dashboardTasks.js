@@ -109,7 +109,7 @@ function DashboardTasks(props) {
       <p className="b-3">{props.projectSelected}</p>
 
       <div className="d-flex justify-content-between">
-        <div style={{ maxWidth: "400px" }} className="">
+        <div width="600px" className="d-flex flex-column">
           <Bar
             options={{
               plugins: {
@@ -128,7 +128,6 @@ function DashboardTasks(props) {
             data={dataByStatus}
           />
           <Bar
-            style={{ width: "300px" }}
             options={{
               plugins: {
                 legend: {
@@ -137,7 +136,8 @@ function DashboardTasks(props) {
                   labels: {
                     // This more specific font property overrides the global property
                     font: {
-                      size: 6,
+                      size: 12,
+                      family: "Helvetica",
                     },
                   },
                 },
