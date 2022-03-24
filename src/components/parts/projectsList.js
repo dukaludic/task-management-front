@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 
 import { Auth } from "../../context/AuthContext";
 import DropdownSearch from "./dropdownSearch";
-
+import moment from "moment";
 import * as datahandler from "../../helpers/dataHandler";
 
 function ProjectsList(props) {
@@ -74,19 +74,30 @@ function ProjectsList(props) {
     setNewProjectMenuOpen(false);
   };
 
+  const cancelNewProject = () => {
+    setNewEntryTitle("");
+    setNewEntryDescription("");
+    setNewEntryAssignedUsers("");
+    setNewEntryProjectManager("");
+    setNewEntryStartDate("");
+    setNewEntryEndDate("");
+    setNewProjectMenuOpen(false);
+  };
+
   return (
     <div>
-      <div className="projects-list-titles">
+      <div className="projects-list-titles b-2-bold">
         <p>Project</p>
         <p>Team</p>
-        <p>Last updated</p>
+        <p>Start Date</p>
+        <p>End Date</p>
         <p>Progress</p>
       </div>
       {props.projects.map((project, index) => {
         return (
           <div className="project-list-info">
             <Link to={`/project/${project._id}`}>{project.title}</Link>
-            <div className="d-flex align-items-center">
+            <div className="d-flex align-items-center mb-3">
               {project.assigned_users.map((user) => {
                 return (
                   <img
@@ -96,13 +107,20 @@ function ProjectsList(props) {
                 );
               })}
             </div>
-            <p></p>
-
-            <div>{props.projectProgresses[index]}</div>
+            <p>{moment(project.start_date).format("MMM Do YY")}</p>
+            <p>{moment(project.end_date).format("MMM Do YY")}</p>
+            <div className="progress-bar-container">
+              <div className="progress-bar-whole"></div>
+              <div
+                style={{ width: `${props.projectProgresses[index]}%` }}
+                className="progress-bar"
+              ></div>
+              <span>{`${props.projectProgresses[index]}%`}</span>
+            </div>
           </div>
         );
       })}
-      {newProjectMenuOpen &&
+      {/* {newProjectMenuOpen &&
         authContext.state.data.user.role === "project_manager" && (
           <div>
             <div>
@@ -163,6 +181,7 @@ function ProjectsList(props) {
               />
             </div>
             <button onClick={addProject}>ADD</button>
+            <button onClick={cancelNewProject}>Cancel</button>
           </div>
         )}
       {!newProjectMenuOpen &&
@@ -170,7 +189,7 @@ function ProjectsList(props) {
           <button onClick={() => setNewProjectMenuOpen(true)}>
             New Project
           </button>
-        )}
+        )} */}
     </div>
   );
 }

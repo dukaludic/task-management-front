@@ -379,13 +379,12 @@ body {
 
 .projects-list-titles {
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr 1fr;
-  background-color: #ddd;
+  grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
 }
 
 .project-list-info {
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr 1fr;
+  grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
 }
 
 .team-small-image-circle {
@@ -752,6 +751,14 @@ a {
   border: none;
   box-shadow: 0 3px 6px rgba(32, 33, 36, 0.28);
   padding: 40px;
+}
+
+.card-container a {
+  color: var(--darkGrey);
+}
+
+.card-container a:hover {
+  color: var(--green);
 }
 
 .card-title {

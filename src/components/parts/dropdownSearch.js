@@ -21,6 +21,7 @@ function DropdownSearch({
 
   useEffect(() => {
     console.log("useEffect");
+    console.log(items, "items dropdown");
     setData(items);
   }, []);
 
@@ -30,7 +31,7 @@ function DropdownSearch({
     e.target.parentNode.parentNode.classList.remove("focus");
 
   const onInput = (e) => {
-    console.log(data, "data", items);
+    console.log("input");
     const filtered = data?.filter((item) =>
       item.title.toLowerCase().includes(search.toLowerCase())
     );

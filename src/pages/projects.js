@@ -5,11 +5,13 @@ import ProjectsList from "../components/parts/projectsList";
 
 import * as datahandler from "../helpers/dataHandler";
 import { Auth } from "../context/AuthContext";
+import NewProjectMenu from "../components/parts/newProjectMenu";
 
 function Projects() {
   const [projects, setProjects] = useState([]);
   const [projectProgresses, setProjectProgresses] = useState([]);
   const [reloadCounter, reload] = useState(0);
+  const [newProjectMenuOpen, setNewProjectMenuOpen] = useState(false);
 
   const authContext = useContext(Auth);
 
@@ -58,17 +60,31 @@ function Projects() {
       <Container>
         <Row>
           <Col lg={12}>
-            <h1>Projects</h1>
+            <h1 className="h-1 main-heading">Projects</h1>
           </Col>
         </Row>
         <Row>
           <Col lg={12}>
-            <ProjectsList
-              projects={projects}
-              projectProgresses={projectProgresses}
-              reloadCounter={reloadCounter}
-              reload={reload}
-            />
+            <div className="card-container">
+              <ProjectsList
+                projects={projects}
+                projectProgresses={projectProgresses}
+                reloadCounter={reloadCounter}
+                reload={reload}
+              />
+            </div>
+          </Col>
+          <Col>
+            {newProjectMenuOpen &&
+              authContext.state.data.user.role === "project_manager" && (
+                <NewProjectMenu setNewProjectMenuOpen={setNewProjectMenuOpen} />
+              )}
+            {!newProjectMenuOpen &&
+              authContext.state.data.user.role === "project_manager" && (
+                <button onClick={() => setNewProjectMenuOpen(true)}>
+                  New Project
+                </button>
+              )}
           </Col>
         </Row>
       </Container>
