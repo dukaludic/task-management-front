@@ -109,7 +109,7 @@ function DashboardTasks(props) {
       <p className="b-3">{props.projectSelected}</p>
 
       <div className="d-flex justify-content-between">
-        <div width="600px" className="d-flex flex-column">
+        <div className="d-flex flex-column w-100">
           <Bar
             options={{
               plugins: {

@@ -565,6 +565,34 @@ body {
   transition: border 0.24s ease-in-out;
 }
 
+.input-default {
+  background-color: var(--whiteGrey);
+  border-radius: 5px;
+  border: none;
+  padding: 10px;
+}
+
+.new-project-input-container {
+  display: flex;
+  margin-bottom: 20px;
+}
+
+.new-project-input-container p {
+  flex: 1;
+}
+
+.new-project-input-container input {
+  flex: 2;
+}
+
+.new-project-input-container textarea {
+  flex: 2;
+}
+
+.new-project-input-container div {
+  flex: 2;
+}
+
 .sidebar-profile-modal-inputs {
   display: flex;
   flex-direction: column;

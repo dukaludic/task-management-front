@@ -2,6 +2,7 @@ import React, { useState, useEffect, useContext } from "react";
 import DropdownSearch from "./dropdownSearch";
 import * as datahandler from "../../helpers/dataHandler";
 import Auth from "../../context/AuthContext";
+import { Col, Container, Row } from "react-bootstrap";
 
 function NewProjectMenu(props) {
   const [allWorkers, setAllWorkers] = useState([]);
@@ -81,65 +82,80 @@ function NewProjectMenu(props) {
   };
 
   return (
-    <div>
-      <div>
-        <p>Title</p>
-        <input
-          value={newEntryTitle}
-          onChange={(e) => setNewEntryTitle(e.target.value)}
-          type="text"
-          className=""
-        />
-        {!newEntryTitleValid && <p>Title must be at least 3 letter long</p>}
-      </div>
-      <div>
-        <p>Description</p>
-        <textarea
-          value={newEntryDescription}
-          onChange={(e) => setNewEntryDescription(e.target.value)}
-        />
-      </div>
-      <div>
-        <p>Team</p>
-        <DropdownSearch
-          style={{ display: "block" }}
-          items={allWorkers}
-          type="workers"
-          setNewEntryAssignedUsers={setNewEntryAssignedUsers}
-          newEntryAssignedUsers={newEntryAssignedUsers}
-        />
-      </div>
-      <div>
-        <p>Project Manager</p>
-        <DropdownSearch
-          items={allProjectManagers}
-          type="project_managers"
-          setNewEntryProjectManager={setNewEntryProjectManager}
-        />
-      </div>
+    <Container className="card-container mt-5 b-2">
+      <Row>
+        <Row>
+          <h1 style={{ marginBottom: "20px" }} className="h-3">
+            Add Project
+          </h1>
+        </Row>
 
-      <div>
-        <p>Start Date</p>
-        <input
-          value={newEntryStartDate}
-          onChange={(e) => setNewEntryStartDate(e.target.value)}
-          type="date"
-          className=""
-        />
-      </div>
+        <Col>
+          <div className="new-project-input-container">
+            <p>Title</p>
+            <input
+              value={newEntryTitle}
+              onChange={(e) => setNewEntryTitle(e.target.value)}
+              type="text"
+              className="input-default b-2"
+            />
+            {!newEntryTitleValid && <p>Title must be at least 3 letter long</p>}
+          </div>
+          <div className="new-project-input-container">
+            <p>Description</p>
+            <textarea
+              value={newEntryDescription}
+              onChange={(e) => setNewEntryDescription(e.target.value)}
+              className="input-default b-2"
+            />
+          </div>
+          <div className="new-project-input-container">
+            <p>Start Date</p>
+            <input
+              value={newEntryStartDate}
+              onChange={(e) => setNewEntryStartDate(e.target.value)}
+              type="date"
+              className="input-default b-2"
+            />
+          </div>
+          <div className="new-project-input-container">
+            <p>End Date</p>
+            <input
+              value={newEntryEndDate}
+              onChange={(e) => setNewEntryEndDate(e.target.value)}
+              type="date"
+              className="input-default b-2"
+            />
+          </div>
+          <div className="new-project-input-container">
+            <p>Project Manager</p>
+            <div>
+              <DropdownSearch
+                items={allProjectManagers}
+                type="project_managers"
+                setNewEntryProjectManager={setNewEntryProjectManager}
+              />
+            </div>
+          </div>
+        </Col>
+        <Col>
+          <div className="new-project-input-container">
+            <p>Team</p>
 
-      <div>
-        <p>End Date</p>
-        <input
-          value={newEntryEndDate}
-          onChange={(e) => setNewEntryEndDate(e.target.value)}
-          type="date"
-          className=""
-        />
-      </div>
-      <button onClick={addProject}>ADD</button>
-      <button onClick={cancelNewProject}>Cancel</button>
-    </div>
+            <DropdownSearch
+              style={{ display: "block" }}
+              items={allWorkers}
+              type="workers"
+              setNewEntryAssignedUsers={setNewEntryAssignedUsers}
+              newEntryAssignedUsers={newEntryAssignedUsers}
+            />
+          </div>
+
+          <button onClick={addProject}>ADD</button>
+          <button onClick={cancelNewProject}>Cancel</button>
+        </Col>
+      </Row>
+    </Container>
   );
 }
 

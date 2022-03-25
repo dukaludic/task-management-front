@@ -20,17 +20,17 @@ function DropdownSearch({
   const [team, setTeam] = useState([]);
 
   useEffect(() => {
-    console.log("useEffect");
     console.log(items, "items dropdown");
     setData(items);
-  }, []);
+  }, [items]);
 
   //   const onInput = (e) => setSearch(e.target.value);
-  const onFocus = (e) => e.target.parentNode.parentNode.classList.add("focus");
-  const onBlur = (e) =>
-    e.target.parentNode.parentNode.classList.remove("focus");
+  // const onFocus = (e) => e.target.parentNode.parentNode.classList.add("focus");
+  // const onBlur = (e) =>
+  //   e.target.parentNode.parentNode.classList.remove("focus");
 
   const onInput = (e) => {
+    console.log(type, "===============================");
     console.log("input");
     const filtered = data?.filter((item) =>
       item.title.toLowerCase().includes(search.toLowerCase())
@@ -87,19 +87,20 @@ function DropdownSearch({
 
   return (
     <div>
-      <div className="wrapper">
-        <div className="search">
+      <div>
+        <div className="">
           <input
-            _id="search"
+            className="input-default b-2"
+            _id=""
             value={search}
             onChange={onInput}
-            onFocus={onFocus}
-            onBlur={onBlur}
+            // onFocus={onFocus}
+            // onBlur={onBlur}
             autoComplete="off"
           />
         </div>
         {search.length > 1 && filtered.length > 0 && (
-          <ul className="list">
+          <ul>
             {filtered.map((item) => (
               <li onClick={() => onClickItem(item, type)}>{item.title}</li>
             ))}
