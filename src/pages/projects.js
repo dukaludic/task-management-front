@@ -81,7 +81,10 @@ function Projects() {
               )}
             {!newProjectMenuOpen &&
               authContext.state.data.user.role === "project_manager" && (
-                <button onClick={() => setNewProjectMenuOpen(true)}>
+                <button
+                  className="btn-default-g mt-4"
+                  onClick={() => setNewProjectMenuOpen(true)}
+                >
                   New Project
                 </button>
               )}

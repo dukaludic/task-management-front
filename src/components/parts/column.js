@@ -10,7 +10,7 @@ function Column(props) {
         margin: "8px",
         backgroundColor: "#eee",
         height: "100%",
-        width: "220px",
+        minWidth: "220px",
         display: "flex",
         flexDirection: "column",
       }}

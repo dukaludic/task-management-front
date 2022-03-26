@@ -10,7 +10,7 @@ import { Container, Col, Row } from "react-bootstrap";
 import * as datahandler from "../../helpers/dataHandler";
 
 import { BsThreeDotsVertical } from "react-icons/bs";
-import { AiFillPlusCircle } from "react-icons/ai";
+import { AiFillPlusCircle, AiOutlinePlus } from "react-icons/ai";
 import DropdownSearch from "./dropdownSearch";
 
 import { Auth } from "../../context/AuthContext";
@@ -397,7 +397,7 @@ function TasksList(props) {
   };
 
   return (
-    <Container>
+    <Container className="card-container">
       <Row>
         {/* TODO */}
         <Col>
@@ -406,7 +406,7 @@ function TasksList(props) {
               style={{
                 display: "flex",
                 flexDirection: "row",
-                width: "220px",
+                minWidth: "220px",
                 minHeight: "100px",
               }}
             >
@@ -420,34 +420,42 @@ function TasksList(props) {
                 return (
                   <Col>
                     <div>
-                      <h3>{column.title}</h3>
-                      <p>{props.todo.length} tasks available</p>
+                      <h3 className="h-3">{column.title}</h3>
+                      {/* <p>{props.todo.length} tasks available</p> */}
                     </div>
                     {newTaskType === column.title ? (
                       <div className="add-new-task-container">
-                        <p>Title</p>
-                        <input
-                          value={newTaskTitle}
-                          onChange={(e) => {
-                            setNewTaskTitle(e.target.value);
-                          }}
-                          placeholder="Title"
-                        ></input>
-                        <p>Project</p>
+                        <div className="mb-4">
+                          <p className="b-2">Title</p>
+                          <input
+                            value={newTaskTitle}
+                            onChange={(e) => {
+                              setNewTaskTitle(e.target.value);
+                            }}
+                            placeholder="Title"
+                            className="input-default w-100"
+                          ></input>
+                        </div>
+                        <div className="mb-4">
+                          <p className="b-2">Project</p>
 
-                        <DropdownSearch
-                          items={projectTitles}
-                          type="projects"
-                          setNewEntryProject={setNewTaskProject}
-                        />
-                        <p>Description</p>
-                        <textarea
-                          value={newTaskDescription}
-                          onChange={(e) =>
-                            setNewTaskDescription(e.target.value)
-                          }
-                          placeholder="Description"
-                        ></textarea>
+                          <DropdownSearch
+                            items={projectTitles}
+                            type="projects"
+                            setNewEntryProject={setNewTaskProject}
+                          />
+                        </div>
+                        <div className="mb-4">
+                          <p className="b-2">Description</p>
+                          <textarea
+                            value={newTaskDescription}
+                            onChange={(e) =>
+                              setNewTaskDescription(e.target.value)
+                            }
+                            className="input-default w-100"
+                            placeholder="Description"
+                          ></textarea>
+                        </div>
                         {/* <p>Project Manager</p> */}
                         {/* <DropdownSearch
                           items={projectManagers}
@@ -469,20 +477,42 @@ function TasksList(props) {
                           value={dueDate}
                           onChange={(e) => setDueDate(e.target.value)}
                           name="dueDate"
+                          className="input-default w-100"
                         ></input>
-                        <button onClick={insertTask}>Add</button>
-                        <button onClick={(e) => changeTaskType("")}>
-                          Cancel
-                        </button>
+                        <div className="d-flex justify-content-between mt-4">
+                          <button
+                            className="btn-default-g"
+                            onClick={insertTask}
+                          >
+                            Add
+                          </button>
+                          <button
+                            className="btn-default-grey"
+                            onClick={(e) => changeTaskType("")}
+                          >
+                            Cancel
+                          </button>
+                        </div>
                       </div>
                     ) : (
-                      <div
-                        style={{ margin: "10px" }}
-                        onClick={() => changeTaskType(column.title)}
-                        className="add-new-task-btn"
-                      ></div>
+                      <>
+                        <div
+                          style={{ margin: "10px" }}
+                          onClick={() => changeTaskType(column.title)}
+                          className="add-new-task-btn"
+                        >
+                          <div>
+                            <AiOutlinePlus size={20} />
+                            <p className="b-3-w">Add new</p>
+                          </div>
+                        </div>
+                        <Column
+                          key={column._id}
+                          column={column}
+                          tasks={tasks}
+                        />
+                      </>
                     )}
-                    <Column key={column._id} column={column} tasks={tasks} />
                   </Col>
                 );
               })}

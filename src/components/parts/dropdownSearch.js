@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import axios from "axios";
 import { AiOutlineClose } from "react-icons/ai";
+import * as datahandler from "../../helpers/dataHandler";
 
 function DropdownSearch({
   items,
@@ -9,11 +10,13 @@ function DropdownSearch({
   setNewEntryAssignedUsers,
   setNewEntryProjectManager,
   newEntryAssignedUsers,
+  newEntryProjectManager,
 }) {
   const [data, setData] = useState(items);
   const [search, setSearch] = useState("");
   const [project, setProject] = useState("");
   const [filtered, setFiltered] = useState([]);
+  const [assignedUserHovered, setAssignedUserHovered] = useState(null);
 
   console.log(items, "props.items dropdown");
 
@@ -44,7 +47,7 @@ function DropdownSearch({
     setFiltered([]);
   };
 
-  const onClickItem = (item, type) => {
+  const onClickItem = async (item, type) => {
     console.log(item, type, filtered, "===============================");
 
     switch (type) {
@@ -100,19 +103,23 @@ function DropdownSearch({
           />
         </div>
         {search.length > 1 && filtered.length > 0 && (
-          <ul>
+          <ul
+            style={{ maxHeight: filtered.length > 0 ? "100px" : "0px" }}
+            className="dropdown-search-list"
+          >
             {filtered.map((item) => (
               <li onClick={() => onClickItem(item, type)}>{item.title}</li>
             ))}
           </ul>
         )}
       </div>
+
       {newEntryAssignedUsers?.map((item, i) => {
         {
           console.log(item);
         }
         return (
-          <div>
+          <div className="d-flex">
             <span>{item.title}</span>
             <span>
               <AiOutlineClose onClick={() => removeTeamMember(item)} />

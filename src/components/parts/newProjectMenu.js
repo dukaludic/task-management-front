@@ -129,13 +129,12 @@ function NewProjectMenu(props) {
           </div>
           <div className="new-project-input-container">
             <p>Project Manager</p>
-            <div>
-              <DropdownSearch
-                items={allProjectManagers}
-                type="project_managers"
-                setNewEntryProjectManager={setNewEntryProjectManager}
-              />
-            </div>
+            <DropdownSearch
+              items={allProjectManagers}
+              type="project_managers"
+              setNewEntryProjectManager={setNewEntryProjectManager}
+              newEntryProjectManager={newEntryProjectManager}
+            />
           </div>
         </Col>
         <Col>
@@ -150,10 +149,17 @@ function NewProjectMenu(props) {
               newEntryAssignedUsers={newEntryAssignedUsers}
             />
           </div>
-
-          <button onClick={addProject}>ADD</button>
-          <button onClick={cancelNewProject}>Cancel</button>
         </Col>
+      </Row>
+      <Row>
+        <div className="d-flex justify-content-between">
+          <button className="btn-default-g" onClick={addProject}>
+            ADD
+          </button>
+          <button className="btn-default-grey" onClick={cancelNewProject}>
+            Cancel
+          </button>
+        </div>
       </Row>
     </Container>
   );

@@ -35,7 +35,7 @@ function Tasks() {
       <Container>
         <Row>
           <Col lg={12}>
-            <h1>All Tasks</h1>
+            <h1 className="main-heading h-1">All Tasks</h1>
           </Col>
         </Row>
         <Row>
