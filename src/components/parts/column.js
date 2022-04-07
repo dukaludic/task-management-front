@@ -8,7 +8,6 @@ function Column(props) {
     <div
       style={{
         margin: "8px",
-        backgroundColor: "#eee",
         height: "100%",
         minWidth: "220px",
         display: "flex",

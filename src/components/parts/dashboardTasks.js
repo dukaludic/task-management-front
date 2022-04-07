@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import * as dataHandler from "../../helpers/dataHandler";
 import { Bar } from "react-chartjs-2";
 import { Chart, registerables } from "chart.js";
+import { Auth } from "../../context/AuthContext";
 
 import { AiOutlineTeam, AiOutlineUser } from "react-icons/ai";
 Chart.register(...registerables);
@@ -14,6 +15,9 @@ function DashboardTasks(props) {
   const [done, setDone] = useState(props.done);
   const [nearDeadline, setNearDeadline] = useState([]);
   const [overdue, setOverdue] = useState([]);
+
+  const authContext = useContext(Auth);
+  const { user } = authContext.state.data;
 
   // On load
   useEffect(() => {
@@ -30,6 +34,9 @@ function DashboardTasks(props) {
   //   setInReview(props.inReview);
   // }, [props.todo, props.inProgress, props.done, props.inReview]);
 
+  const allTasksLength =
+    props.todo.length + props.inProgress.length + props.inReview.length;
+
   const dataByStatus = {
     labels: [
       `To do: ${props.todo.length}`,
@@ -43,6 +50,7 @@ function DashboardTasks(props) {
           props.todo.length,
           props.inProgress.length,
           props.inReview.length,
+          props.chartMax,
         ],
 
         backgroundColor: [
@@ -61,6 +69,11 @@ function DashboardTasks(props) {
       `Near Deadline: ${props.nearDeadline.length}`,
     ],
     options: {
+      scales: {
+        ticks: {
+          precision: 0,
+        },
+      },
       plugins: {
         legend: {
           labels: {
@@ -74,7 +87,7 @@ function DashboardTasks(props) {
     },
     datasets: [
       {
-        data: [props.overdue.length, props.nearDeadline.length],
+        data: [props.overdue.length, props.nearDeadline.length, props.chartMax],
 
         backgroundColor: ["rgba(255, 99, 132, 0.6)", "rgba(255, 206, 86, 0.6)"],
       },
@@ -91,27 +104,54 @@ function DashboardTasks(props) {
 
   return (
     <div className="card-container">
+      {console.log(props.chartMax, "chartMax")}
       <div className="d-flex justify-content-between align-items-center">
         <span className="h-3">Tasks</span>
-        {props.userOnlyTasks ? (
-          <AiOutlineUser
-            className="user-team-icon"
-            onClick={props.toggleUserProjectTasks}
-          />
-        ) : (
-          <AiOutlineTeam
-            className="user-team-icon"
-            size={20}
-            onClick={props.toggleUserProjectTasks}
-          />
+        {user.role === "worker" && (
+          <>
+            {props.userOnlyTasks ? (
+              <AiOutlineUser
+                className="user-team-icon"
+                onClick={props.toggleUserProjectTasks}
+              />
+            ) : (
+              <AiOutlineTeam
+                className="user-team-icon"
+                size={20}
+                onClick={props.toggleUserProjectTasks}
+              />
+            )}
+          </>
         )}
       </div>
       <p className="b-3">{props.projectSelected}</p>
 
       <div className="d-flex justify-content-between">
-        <div className="d-flex flex-column w-100">
+        <div
+          style={{
+            width: "85%",
+            maxHeight: "50px",
+          }}
+          className="d-flex flex-column"
+        >
           <Bar
             options={{
+              scales: {
+                y: {
+                  ticks: {
+                    stepSize: 1,
+                    beginAtZero: true,
+                    min: 6,
+                    max: 5,
+                    stepSize: 1,
+                  },
+                },
+                x: {
+                  grid: {
+                    display: false,
+                  },
+                },
+              },
               plugins: {
                 legend: {
                   display: false,
@@ -129,6 +169,22 @@ function DashboardTasks(props) {
           />
           <Bar
             options={{
+              scales: {
+                y: {
+                  ticks: {
+                    stepSize: 1,
+                    beginAtZero: true,
+                    min: 6,
+                    max: 5,
+                    stepSize: 1,
+                  },
+                },
+                x: {
+                  grid: {
+                    display: false,
+                  },
+                },
+              },
               plugins: {
                 legend: {
                   display: false,

@@ -893,6 +893,10 @@ a {
   height: 620px;
 }
 
+.overview-col-l .card-container {
+  height: 620px;
+}
+
 .overview-col-r .all-reviews-container {
   overflow-y: scroll;
   overflow-x: hidden;

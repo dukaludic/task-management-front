@@ -41,7 +41,7 @@ const Overview = () => {
   const [userReviews, setUserReviews] = useState([]);
 
   //All Data
-  const [allTasks, setAllTasks] = useState([]);
+  const [chartMax, setChartMax] = useState([]);
 
   const [isReset, callReset] = useState(false);
 
@@ -159,7 +159,10 @@ const Overview = () => {
           default:
             break;
         }
-        if (!projects[i].tasks[j].due_date) {
+        if (
+          !projects[i].tasks[j].due_date ||
+          projects[i].tasks[j].status === "done"
+        ) {
           continue;
         } else if (dueDate < today) {
           console.log(projects[i].tasks[j].title);
@@ -203,6 +206,15 @@ const Overview = () => {
     setNearDeadline(nearDeadline);
 
     console.log(userTodo, "=====userTodo");
+
+    //Set dynamically chart's fixed Y axis
+    let max = todo.length + inProgress.length + inReview.length;
+    // const lengthsArr = [todo.length, inProgress.length, inReview.length];
+    // for (let i = 0; i < lengthsArr.length; i++) {
+    //   if (lengthsArr[i] > max) max = lengthsArr[i];
+    // }
+
+    setChartMax(max);
 
     setUserTodo(userTodo);
     setUserInProgress(userInProgress);
@@ -358,7 +370,8 @@ const Overview = () => {
         default:
           break;
       }
-      if (!project.tasks[j].due_date) continue;
+      if (!project.tasks[j].due_date || project.tasks[j].status === "done")
+        continue;
       if (dueDate < today) {
         overdue.push(project.tasks[j]);
 
@@ -432,6 +445,7 @@ const Overview = () => {
               changeProject={changeProject}
               userOnlyTasks={userOnlyTasks}
               setUserOnlyTasks={setUserOnlyTasks}
+              chartMax={chartMax}
             />
           </Col>
           <Col className="overview-col-r" lg={6}>
