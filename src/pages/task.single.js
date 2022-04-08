@@ -46,6 +46,10 @@ function TaskSingle() {
   const [newComment, setNewComment] = useState("");
   const [comments, setComments] = useState([]);
 
+  //Initiall data
+  const [initialTitle, setInitialTitle] = useState("");
+  const [initialDescription, setInitialDescription] = useState("");
+
   const [, updateState] = useState();
   const forceUpdate = useCallback(() => updateState({}), []);
 
@@ -134,7 +138,9 @@ function TaskSingle() {
 
       setTask(task);
       setTitle(task.title);
+      setInitialTitle(task.title);
       setDescription(task.description);
+      setInitialDescription(task.description);
       setSubTasks(task.sub_tasks);
       calcTaskProgress(task.sub_tasks);
       setAssignedUsers(assignedUsers);
@@ -337,6 +343,18 @@ function TaskSingle() {
     setEditTitle(!editTitle);
   };
 
+  const openEditTitle = () => {
+    setEditTitle(!editTitle);
+    // titleInputRef.current.focus();
+    // const { current } = titleInputRef;
+    // console.log(current);
+  };
+
+  const closeEditTitle = () => {
+    setEditTitle(!editTitle);
+    setTitle(initialTitle);
+  };
+
   const statusChange = async (value) => {
     if (task.status !== value) {
       const updatedTask = await datahandler.update(
@@ -410,101 +428,257 @@ function TaskSingle() {
     setNewComment("");
   };
 
+  const titleInputRef = useRef();
+
   return (
     <div className="d-flex">
       <Container>
-        <Row>
-          <Col lg={8}>
-            <p>Task</p>
-            <div
-              onMouseEnter={() => setTitleEditIconShown(true)}
-              onMouseLeave={() => setTitleEditIconShown(false)}
-            >
-              <span className="d-flex justify-content-between">
-                {!editTitle ? (
-                  <h1>{title}</h1>
-                ) : (
-                  <input
-                    onChange={(e) => setTitle(e.target.value)}
-                    value={title}
-                  />
-                )}
-                {titleEditIconShown ? (
-                  !editTitle ? (
-                    <AiFillEdit onClick={() => setEditTitle(!editTitle)} />
-                  ) : (
-                    <div>
-                      <AiOutlineCheck onClick={saveTitle} />
-                      <IoMdClose onClick={() => setEditTitle(!editTitle)} />
-                    </div>
-                  )
-                ) : null}
-              </span>
-            </div>
-            {subTasks?.length > 0 && <div>{taskProgress}</div>}
-            {/* <p>{task?.status}</p> */}
-            <select
-              onChange={(e) => statusChange(e.target.value)}
-              name="status"
-              _id="status"
-            >
-              <option value="to_do" selected={task?.status === "to_do"}>
-                To do
-              </option>
-              <option
-                selected={task?.status === "in_progress"}
-                value="in_progress"
+        <p className="h-1 main-heading">Task</p>
+        <div className="card-container">
+          <Row>
+            <Col lg={8}>
+              <div
+                className="task-edit-title-container"
+                onMouseEnter={() => setTitleEditIconShown(true)}
+                onMouseLeave={() => setTitleEditIconShown(false)}
               >
-                In Progress
-              </option>
-              <option selected={task?.status === "in_review"} value="in_review">
-                In Review
-              </option>
-              <option selected={task?.status === "done"} value="done">
-                Done
-              </option>
-            </select>
-          </Col>
-        </Row>
-        <Row>
-          <Col lg={8}>
-            <div
-              onMouseEnter={() => setDescriptionEditShown(true)}
-              onMouseLeave={() => setDescriptionEditShown(false)}
-            >
-              <span className="d-flex justify-content-between">
-                <h3>Description</h3>
-                {descriptionEditIconShown ? (
-                  !editDescription ? (
-                    <AiFillEdit
-                      onClick={() => setEditDescription(!editDescription)}
-                    />
+                <span className="d-flex justify-content-between">
+                  {!editTitle ? (
+                    <h1 className="h-1">{title}</h1>
                   ) : (
-                    <>
-                      <AiOutlineCheck onClick={saveDescription} />
-                      <IoMdClose
+                    <input
+                      ref={titleInputRef}
+                      className="h-1 task-single-input"
+                      onChange={(e) => setTitle(e.target.value)}
+                      value={title}
+                    />
+                  )}
+                  <div>
+                    {titleEditIconShown ? (
+                      !editTitle ? (
+                        <AiFillEdit onClick={() => openEditTitle()} />
+                      ) : (
+                        <div className="task-edit-title-icons">
+                          <AiOutlineCheck onClick={saveTitle} />
+                          <IoMdClose onClick={() => closeEditTitle()} />
+                        </div>
+                      )
+                    ) : null}
+                  </div>
+                </span>
+              </div>
+              <div className="progress-bar-container">
+                <div style={{ width: "90%" }} className="d-flex">
+                  <div className="progress-bar-whole"></div>
+                  <div
+                    style={{ width: `${taskProgress}%` }}
+                    className="progress-bar"
+                  ></div>
+                </div>
+                <span>{`${taskProgress}%`}</span>
+              </div>
+              {/* <p>{task?.status}</p> */}
+              <select
+                className="task-status-select"
+                onChange={(e) => statusChange(e.target.value)}
+                name="status"
+                _id="status"
+              >
+                <option value="to_do" selected={task?.status === "to_do"}>
+                  To do
+                </option>
+                <option
+                  selected={task?.status === "in_progress"}
+                  value="in_progress"
+                >
+                  In Progress
+                </option>
+                <option
+                  selected={task?.status === "in_review"}
+                  value="in_review"
+                >
+                  In Review
+                </option>
+                <option selected={task?.status === "done"} value="done">
+                  Done
+                </option>
+              </select>
+            </Col>
+          </Row>
+          <Row>
+            <Col lg={8}>
+              <div
+                className="task-description-edit-container mt-5"
+                onMouseEnter={() => setDescriptionEditShown(true)}
+                onMouseLeave={() => setDescriptionEditShown(false)}
+              >
+                <span className="d-flex justify-content-between">
+                  <h3 className="h-3">Description</h3>
+                </span>
+                {!editDescription ? (
+                  <p>{task?.description}</p>
+                ) : (
+                  <textarea
+                    style={{ width: "100%" }}
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                  ></textarea>
+                )}
+                <div className="task-description-edit-icons">
+                  {descriptionEditIconShown ? (
+                    !editDescription ? (
+                      <AiFillEdit
                         onClick={() => setEditDescription(!editDescription)}
                       />
-                    </>
-                  )
-                ) : null}
-              </span>
-              {!editDescription ? (
-                <p>{task?.description}</p>
-              ) : (
-                <textarea
-                  style={{ width: "100%" }}
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                ></textarea>
-              )}
-            </div>
-            <div>
-              <h3>Team</h3>
-              {assignedUsers?.map((item) => {
-                return (
-                  <div className="d-flex">
+                    ) : (
+                      <>
+                        <AiOutlineCheck onClick={saveDescription} />
+                        <IoMdClose
+                          onClick={() => setEditDescription(!editDescription)}
+                        />
+                      </>
+                    )
+                  ) : null}
+                </div>
+              </div>
+              <div>
+                <h3>Team</h3>
+                {assignedUsers?.map((item) => {
+                  return (
                     <div className="d-flex">
+                      <div className="d-flex">
+                        <div
+                          style={{
+                            width: "50px",
+                            height: "50px",
+                            backgroundColor: "#ddd",
+                          }}
+                        >
+                          <img
+                            className="profile-picture-default"
+                            src={item?.profile_picture?.base_64}
+                          />
+                        </div>
+                        <div>
+                          <p>{`${item.name}`}</p>
+                          <p>{item.role}</p>
+                        </div>
+                      </div>
+                      <IoMdClose onClick={() => unassignUser(item)} />
+                    </div>
+                  );
+                })}
+                {assignMoreOpen && (
+                  <TaskSingleTeamDropdown
+                    data={projectUsers}
+                    setParentData={setAssignedUsers}
+                    assignedUsers={assignedUsers}
+                    ref={childData}
+                    task={task}
+                  />
+                )}
+                {!assignMoreOpen && (
+                  <button onClick={() => setAssignMoreOpen(true)}>
+                    Assign More
+                  </button>
+                )}
+              </div>
+              <div>
+                <p>Images</p>
+                <div className="d-flex">
+                  {uploadedImages.map((item, index) => {
+                    return (
+                      <div
+                        onMouseEnter={() => {
+                          setHoveringOverImage(index);
+                        }}
+                        onMouseLeave={() => {
+                          setHoveringOverImage(null);
+                        }}
+                        className="task-img-container"
+                      >
+                        {hoveringOverImage === index && (
+                          <IoMdClose
+                            onClick={() => removeImage(item)}
+                            style={{ position: "absolute", cursor: "pointer" }}
+                          />
+                        )}
+                        <img
+                          onClick={() => openModal(item)}
+                          className="task-images"
+                          src={item.base_64}
+                        />
+                      </div>
+                    );
+                  })}
+
+                  <MyDropzone
+                    onDrop={(acceptedFiles) => console.log(acceptedFiles)}
+                  >
+                    {({ getRootProps, getInputProps }) => (
+                      <section>
+                        <div {...getRootProps()}>
+                          <input {...getInputProps()} />
+                          <p>
+                            Drag 'n' drop some files here, or click to select
+                            files
+                          </p>
+                        </div>
+                      </section>
+                    )}
+                  </MyDropzone>
+                </div>
+              </div>
+              {/* <button onClick={saveChanges}>SAVE</button> */}
+            </Col>
+            <Col lg={4}>
+              <div>
+                <h3>Subtasks</h3>
+                {addSubTaskOpen && (
+                  <div>
+                    <input
+                      value={subTaskContent}
+                      onChange={(e) => setSubTaskContent(e.target.value)}
+                      type="text"
+                      placeholder="Add an item"
+                    ></input>
+                    <button onClick={addSubTask}>Add</button>
+                  </div>
+                )}
+                {!addSubTaskOpen && (
+                  <button onClick={() => setAddSubTaskOpen(true)}>
+                    Add an item
+                  </button>
+                )}
+
+                {subTasks &&
+                  subTasks.map((item, index) => {
+                    return (
+                      <>
+                        <div className="d-flex justify-content-between">
+                          <input
+                            checked={item.done}
+                            onChange={(e) => subTaskCheck(index, item.done)}
+                            type="checkbox"
+                          ></input>
+                          <IoMdClose
+                            onClick={() => removeSubtask(index, item._id)}
+                          />
+                        </div>
+                        <p>{item.content}</p>
+                      </>
+                    );
+                  })}
+              </div>
+            </Col>
+          </Row>
+          <Row>
+            <Col lg={8}>
+              <h3>Comments</h3>
+              {comments.map((item) => {
+                return (
+                  <div style={{ border: "1px solid #ddd" }}>
+                    <div>
                       <div
                         style={{
                           width: "50px",
@@ -514,156 +688,25 @@ function TaskSingle() {
                       >
                         <img
                           className="profile-picture-default"
-                          src={item?.profile_picture?.base_64}
-                        />
+                          src={item.user?.profile_picture?.base_64}
+                        ></img>
                       </div>
-                      <div>
-                        <p>{`${item.name}`}</p>
-                        <p>{item.role}</p>
-                      </div>
+                      <p>{`${item.user.first_name} ${item.user.last_name}`}</p>
+                      <p>{moment(item.date_time).fromNow()}</p>
                     </div>
-                    <IoMdClose onClick={() => unassignUser(item)} />
+                    <div>{item.content}</div>
                   </div>
                 );
               })}
-              {assignMoreOpen && (
-                <TaskSingleTeamDropdown
-                  data={projectUsers}
-                  setParentData={setAssignedUsers}
-                  assignedUsers={assignedUsers}
-                  ref={childData}
-                  task={task}
-                />
-              )}
-              {!assignMoreOpen && (
-                <button onClick={() => setAssignMoreOpen(true)}>
-                  Assign More
-                </button>
-              )}
-            </div>
-            <div>
-              <p>Images</p>
-              <div className="d-flex">
-                {uploadedImages.map((item, index) => {
-                  return (
-                    <div
-                      onMouseEnter={() => {
-                        setHoveringOverImage(index);
-                      }}
-                      onMouseLeave={() => {
-                        setHoveringOverImage(null);
-                      }}
-                      className="task-img-container"
-                    >
-                      {hoveringOverImage === index && (
-                        <IoMdClose
-                          onClick={() => removeImage(item)}
-                          style={{ position: "absolute", cursor: "pointer" }}
-                        />
-                      )}
-                      <img
-                        onClick={() => openModal(item)}
-                        className="task-images"
-                        src={item.base_64}
-                      />
-                    </div>
-                  );
-                })}
-
-                <MyDropzone
-                  onDrop={(acceptedFiles) => console.log(acceptedFiles)}
-                >
-                  {({ getRootProps, getInputProps }) => (
-                    <section>
-                      <div {...getRootProps()}>
-                        <input {...getInputProps()} />
-                        <p>
-                          Drag 'n' drop some files here, or click to select
-                          files
-                        </p>
-                      </div>
-                    </section>
-                  )}
-                </MyDropzone>
-              </div>
-            </div>
-            {/* <button onClick={saveChanges}>SAVE</button> */}
-          </Col>
-          <Col lg={4}>
-            <div>
-              <h3>Subtasks</h3>
-              {addSubTaskOpen && (
-                <div>
-                  <input
-                    value={subTaskContent}
-                    onChange={(e) => setSubTaskContent(e.target.value)}
-                    type="text"
-                    placeholder="Add an item"
-                  ></input>
-                  <button onClick={addSubTask}>Add</button>
-                </div>
-              )}
-              {!addSubTaskOpen && (
-                <button onClick={() => setAddSubTaskOpen(true)}>
-                  Add an item
-                </button>
-              )}
-
-              {subTasks &&
-                subTasks.map((item, index) => {
-                  return (
-                    <>
-                      <div className="d-flex justify-content-between">
-                        <input
-                          checked={item.done}
-                          onChange={(e) => subTaskCheck(index, item.done)}
-                          type="checkbox"
-                        ></input>
-                        <IoMdClose
-                          onClick={() => removeSubtask(index, item._id)}
-                        />
-                      </div>
-                      <p>{item.content}</p>
-                    </>
-                  );
-                })}
-            </div>
-          </Col>
-        </Row>
-        <Row>
-          <Col lg={8}>
-            <h3>Comments</h3>
-            {comments.map((item) => {
-              return (
-                <div style={{ border: "1px solid #ddd" }}>
-                  <div>
-                    <div
-                      style={{
-                        width: "50px",
-                        height: "50px",
-                        backgroundColor: "#ddd",
-                      }}
-                    >
-                      <img
-                        className="profile-picture-default"
-                        src={item.user?.profile_picture?.base_64}
-                      ></img>
-                    </div>
-                    <p>{`${item.user.first_name} ${item.user.last_name}`}</p>
-                    <p>{moment(item.date_time).fromNow()}</p>
-                  </div>
-                  <div>{item.content}</div>
-                </div>
-              );
-            })}
-            <textarea
-              value={newComment}
-              onChange={(e) => setNewComment(e.target.value)}
-              style={{ width: "100%", height: "100px" }}
-            ></textarea>
-            <button onClick={submitComment}>Submit</button>
-          </Col>
-        </Row>
+              <textarea
+                value={newComment}
+                onChange={(e) => setNewComment(e.target.value)}
+                style={{ width: "100%", height: "100px" }}
+              ></textarea>
+              <button onClick={submitComment}>Submit</button>
+            </Col>
+          </Row>
+        </div>
       </Container>
       <Modal
         isOpen={modalIsOpen}

@@ -209,11 +209,6 @@ const Overview = () => {
 
     //Set dynamically chart's fixed Y axis
     let max = todo.length + inProgress.length + inReview.length;
-    // const lengthsArr = [todo.length, inProgress.length, inReview.length];
-    // for (let i = 0; i < lengthsArr.length; i++) {
-    //   if (lengthsArr[i] > max) max = lengthsArr[i];
-    // }
-
     setChartMax(max);
 
     setUserTodo(userTodo);
@@ -313,15 +308,12 @@ const Overview = () => {
     for (let j = 0; j < project.tasks.length; j++) {
       const dueDate = Date.parse(project.tasks[j].due_date);
       tasks.push(project.tasks[j]);
+      console.log(project.tasks[j], "project.tasks[j]");
       switch (project.tasks[j].status) {
         case "to_do":
           todo.push(project.tasks[j]);
 
-          if (
-            project.tasks[j].assigned_users.some(
-              (el) => el.username === user.username
-            )
-          ) {
+          if (project.tasks[j].assigned_users.some((el) => el === user._id)) {
             userTodo.push(project.tasks[j]);
           }
 
@@ -329,11 +321,7 @@ const Overview = () => {
         case "in_progress":
           inProgress.push(project.tasks[j]);
 
-          if (
-            project.tasks[j].assigned_users.some(
-              (el) => el.username === user.username
-            )
-          ) {
+          if (project.tasks[j].assigned_users.some((el) => el === user._id)) {
             userInProgress.push(project.tasks[j]);
           }
 
@@ -341,11 +329,7 @@ const Overview = () => {
         case "in_review":
           inReview.push(project.tasks[j]);
 
-          if (
-            project.tasks[j].assigned_users.some(
-              (el) => el.username === user.username
-            )
-          ) {
+          if (project.tasks[j].assigned_users.some((el) => el === user._id)) {
             userInReview.push(project.tasks[j]);
           }
 
@@ -375,21 +359,13 @@ const Overview = () => {
       if (dueDate < today) {
         overdue.push(project.tasks[j]);
 
-        if (
-          project.tasks[j].assigned_users.some(
-            (el) => el.username === user.username
-          )
-        ) {
+        if (project.tasks[j].assigned_users.some((el) => el === user._id)) {
           userOverdue.push(project.tasks[j]);
         }
       } else if (dueDate < inSevenDays) {
         nearDeadline.push(project.tasks[j]);
 
-        if (
-          project.tasks[j].assigned_users.some(
-            (el) => el.username === user.username
-          )
-        ) {
+        if (project.tasks[j].assigned_users.some((el) => el === user._id)) {
           userNearDeadline.push(project.tasks[j]);
         }
       }
@@ -399,6 +375,8 @@ const Overview = () => {
     setInReview(inReview);
     setOverdue(overdue);
     setNearDeadline(nearDeadline);
+
+    console.log(userTodo, "userTodo");
 
     setUserTodo(userTodo);
     setUserInProgress(userInProgress);

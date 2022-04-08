@@ -1,8 +1,6 @@
 import axios from "axios";
 import axiosInstance from "./axiosInstance";
 
-console.log(axiosInstance, "AXIOS INSTANCE");
-
 export const create = async (resource, data, authContext) => {
   const result = await axiosInstance(authContext)
     .post(`${process.env.REACT_APP_API_URL}/${resource}`, {
@@ -26,15 +24,12 @@ export const show = async (resource, authContext) => {
       return response.data;
     })
     .catch((error) => {
-      console.log(error.response.data.statusCode);
       return error;
     });
-  console.log("datahandler");
   return result;
 };
 
 export function showSingle(resource, _id, authContext) {
-  console.log(resource, _id, "resource/_id");
   const result = axiosInstance(authContext)
     .get(`${process.env.REACT_APP_API_URL}/${resource}/${_id}`)
     .then((response) => {
@@ -43,7 +38,6 @@ export function showSingle(resource, _id, authContext) {
     .catch((error) => {
       console.log(error);
     });
-  console.log(result, "===result");
   return result;
 }
 

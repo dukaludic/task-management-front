@@ -354,11 +354,15 @@ function Sidebar(props) {
           ) : (
             <>
               {!sidebarActive ? (
-                <AiOutlineUser
-                  onClick={openModal}
-                  size={20}
-                  id="sidebar-user-icon"
-                />
+                <div className="sidebar-user-icon">
+                  <AiOutlineUser
+                    onClick={openModal}
+                    size={20}
+                    id="sidebar-user-icon"
+                  />
+
+                  <span className="tip">Profile</span>
+                </div>
               ) : (
                 <div className="sidebar-profile-img-container">
                   <img

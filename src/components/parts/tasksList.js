@@ -290,14 +290,18 @@ function TasksList(props) {
   const onDragEnd = (result) => {
     const { destination, source, draggableId } = result;
 
+    console.log(destination, source, draggableId, "onDragEnd");
+
     if (!destination) {
       return;
     }
 
+    console.log("ide");
     if (
       destination.droppableId === source.droppableId &&
       destination.index === source.index
     ) {
+      console.log("first if");
       return;
     }
 
@@ -305,6 +309,7 @@ function TasksList(props) {
     const finish = state.columns[destination.droppableId];
 
     if (start === finish) {
+      console.log("stART === finish");
       const newTaskIds = Array.from(start.taskIds);
       newTaskIds.splice(source.index, 1);
       newTaskIds.splice(destination.index, 0, draggableId);
@@ -378,6 +383,7 @@ function TasksList(props) {
         authContext
       );
       if (droppedInto === "in_review") {
+        console.log("dropped into in review");
         const createReview = await datahandler.create(
           "reviews",
           reviewObj,
@@ -385,19 +391,41 @@ function TasksList(props) {
         );
       }
       if (start._id === "in_review" && droppedInto !== "in_review") {
-        const deletedReview = await datahandler.deleteItem(
-          "reviews",
+        const review = await datahandler.showSingle(
+          `reviews/task`,
           draggableId,
           authContext
         );
+        if (user.role === "worker") {
+          const deletedReview = await datahandler.deleteItem(
+            "reviews",
+            review._id,
+            authContext
+          );
+        } else if (user.role === "project_manager") {
+          if (droppedInto === "done") {
+            const updatedReviewRes = await datahandler.update(
+              "reviews",
+              review._id,
+              { approval: "approved" },
+              authContext
+            );
+          } else {
+            const updatedReviewRes = await datahandler.update(
+              "reviews",
+              review._id,
+              { approval: "rejected" },
+              authContext
+            );
+          }
+        }
       }
     })();
-
     setState(newState);
   };
 
   return (
-    <Container className="card-container">
+    <Container style={{ height: "800px" }} className="card-container">
       <Row>
         {/* TODO */}
         <Col>

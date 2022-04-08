@@ -18,7 +18,7 @@ function Column(props) {
         {(provided) => (
           <div
             style={{
-              padding: "8px",
+              padding: "0",
               flexGrow: 1,
             }}
             ref={provided.innerRef}

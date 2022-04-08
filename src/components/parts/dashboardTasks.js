@@ -110,16 +110,22 @@ function DashboardTasks(props) {
         {user.role === "worker" && (
           <>
             {props.userOnlyTasks ? (
-              <AiOutlineUser
-                className="user-team-icon"
-                onClick={props.toggleUserProjectTasks}
-              />
+              <div className="user-team-icon-container">
+                <AiOutlineUser
+                  className="user-team-icon"
+                  onClick={props.toggleUserProjectTasks}
+                />
+                <span className="tip">Team</span>
+              </div>
             ) : (
-              <AiOutlineTeam
-                className="user-team-icon"
-                size={20}
-                onClick={props.toggleUserProjectTasks}
-              />
+              <div className="user-team-icon-container">
+                <AiOutlineTeam
+                  className="user-team-icon"
+                  size={20}
+                  onClick={props.toggleUserProjectTasks}
+                />
+                <span className="tip">User</span>
+              </div>
             )}
           </>
         )}

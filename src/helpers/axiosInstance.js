@@ -7,15 +7,12 @@ export default (authContext) => {
     headers: { Authorization: `Bearer ${AUTH_TOKEN}` },
   });
 
-  console.log(AUTH_TOKEN, "AUTH_TOKEN");
-
   axiosInstance.interceptors.response.use(
     (response) =>
       new Promise((resolve, reject) => {
         resolve(response);
       }),
     (error) => {
-      console.log(error, "error in axios instance");
       if (!error.response) {
         return new Promise((resolve, reject) => {
           reject(error);

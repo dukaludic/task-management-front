@@ -31,7 +31,7 @@ function TaskItem(props) {
     if (dueDate < today) {
       return "OVERDUE";
     } else if (dueDate < inSevenDays) {
-      return "NEAR DEADLINE";
+      return "NEAR";
     }
   };
 
@@ -60,41 +60,47 @@ function TaskItem(props) {
   return (
     <Draggable draggableId={props.task._id} index={props.index}>
       {(provided, snapshot) => (
-        <Container
+        <div
           ref={provided.innerRef}
           {...provided.draggableProps}
           innerRef={provided.innerRef}
         >
-          <div>
-            <div>
-              <div className="d-flex justify-content-between">
-                <Link to={`/task/${props.task._id}`}>{props.task.title}</Link>
-                <div {...provided.dragHandleProps}>
-                  <BsThreeDotsVertical />
-                </div>
+          <div className="task-item-container">
+            <div className="d-flex justify-content-between">
+              <Link to={`/task/${props.task._id}`}>{props.task.title}</Link>
+              <div {...provided.dragHandleProps}>
+                <BsThreeDotsVertical />
               </div>
-              <div className="">
-                <div>{props.task.description}</div>
-                <div className="d-flex justify-content-between">
-                  <div>
-                    {users.map((user) => {
-                      return (
-                        <img
-                          className="team-small-image-circle"
-                          src={user?.profile_picture?.base_64}
-                        />
-                      );
-                    })}
-                  </div>
-
-                  <div style={{ fontSize: "11px" }} className="task-flag">
+            </div>
+            <div className="d-flex flex-column justify-items-between">
+              <div className="b-3 task-item-description">
+                <p>{props.task.description}</p>
+              </div>
+              <div className="d-flex justify-content-between align-items-center mt-1">
+                <div className="d-flex ">
+                  {users.map((user) => {
+                    return (
+                      <img
+                        className="team-small-image-circle"
+                        src={user?.profile_picture?.base_64}
+                      />
+                    );
+                  })}
+                </div>
+                {props.task.status !== "done" && (
+                  <div
+                    style={{ fontSize: "11px" }}
+                    className={`task-flag${
+                      checkUrgency(props.task) === "OVERDUE" ? "-r" : "-o"
+                    }`}
+                  >
                     {checkUrgency(props.task)}
                   </div>
-                </div>
+                )}
               </div>
             </div>
           </div>
-        </Container>
+        </div>
       )}
     </Draggable>
   );
