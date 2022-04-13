@@ -32,6 +32,8 @@ function TaskItem(props) {
       return "OVERDUE";
     } else if (dueDate < inSevenDays) {
       return "NEAR";
+    } else {
+      return undefined;
     }
   };
 
@@ -87,7 +89,7 @@ function TaskItem(props) {
                     );
                   })}
                 </div>
-                {props.task.status !== "done" && (
+                {props.task.status !== "done" && checkUrgency(props.task) && (
                   <div
                     style={{ fontSize: "11px" }}
                     className={`task-flag${

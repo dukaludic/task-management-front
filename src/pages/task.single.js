@@ -45,6 +45,10 @@ function TaskSingle() {
   const [hoveringOverImage, setHoveringOverImage] = useState(null);
   const [newComment, setNewComment] = useState("");
   const [comments, setComments] = useState([]);
+  const [dueDate, setDueDate] = useState(null);
+  const [editDueDate, setEditDueDate] = useState(false);
+  const [dueDateIconShown, setDueDateIconShown] = useState(false);
+  const [relationshipToDeadline, setRelationShipToDeadline] = useState(null);
 
   //Initiall data
   const [initialTitle, setInitialTitle] = useState("");
@@ -80,6 +84,29 @@ function TaskSingle() {
   const { user } = authContext.state.data;
 
   useEffect(() => {
+    calcRelationshipToDeadline();
+  }, [task, relationshipToDeadline, dueDate]);
+
+  const calcRelationshipToDeadline = () => {
+    console.log("calcRelationshipToDeadline");
+    let today = Date.parse(new Date());
+    let inSevenDays = Date.parse(
+      new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+    );
+    const dueDate = Date.parse(task?.due_date);
+    console.log(dueDate, "dueDate");
+    if (dueDate < today) {
+      console.log("dueDate < today");
+      console.log(dueDate, "dueDate");
+      console.log(today, "today");
+      setRelationShipToDeadline("OVERDUE");
+    } else if (dueDate < inSevenDays) {
+      console.log(dueDate, "dueDate < inSevenDays");
+      setRelationShipToDeadline("NEAR");
+    }
+  };
+
+  useEffect(() => {
     (async () => {
       const task = await datahandler.showSingle("tasks", _id);
 
@@ -97,6 +124,8 @@ function TaskSingle() {
         `comments/assignment_id/${_id}`,
         authContext
       );
+
+      comments.sort((a, b) => (b.date_time > a.date_time ? 1 : -1));
 
       console.log(uploadedImages, "upload");
 
@@ -219,6 +248,10 @@ function TaskSingle() {
   }, [subTasks]);
 
   const addSubTask = async () => {
+    if (subTaskContent.length < 1) {
+      return;
+    }
+
     const subTaskObj = {
       task_id: _id,
       content: subTaskContent,
@@ -235,6 +268,7 @@ function TaskSingle() {
 
     // calcTaskProgress(subTasks);
     setSubTasks([subTaskObj, ...subTasks]);
+    setSubTaskContent("");
   };
 
   const subTaskCheck = async (index, isChecked) => {
@@ -390,6 +424,24 @@ function TaskSingle() {
     setEditDescription(!editDescription);
   };
 
+  const saveDueDate = async () => {
+    if (task.due_date !== dueDate) {
+      const updatedTask = await datahandler.update(
+        "tasks",
+        task._id,
+        {
+          due_date: dueDate,
+        },
+        authContext
+      );
+    }
+    const tmpTask = task;
+    tmpTask.due_date = dueDate;
+    setTask(tmpTask);
+    calcRelationshipToDeadline();
+    setEditDueDate(!editDueDate);
+  };
+
   const submitComment = async () => {
     const time = new Date();
 
@@ -424,7 +476,7 @@ function TaskSingle() {
       authContext
     );
 
-    setComments((prevState) => [...prevState, newCommentObj]);
+    setComments((prevState) => [newCommentObj, ...prevState]);
     setNewComment("");
   };
 
@@ -433,7 +485,7 @@ function TaskSingle() {
   return (
     <div className="d-flex">
       <Container>
-        <p className="h-1 main-heading">Task</p>
+        <p className="h-1 main-heading">Task Details</p>
         <div className="card-container">
           <Row>
             <Col lg={8}>
@@ -468,7 +520,7 @@ function TaskSingle() {
                 </span>
               </div>
               <div className="progress-bar-container">
-                <div style={{ width: "90%" }} className="d-flex">
+                <div className="d-flex progress-bar-progress-container">
                   <div className="progress-bar-whole"></div>
                   <div
                     style={{ width: `${taskProgress}%` }}
@@ -477,7 +529,69 @@ function TaskSingle() {
                 </div>
                 <span>{`${taskProgress}%`}</span>
               </div>
-              {/* <p>{task?.status}</p> */}
+              <div className="d-flex flex-column">
+                {/* <p>{task?.status}</p> */}
+                <div className="d-flex">
+                  <div
+                    className="task-duedate-edit-container"
+                    onMouseEnter={() => {
+                      setDueDateIconShown(true);
+                      console.log(dueDateIconShown);
+                    }}
+                    onMouseLeave={() => setDueDateIconShown(false)}
+                  >
+                    <span style={{ marginRight: "20px" }} className="b-2-bold">
+                      Due Date
+                    </span>
+                    {!editDueDate ? (
+                      <span>{moment(task?.due_date).format("MMM Do YY")}</span>
+                    ) : (
+                      <input
+                        style={{ display: "inline" }}
+                        type="text"
+                        placeholder={moment(task?.due_date).format("MMM Do YY")}
+                        onFocus={(e) => (e.target.type = "date")}
+                        value={dueDate}
+                        onChange={(e) => setDueDate(e.target.value)}
+                      ></input>
+                    )}
+                    <div className="task-duedate-edit-icons">
+                      {dueDateIconShown ? (
+                        !editDueDate ? (
+                          <AiFillEdit
+                            onClick={() => setEditDueDate(!editDueDate)}
+                          />
+                        ) : (
+                          <>
+                            <AiOutlineCheck onClick={saveDueDate} />
+                            <IoMdClose
+                              onClick={() => setEditDueDate(!editDueDate)}
+                            />
+                          </>
+                        )
+                      ) : null}
+                    </div>
+                  </div>
+                </div>
+                {console.log(
+                  relationshipToDeadline,
+                  "relationshipToDeadline JSX"
+                )}
+                {task?.status !== "done" && (
+                  <div
+                    style={{ fontSize: "11px", marginBottom: "20px" }}
+                    className={`task-flag${
+                      relationshipToDeadline === "OVERDUE"
+                        ? "-r"
+                        : relationshipToDeadline === "NEAR"
+                        ? "-o"
+                        : ""
+                    }`}
+                  >
+                    {relationshipToDeadline}
+                  </div>
+                )}
+              </div>
               <select
                 className="task-status-select"
                 onChange={(e) => statusChange(e.target.value)}
@@ -542,49 +656,9 @@ function TaskSingle() {
                 </div>
               </div>
               <div>
-                <h3>Team</h3>
-                {assignedUsers?.map((item) => {
-                  return (
-                    <div className="d-flex">
-                      <div className="d-flex">
-                        <div
-                          style={{
-                            width: "50px",
-                            height: "50px",
-                            backgroundColor: "#ddd",
-                          }}
-                        >
-                          <img
-                            className="profile-picture-default"
-                            src={item?.profile_picture?.base_64}
-                          />
-                        </div>
-                        <div>
-                          <p>{`${item.name}`}</p>
-                          <p>{item.role}</p>
-                        </div>
-                      </div>
-                      <IoMdClose onClick={() => unassignUser(item)} />
-                    </div>
-                  );
-                })}
-                {assignMoreOpen && (
-                  <TaskSingleTeamDropdown
-                    data={projectUsers}
-                    setParentData={setAssignedUsers}
-                    assignedUsers={assignedUsers}
-                    ref={childData}
-                    task={task}
-                  />
-                )}
-                {!assignMoreOpen && (
-                  <button onClick={() => setAssignMoreOpen(true)}>
-                    Assign More
-                  </button>
-                )}
-              </div>
-              <div>
-                <p>Images</p>
+                <p style={{ marginTop: "20px" }} className="h-3">
+                  Images
+                </p>
                 <div className="d-flex">
                   {uploadedImages.map((item, index) => {
                     return (
@@ -600,7 +674,12 @@ function TaskSingle() {
                         {hoveringOverImage === index && (
                           <IoMdClose
                             onClick={() => removeImage(item)}
-                            style={{ position: "absolute", cursor: "pointer" }}
+                            style={{
+                              position: "absolute",
+                              top: "0",
+                              right: "0",
+                              cursor: "pointer",
+                            }}
                           />
                         )}
                         <img
@@ -629,43 +708,126 @@ function TaskSingle() {
                   </MyDropzone>
                 </div>
               </div>
+              <div>
+                <h3 className="h-3">Team</h3>
+                {assignedUsers?.map((item) => {
+                  return (
+                    <div
+                      style={{ width: "50%" }}
+                      className="d-flex justify-content-between"
+                    >
+                      <div className="d-flex">
+                        <div
+                          style={{ marginRight: "20px" }}
+                          className="profile-picture-default-container"
+                        >
+                          <img
+                            className="profile-picture-default"
+                            src={item?.profile_picture?.base_64}
+                          />
+                        </div>
+                        <div>
+                          <p
+                            style={{ margin: "0" }}
+                            className="b-2-bold"
+                          >{`${item.name}`}</p>
+                          <p className="b-3">
+                            {item.role === "project_manager"
+                              ? "Project Manager"
+                              : item.role === "worker"
+                              ? "Worker"
+                              : ""}
+                          </p>
+                        </div>
+                      </div>
+                      {item.role !== "project_manager" && (
+                        <IoMdClose
+                          style={{ cursor: "pointer" }}
+                          onClick={() => unassignUser(item)}
+                        />
+                      )}
+                    </div>
+                  );
+                })}
+                {assignMoreOpen && (
+                  <div className="d-flex">
+                    <TaskSingleTeamDropdown
+                      data={projectUsers}
+                      setParentData={setAssignedUsers}
+                      assignedUsers={assignedUsers}
+                      ref={childData}
+                      task={task}
+                    />
+                    <button
+                      style={{ marginLeft: "20px" }}
+                      className="btn-default-grey mb-4"
+                      onClick={() => setAssignMoreOpen(false)}
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                )}
+                {!assignMoreOpen && (
+                  <button
+                    className="btn-default-g mb-4"
+                    onClick={() => setAssignMoreOpen(true)}
+                  >
+                    Assign More
+                  </button>
+                )}
+              </div>
+
               {/* <button onClick={saveChanges}>SAVE</button> */}
             </Col>
             <Col lg={4}>
               <div>
                 <h3>Subtasks</h3>
                 {addSubTaskOpen && (
-                  <div>
+                  <div className="subtask-open-container">
                     <input
                       value={subTaskContent}
                       onChange={(e) => setSubTaskContent(e.target.value)}
                       type="text"
                       placeholder="Add an item"
                     ></input>
-                    <button onClick={addSubTask}>Add</button>
+                    <button className="btn-default-g mb-4" onClick={addSubTask}>
+                      Add
+                    </button>
+                    <IoMdClose
+                      className="subtask-open-cancel"
+                      onClick={() => setAddSubTaskOpen(false)}
+                    />
                   </div>
                 )}
                 {!addSubTaskOpen && (
-                  <button onClick={() => setAddSubTaskOpen(true)}>
-                    Add an item
-                  </button>
+                  <>
+                    <button
+                      className="btn-default-g mb-4"
+                      onClick={() => setAddSubTaskOpen(true)}
+                    >
+                      Add an item
+                    </button>
+                  </>
                 )}
 
                 {subTasks &&
                   subTasks.map((item, index) => {
                     return (
                       <>
-                        <div className="d-flex justify-content-between">
+                        <div className="d-flex align-items-center justify-content-between">
                           <input
                             checked={item.done}
                             onChange={(e) => subTaskCheck(index, item.done)}
                             type="checkbox"
                           ></input>
+                          <div style={{ marginLeft: "20px" }} className="w-100">
+                            <span>{item.content}</span>
+                          </div>
                           <IoMdClose
+                            style={{ cursor: "pointer" }}
                             onClick={() => removeSubtask(index, item._id)}
                           />
                         </div>
-                        <p>{item.content}</p>
                       </>
                     );
                   })}
@@ -674,36 +836,41 @@ function TaskSingle() {
           </Row>
           <Row>
             <Col lg={8}>
-              <h3>Comments</h3>
+              <h3 className="h-3">Comments</h3>
+              <textarea
+                className="comment-textarea"
+                value={newComment}
+                onChange={(e) => setNewComment(e.target.value)}
+                style={{ width: "100%", height: "100px" }}
+              ></textarea>
+              <button className="btn-default-g mb-4" onClick={submitComment}>
+                Submit
+              </button>
               {comments.map((item) => {
                 return (
-                  <div style={{ border: "1px solid #ddd" }}>
-                    <div>
-                      <div
-                        style={{
-                          width: "50px",
-                          height: "50px",
-                          backgroundColor: "#ddd",
-                        }}
-                      >
+                  <>
+                    <div className="comment-container b-2">
+                      <div className="comment-img-container">
                         <img
                           className="profile-picture-default"
                           src={item.user?.profile_picture?.base_64}
                         ></img>
                       </div>
-                      <p>{`${item.user.first_name} ${item.user.last_name}`}</p>
-                      <p>{moment(item.date_time).fromNow()}</p>
+                      <div className="comment-content-container">
+                        <div>
+                          <span className="b-2-bold">{`${item.user.first_name} ${item.user.last_name}`}</span>
+                          <span style={{ marginLeft: "20px" }}>
+                            {moment(item.date_time).fromNow()}
+                          </span>
+                        </div>
+                        <div>
+                          <p>{item.content}</p>
+                        </div>
+                      </div>
                     </div>
-                    <div>{item.content}</div>
-                  </div>
+                  </>
                 );
               })}
-              <textarea
-                value={newComment}
-                onChange={(e) => setNewComment(e.target.value)}
-                style={{ width: "100%", height: "100px" }}
-              ></textarea>
-              <button onClick={submitComment}>Submit</button>
             </Col>
           </Row>
         </div>

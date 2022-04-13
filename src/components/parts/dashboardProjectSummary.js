@@ -40,11 +40,15 @@ function DashboardProjectSummary(props) {
                     <div>{moment(project.start_date).format("MMM Do YY")}</div>
                     <div>{moment(project.end_date).format("MMM Do YY")}</div>
                     <div className="progress-bar-container">
-                      <div className="progress-bar-whole"></div>
-                      <div
-                        style={{ width: `${props.projectProgresses[index]}%` }}
-                        className="progress-bar"
-                      ></div>
+                      <div className="progress-bar-progress-container">
+                        <div className="progress-bar-whole"></div>
+                        <div
+                          style={{
+                            width: `${props.projectProgresses[index]}%`,
+                          }}
+                          className="progress-bar"
+                        ></div>
+                      </div>
                       <span>{`${props.projectProgresses[index]}%`}</span>
                     </div>
                   </div>

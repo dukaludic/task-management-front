@@ -102,7 +102,7 @@ const TaskSingleTeamDropdown = forwardRef((props, ref) => {
             onChange={onInput}
             onFocus={onFocus}
             onBlur={onBlur}
-            autocomplete="off"
+            autoComplete="off"
           />
         </div>
         {search.length > 1 && filtered.length > 0 && (
