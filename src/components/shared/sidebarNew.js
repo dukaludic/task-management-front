@@ -6,7 +6,7 @@ import {
   AiOutlineFundProjectionScreen,
   AiOutlineAreaChart,
   AiOutlineCluster,
-  AiOutlineDatabase,
+  AiOutlineUnorderedList,
   AiOutlinePieChart,
   AiOutlineTeam,
   AiOutlineUser,
@@ -318,7 +318,7 @@ function Sidebar(props) {
               }
               to="/tasks"
             >
-              <AiOutlineDatabase className="sidebar-icon" />
+              <AiOutlineUnorderedList className="sidebar-icon" />
               {sidebarActive && <span className="menu-item">Tasks</span>}
             </NavLink>
             {!sidebarActive && <span className="tip">Tasks</span>}

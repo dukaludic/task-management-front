@@ -1368,3 +1368,19 @@ a {
   right: 0;
   cursor: pointer;
 }
+
+.droppable-container::-webkit-scrollbar-thumb {
+  background-color: var(--blueishWhite); /* color of the scroll thumb */
+  border-radius: 20px; /* roundness of the scroll thumb */
+  border: 3px solid white;
+}
+
+.droppable-container::-webkit-scrollbar {
+  width: 12px; /* width of the entire scrollbar */
+}
+
+.droppable-container {
+  padding: 0;
+  flex-grow: 1;
+  overflow-y: scroll;
+}

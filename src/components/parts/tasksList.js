@@ -427,7 +427,7 @@ function TasksList(props) {
   return (
     <Container style={{ height: "800px" }} className="card-container">
       <Row>
-        {/* TODO */}
+        {props.projectOnly && <h1 className="h-3">{props.project?.title}</h1>}
         <Col>
           <DragDropContext onDragEnd={onDragEnd}>
             <div
@@ -446,7 +446,7 @@ function TasksList(props) {
                 );
 
                 return (
-                  <Col>
+                  <Col style={{ height: "600px" }}>
                     <div>
                       <h3 className="h-3">{column.title}</h3>
                       {/* <p>{props.todo.length} tasks available</p> */}

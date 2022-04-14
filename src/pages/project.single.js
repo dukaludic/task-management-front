@@ -163,9 +163,7 @@ function ProjectSingle() {
       <Container>
         <Row>
           <Col>
-            <p>Project</p>
-            <h1>{project?.title}</h1>
-            <p>{project?.status}</p>
+            <h1 className="h-1">Project</h1>
           </Col>
         </Row>
         <Row>

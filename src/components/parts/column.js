@@ -17,10 +17,7 @@ function Column(props) {
       <Droppable droppableId={props.column._id}>
         {(provided) => (
           <div
-            style={{
-              padding: "0",
-              flexGrow: 1,
-            }}
+            className="droppable-container"
             ref={provided.innerRef}
             {...provided.droppableProps}
           >
