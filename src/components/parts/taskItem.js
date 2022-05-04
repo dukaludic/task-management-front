@@ -9,14 +9,6 @@ import { Auth } from "../../context/AuthContext";
 
 import * as datahandler from "../../helpers/dataHandler";
 
-const Container = styled.div`
-  border: 1px solid lightgrey;
-  border-radius: 2px;
-  padding: 8px;
-  margin-bottom: 8px;
-  background-color: white;
-`;
-
 function TaskItem(props) {
   const [users, setUsers] = useState([]);
   const authContext = useContext(Auth);
@@ -84,7 +76,7 @@ function TaskItem(props) {
                     return (
                       <img
                         className="team-small-image-circle"
-                        src={user?.profile_picture?.base_64}
+                        src={user?.profile_picture?.file_url}
                       />
                     );
                   })}

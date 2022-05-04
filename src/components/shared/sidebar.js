@@ -1,39 +1,47 @@
-import React, { useContext, useEffect, useState, useCallback } from "react";
-import { Link } from "react-router-dom";
-import { useNavigate } from "react-router-dom";
+import React, { useState, useEffect, useContext, useCallback } from "react";
+import { GiHamburgerMenu } from "react-icons/gi";
+import { NavLink, useNavigate } from "react-router-dom";
+import {
+  AiOutlineDashboard,
+  AiOutlineFundProjectionScreen,
+  AiOutlineAreaChart,
+  AiOutlineCluster,
+  AiOutlineUnorderedList,
+  AiOutlinePieChart,
+  AiOutlineTeam,
+  AiOutlineUser,
+  AiOutlineClose,
+} from "react-icons/ai";
+import { RiLogoutBoxLine } from "react-icons/ri";
+import defaultUser from "../../assets/images/default-user-image.png";
+import { Auth } from "../../context/AuthContext";
+import logo from "../../assets/images/grapes-mark-white.svg";
 import jwt_decode from "jwt-decode";
+import * as datahandler from "../../helpers/dataHandler";
+import { BiBarChart } from "react-icons/bi";
 import Modal from "react-modal";
 import { useDropzone } from "react-dropzone";
-import imageToBase64 from "image-to-base64/browser";
-import * as datahandler from "../../helpers/dataHandler";
+import { GrProjects } from "react-icons/gr";
+import { Spinner } from "react-bootstrap";
+import axios from "axios";
 
-import Dashboard from "../../pages/dashboard";
-import Projects from "../../pages/projects";
-import Tasks from "../../pages/tasks";
-import TaskSingle from "../../pages/task.single";
-import ProjectSingle from "../../pages/project.single";
+function Sidebar(props) {
+  const [sidebarActive, setSidebarActive] = useState(true);
+  const [logoTypo, setLogoTypo] = useState("");
+  const [counter, setCounter] = useState(0);
 
-import {
-  BrowserRouter as Router,
-  Routes,
-  Route,
-  Redirect,
-} from "react-router-dom";
-
-import { Auth } from "../../context/AuthContext";
-
-Modal.setAppElement("#root");
-
-function Sidebar() {
-  let subtitle;
   const [user, setUser] = useState({});
   const [modalIsOpen, setIsOpen] = React.useState(false);
   const [modalProfilePicture, setModalProfilePicture] = useState("");
+  const [modalProfilePictureFile, setModalProfilePictureFile] = useState("");
   const [profilePicture, setProfilePicture] = useState(null);
+  const [userIsLoading, setUserIsLoading] = useState(true);
 
   useEffect(() => {
     const token = localStorage.getItem("access_token");
     const decoded = jwt_decode(token);
+
+    console.log(token);
 
     (async () => {
       const userData = await datahandler.show(
@@ -41,6 +49,7 @@ function Sidebar() {
         authContext
       );
       setUser(userData);
+      setUserIsLoading(false);
       console.log(userData, "===userData 2131231");
     })();
 
@@ -75,19 +84,24 @@ function Sidebar() {
     });
   };
 
+  useEffect(() => {
+    console.log("file use effect", modalProfilePictureFile);
+  }, [modalProfilePictureFile]);
+
   function MyDropzone() {
     const onDrop = useCallback((acceptedFiles) => {
-      acceptedFiles.forEach((item) => {
-        getBase64(item)
+      acceptedFiles.forEach((file) => {
+        setModalProfilePictureFile(file);
+        getBase64(file)
           .then((res) => {
             setModalProfilePicture(res);
+
             console.log(res);
           })
           .catch((err) => {
             console.log(err);
           });
       });
-      // Do something with the files
     }, []);
     const { getRootProps, getInputProps, isDragActive } = useDropzone({
       onDrop,
@@ -117,30 +131,93 @@ function Sidebar() {
 
   const modalSaveHandler = async () => {
     console.log(user._id, "===user._id");
-    console.log("save handler");
 
     const imageAssignedExists = await datahandler.show(
-      `imagesassigned/assignment_id/${user._id}`,
+      `imagesassigned/single/assignment_id/${user._id}`,
       authContext
     );
 
     console.log(imageAssignedExists, "imageassignedExists");
 
+    console.log(modalProfilePictureFile, "modalProfilePictureFile");
+
     if (imageAssignedExists) {
-      const updatedImageRes = await datahandler.update(
-        `images`,
+      console.log("already exists");
+      // const updatedImageRes = await datahandler.update(
+      //   `images`,
+      //   imageAssignedExists.image_id,
+      //   { base_64: modalProfilePicture },
+      //   authContext
+      // );
+
+      const deleteImageRes = await datahandler.deleteItem(
+        "images",
         imageAssignedExists.image_id,
-        { base_64: modalProfilePicture },
         authContext
       );
-    } else {
-      const insertImageRes = await datahandler.create(
-        "images",
+
+      const deleteImageAssignedRes = await datahandler.deleteItem(
+        "imagesassigned",
+        imageAssignedExists._id,
+        authContext
+      );
+
+      const formData = new FormData();
+      formData.append("file", modalProfilePictureFile);
+      formData.append("file_name", `profile_picture-user=${user._id}`);
+      const config = {
+        headers: {
+          "content-type": "multipart/form-data",
+        },
+      };
+
+      const insertImageRes = await axios
+        .post("http://localhost:3000/images", formData, config)
+        .then((res) => {
+          return res.data;
+        })
+        .catch((err) => console.error(err));
+
+      console.log(insertImageRes, "insertImageRes");
+
+      const insertImageAssignedRes = await datahandler.create(
+        "imagesassigned",
         {
-          base_64: modalProfilePicture,
+          assignment_id: user._id,
+          image_id: insertImageRes._id,
         },
         authContext
       );
+    } else {
+      console.log(
+        modalProfilePictureFile,
+        "modalProfilePictureFile call to api"
+      );
+      // const insertImageRes = await datahandler.create(
+      //   "images",
+      //   {
+      //     file: modalProfilePictureFile,
+      //   },
+      //   authContext
+      // );
+
+      const formData = new FormData();
+      formData.append("file", modalProfilePictureFile);
+      formData.append("file_name", `profile_picture-user=${user._id}`);
+      const config = {
+        headers: {
+          "content-type": "multipart/form-data",
+        },
+      };
+
+      const insertImageRes = await axios
+        .post("http://localhost:3000/images", formData, config)
+        .then((res) => {
+          return res.data;
+        })
+        .catch((err) => console.error(err));
+
+      console.log(insertImageRes, "insertImageRes");
 
       const insertImageAssignedRes = await datahandler.create(
         "imagesassigned",
@@ -177,70 +254,218 @@ function Sidebar() {
     setIsOpen(false);
   }
 
-  return (
-    <>
-      <div className="sidebar-wrapper">
-        <h1>LOGO</h1>
+  // Typewriter effect
+  useEffect(() => {
+    // clearInterval(typeWriter);
+    if (sidebarActive) {
+      setLogoTypo("");
+    } else {
+      setLogoTypo("");
+    }
+    console.log("useeff");
+  }, [sidebarActive]);
 
-        <Modal
-          className="profile-picture-modal"
-          isOpen={modalIsOpen}
-          onRequestClose={closeModal}
-          contentLabel="Example Modal"
-        >
-          <MyDropzone onDrop={(acceptedFiles) => console.log(acceptedFiles)}>
-            {({ getRootProps, getInputProps }) => (
-              <section>
-                {console.log(modalProfilePicture, "modalProfilePicture")}
-                {modalProfilePicture ? (
-                  <img
-                    className="profile-picture-dashboard-modal"
-                    src={modalProfilePicture}
-                  />
-                ) : (
-                  <div {...getRootProps()}>
-                    <input {...getInputProps()} />
-                    <p>
-                      Drag 'n' drop some files here, or click to select files
-                    </p>
-                  </div>
-                )}
-              </section>
-            )}
-          </MyDropzone>
-          <div className="d-flex justify-content-between">
-            <button onClick={closeModal}>Close</button>
+  useEffect(() => {
+    if (logoTypo === "") {
+      i = 0;
+      setTimeout(typeWriter, 100);
+    }
+  }, [logoTypo]);
+
+  let i = 0;
+  const txt = "rapes.";
+  const typeWriter = () => {
+    console.log(i, "i");
+    if (i < txt.length) {
+      console.log(i, txt.charAt(i), "typeWriter");
+      setLogoTypo((prevState) => (prevState += txt.charAt(i)));
+      i++;
+      setTimeout(typeWriter, 70);
+    } else {
+    }
+  };
+
+  return (
+    <div className={`sidebar ${sidebarActive ? `active` : ``}`}>
+      <Modal
+        className="profile-picture-modal"
+        isOpen={modalIsOpen}
+        onRequestClose={closeModal}
+        contentLabel="Example Modal"
+      >
+        <div className="d-flex">
+          <div className="sidebar-dropzone-container">
+            <MyDropzone onDrop={(acceptedFiles) => console.log(acceptedFiles)}>
+              {({ getRootProps, getInputProps }) => (
+                <section>
+                  {console.log(modalProfilePicture, "modalProfilePicture")}
+                  {modalProfilePicture ? (
+                    <img
+                      className="profile-picture-dashboard-modal"
+                      src={modalProfilePicture}
+                    />
+                  ) : (
+                    <div {...getRootProps()}>
+                      <input {...getInputProps()} />
+                      <p>
+                        Drag 'n' drop some files here, or click to select files
+                      </p>
+                    </div>
+                  )}
+                </section>
+              )}
+            </MyDropzone>
+          </div>
+          <div className="p-2 sidebar-profile-modal-inputs">
+            <p className="h-3">Change Password</p>
+            <p>Current password</p>
+            <input type="password" className="login-input" />
+            <p>New Password</p>
+            <input type="password" className="login-input" />
+            <p>Confirm Password</p>
+            <input type="password" className="login-input" />
             <button onClick={modalSaveHandler}>Save</button>
           </div>
-        </Modal>
+        </div>
+        <div className="d-flex justify-content-between">
+          <AiOutlineClose className="remove-review-icon" onClick={closeModal} />
+        </div>
+      </Modal>
+      {console.log(sidebarActive)}
+      <div>
+        <div className="logo-content">
+          {sidebarActive && (
+            <>
+              <img className="sidebar-logo-mark" src={logo} />
+              <span className="sidebar-logo-rest">{logoTypo}</span>
+            </>
+          )}
+        </div>
 
-        <div>
-          <ul className="sidebar-list">
-            <li>
-              <Link to="/dashboard">Dashboard</Link>
-            </li>
-            <li>
-              <Link to="/projects">Projects</Link>
-            </li>
-            <li>
-              <Link to="/tasks">Tasks</Link>
-            </li>
-          </ul>
-          <div>
-            <div onClick={openModal} className="sidebar-profile-img">
-              {console.log(user, "user")}
-              <img
-                style={{ width: "100%" }}
-                className="sidebar-profile-img"
-                src={profilePicture || user?.profile_picture?.base_64}
-              />
-            </div>
-            <p>{`${user.first_name} ${user.last_name}`}</p>
-          </div>
-          <button onClick={logout}>Log Out</button>
+        <GiHamburgerMenu
+          onClick={() => {
+            setLogoTypo("");
+            setSidebarActive((prevState) => !prevState);
+            props.setSidebarActive((prevState) => !prevState);
+          }}
+          id="hamburger"
+        />
+        <ul className="nav-list b-1">
+          <li>
+            <NavLink
+              exact
+              className={(navData) =>
+                navData.isActive ? "nav-active-link" : "nav-inactive-link"
+              }
+              to="/dashboard"
+            >
+              <BiBarChart className="sidebar-icon" />
+              {sidebarActive && <span className="menu-item">Dashboard</span>}
+            </NavLink>
+            {!sidebarActive && (
+              <>
+                {console.log(sidebarActive, "sidebarActive")}
+                <span className="tip">Dashboard</span>
+              </>
+            )}
+          </li>
+          <li>
+            <NavLink
+              className={(navData) =>
+                navData.isActive ? "nav-active-link" : "nav-inactive-link"
+              }
+              to="/projects"
+            >
+              <AiOutlineCluster className="sidebar-icon" />
+              {sidebarActive && <span className="menu-item">Projects</span>}
+            </NavLink>
+            {!sidebarActive && <span className="tip">Projects</span>}
+          </li>
+          <li>
+            <NavLink
+              exact
+              className={(navData) =>
+                navData.isActive ? "nav-active-link" : "nav-inactive-link"
+              }
+              to="/tasks"
+            >
+              <AiOutlineUnorderedList className="sidebar-icon" />
+              {sidebarActive && <span className="menu-item">Tasks</span>}
+            </NavLink>
+            {!sidebarActive && <span className="tip">Tasks</span>}
+          </li>
+        </ul>
+        {/* <hr id="sidebar-hr"></hr> */}
+      </div>
+      <div id="logout-btn-container">
+        <div className="logout-btn-container b-1">
+          <NavLink
+            onClick={logout}
+            style={{ marginLeft: "15px" }}
+            className={(navData) =>
+              navData.isActive ? "nav-active-link" : "nav-inactive-link"
+            }
+            to="/login"
+          >
+            <RiLogoutBoxLine className="sidebar-icon" />
+            {sidebarActive && <span className="menu-item">Log out</span>}
+          </NavLink>
+          {!sidebarActive && <span className="tip logout-tip">Log out</span>}
+        </div>
+        <div className="sidebar-profile-container">
+          {userIsLoading ? (
+            <Spinner
+              style={{ marginTop: "20px" }}
+              variant="white"
+              animation="border"
+              role="status"
+            >
+              <span className="visually-hidden">Loading...</span>
+            </Spinner>
+          ) : (
+            <>
+              {!sidebarActive ? (
+                <div className="sidebar-user-icon">
+                  <AiOutlineUser
+                    onClick={openModal}
+                    size={20}
+                    id="sidebar-user-icon"
+                  />
+
+                  <span className="tip">Profile</span>
+                </div>
+              ) : (
+                <div className="sidebar-profile-img-container">
+                  <img
+                    onClick={openModal}
+                    className="sidebar-profile-img"
+                    src={profilePicture || user?.profile_picture?.file_url}
+                  />
+                </div>
+              )}
+
+              {/* <img className="sidebar-profile-img" src={defaultUser} /> */}
+
+              {sidebarActive && (
+                <div className="sidebar-profile-info">
+                  <div
+                    style={{ color: "white" }}
+                    className="b-2 sidebar-full-name"
+                  >
+                    {`${user.first_name} ${user.last_name}`}
+                  </div>
+                  <div style={{ color: "white" }} className="b-3 sidebar-role">
+                    {user.role === "project_manager"
+                      ? "Project manager"
+                      : "Worker"}
+                  </div>
+                </div>
+              )}
+            </>
+          )}
         </div>
       </div>
-    </>
+    </div>
   );
 }
 
