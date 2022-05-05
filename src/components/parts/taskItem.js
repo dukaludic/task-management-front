@@ -62,8 +62,8 @@ function TaskItem(props) {
           <div className="task-item-container">
             <div className="d-flex justify-content-between">
               <Link to={`/task/${props.task._id}`}>{props.task.title}</Link>
-              <div {...provided.dragHandleProps}>
-                <BsThreeDotsVertical />
+              <div className="drag-handle" {...provided.dragHandleProps}>
+                {/* <BsThreeDotsVertical /> */}
               </div>
             </div>
             <div className="d-flex flex-column justify-items-between">

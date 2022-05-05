@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useContext } from "react";
 import Sidebar from "../components/shared/sidebar";
-import { Container, Col, Row } from "react-bootstrap";
+import { Container, Col, Row, Spinner } from "react-bootstrap";
 import ProjectsList from "../components/parts/projectsList";
 
 import * as datahandler from "../helpers/dataHandler";
@@ -12,12 +12,17 @@ function Projects() {
   const [projectProgresses, setProjectProgresses] = useState([]);
   const [reloadCounter, reload] = useState(0);
   const [newProjectMenuOpen, setNewProjectMenuOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   const authContext = useContext(Auth);
 
   useEffect(() => {
     (async () => {
-      const projects = await datahandler.show("projects", authContext);
+      const projects = await datahandler.show(
+        "projects/projects_page",
+        authContext
+      );
+      setIsLoading(false);
       const users = [];
       for (let i = 0; i < projects?.length; i++) {
         for (let j = 0; j < projects[i].assigned_users.length; j++) {
@@ -56,42 +61,57 @@ function Projects() {
   }, [reloadCounter]);
 
   return (
-    <div className="d-flex">
+    <>
       <Container>
         <Row>
           <Col lg={12}>
             <h1 className="h-1 main-heading">Projects</h1>
           </Col>
         </Row>
-        <Row>
-          <Col lg={12}>
-            <div className="card-container">
-              <ProjectsList
-                projects={projects}
-                projectProgresses={projectProgresses}
-                reloadCounter={reloadCounter}
-                reload={reload}
-              />
-            </div>
-          </Col>
-          <Col>
-            {newProjectMenuOpen &&
-              authContext.state.data.user.role === "project_manager" && (
-                <NewProjectMenu setNewProjectMenuOpen={setNewProjectMenuOpen} />
-              )}
-            {!newProjectMenuOpen &&
-              authContext.state.data.user.role === "project_manager" && (
-                <button
-                  className="btn-default-g mt-4"
-                  onClick={() => setNewProjectMenuOpen(true)}
-                >
-                  New Project
-                </button>
-              )}
-          </Col>
-        </Row>
+        {isLoading ? (
+          <Spinner
+            style={{ marginTop: "20px" }}
+            variant="dark"
+            animation="border"
+            role="status"
+          >
+            <span className="visually-hidden">Loading...</span>
+          </Spinner>
+        ) : (
+          <div className="d-flex">
+            <Row>
+              <Col lg={12}>
+                <div className="card-container">
+                  <ProjectsList
+                    projects={projects}
+                    projectProgresses={projectProgresses}
+                    reloadCounter={reloadCounter}
+                    reload={reload}
+                  />
+                </div>
+              </Col>
+              <Col>
+                {newProjectMenuOpen &&
+                  authContext.state.data.user.role === "project_manager" && (
+                    <NewProjectMenu
+                      setNewProjectMenuOpen={setNewProjectMenuOpen}
+                    />
+                  )}
+                {!newProjectMenuOpen &&
+                  authContext.state.data.user.role === "project_manager" && (
+                    <button
+                      className="btn-default-g mt-4"
+                      onClick={() => setNewProjectMenuOpen(true)}
+                    >
+                      New Project
+                    </button>
+                  )}
+              </Col>
+            </Row>
+          </div>
+        )}
       </Container>
-    </div>
+    </>
   );
 }
 

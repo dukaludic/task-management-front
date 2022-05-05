@@ -106,7 +106,7 @@ const TaskSingleTeamDropdown = forwardRef((props, ref) => {
           />
         </div>
         {search.length > 1 && filtered.length > 0 && (
-          <ul className="list">
+          <ul className="task-single-search-list">
             {filtered.map((item) => (
               <li onClick={() => onClickItem(item)}>{item.name}</li>
             ))}

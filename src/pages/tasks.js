@@ -19,13 +19,11 @@ function Tasks() {
   const { user } = authContext.state.data;
 
   useEffect(() => {
-    console.log("refetch");
     (async () => {
       const tasks = await datahandler.show(
         `tasks/user/${user._id}`,
         authContext
       );
-      console.log(tasks, "TASKS");
       setTasks(tasks);
     })();
   }, []);

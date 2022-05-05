@@ -101,7 +101,7 @@ function ProjectsList(props) {
               {project.assigned_users.map((user) => {
                 return (
                   <img
-                    src={user.profile_picture?.base_64}
+                    src={user.profile_picture?.file_url}
                     className="team-small-image-circle"
                   ></img>
                 );

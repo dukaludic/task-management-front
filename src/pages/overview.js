@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useContext } from "react";
 
 import * as dataHandler from "../helpers/dataHandler";
-import { Container, Row, Col } from "react-bootstrap";
+import { Container, Row, Col, Spinner } from "react-bootstrap";
 
 import Sidebar from "../components/shared/sidebar";
 import DashboardProjectSummary from "../components/parts/dashboardProjectSummary";
@@ -24,7 +24,7 @@ const Overview = () => {
   const [overdue, setOverdue] = useState([]);
   const [projectProgresses, setProjectProgresses] = useState([]);
   const [events, setEvents] = useState([]);
-
+  const [isLoading, setIsLoading] = useState(true);
   const [projectSelected, setProjectSelected] = useState("All Projects");
 
   const [userOnlyTasks, setUserOnlyTasks] = useState(false);
@@ -238,6 +238,8 @@ const Overview = () => {
         authContext
       );
 
+      setIsLoading(false);
+
       if (user.role === "project_manager") {
         reviews = reviews.filter((el) => el.approval === "pending");
       }
@@ -386,66 +388,84 @@ const Overview = () => {
   };
 
   return (
-    <div className="d-flex">
-      {/* <h1>Overview</h1> */}
-      <Container>
-        <Row>
-          <Col lg={12}>
-            <h1 className="h-1 main-heading">Dashboard</h1>
-          </Col>
-        </Row>
-        <Row>
-          <Col lg={12}>
-            <DashboardProjectSummary
-              projectSelected={projectSelected}
-              projects={projects}
-              projectProgresses={projectProgresses}
-              todo={todo}
-              inProgress={inProgress}
-              inReview={inReview}
-              changeProject={changeProject}
-              resetData={resetData}
-            />
-          </Col>
-        </Row>
-        <Row style={{ marginTop: "20px" }}>
-          <Col className="overview-col-l" lg={6}>
-            <DashboardTasks
-              projectSelected={projectSelected}
-              toggleUserProjectTasks={toggleUserProjectTasks}
-              projects={projects}
-              projectProgresses={projectProgresses}
-              todo={userOnlyTasks ? userTodo : todo}
-              inProgress={userOnlyTasks ? userInProgress : inProgress}
-              inReview={userOnlyTasks ? userInReview : inReview}
-              nearDeadline={userOnlyTasks ? userNearDeadline : nearDeadline}
-              overdue={userOnlyTasks ? userOverdue : overdue}
-              changeProject={changeProject}
-              userOnlyTasks={userOnlyTasks}
-              setUserOnlyTasks={setUserOnlyTasks}
-              chartMax={chartMax}
-            />
-          </Col>
-          <Col className="overview-col-r" lg={6}>
-            <DashboardReviews
-              projects={projects}
-              projectProgresses={projectProgresses}
-              todo={todo}
-              inProgress={inProgress}
-              inReview={userOnlyTasks ? userInReview : inReview}
-              userInReview={userInReview}
-              setInReview={setInReview}
-              setUserInReview={setUserInReview}
-              reviews={reviews}
-              setReviews={setReviews}
-              userReviews={userReviews}
-              setUserReviews={setUserReviews}
-            />
-          </Col>
-        </Row>
-      </Container>
-      {/* <DashboardRecent events={events} /> */}
-    </div>
+    <>
+      <div className="d-flex">
+        {/* <h1>Overview</h1> */}
+        <Container>
+          <Row>
+            <Col lg={12}>
+              <h1 className="h-1 main-heading">Dashboard</h1>
+            </Col>
+          </Row>
+          {isLoading ? (
+            <Spinner
+              // size="sm"
+              style={{ marginTop: "20px" }}
+              variant="black"
+              animation="border"
+              role="status"
+            >
+              <span className="visually-hidden">Loading...</span>
+            </Spinner>
+          ) : (
+            <>
+              <Row>
+                <Col lg={12}>
+                  <DashboardProjectSummary
+                    projectSelected={projectSelected}
+                    projects={projects}
+                    projectProgresses={projectProgresses}
+                    todo={todo}
+                    inProgress={inProgress}
+                    inReview={inReview}
+                    changeProject={changeProject}
+                    resetData={resetData}
+                  />
+                </Col>
+              </Row>
+              <Row style={{ marginTop: "20px" }}>
+                <Col className="overview-col-l" lg={6}>
+                  <DashboardTasks
+                    projectSelected={projectSelected}
+                    toggleUserProjectTasks={toggleUserProjectTasks}
+                    projects={projects}
+                    projectProgresses={projectProgresses}
+                    todo={userOnlyTasks ? userTodo : todo}
+                    inProgress={userOnlyTasks ? userInProgress : inProgress}
+                    inReview={userOnlyTasks ? userInReview : inReview}
+                    nearDeadline={
+                      userOnlyTasks ? userNearDeadline : nearDeadline
+                    }
+                    overdue={userOnlyTasks ? userOverdue : overdue}
+                    changeProject={changeProject}
+                    userOnlyTasks={userOnlyTasks}
+                    setUserOnlyTasks={setUserOnlyTasks}
+                    chartMax={chartMax}
+                  />
+                </Col>
+                <Col className="overview-col-r" lg={6}>
+                  <DashboardReviews
+                    projects={projects}
+                    projectProgresses={projectProgresses}
+                    todo={todo}
+                    inProgress={inProgress}
+                    inReview={userOnlyTasks ? userInReview : inReview}
+                    userInReview={userInReview}
+                    setInReview={setInReview}
+                    setUserInReview={setUserInReview}
+                    reviews={reviews}
+                    setReviews={setReviews}
+                    userReviews={userReviews}
+                    setUserReviews={setUserReviews}
+                  />
+                </Col>
+              </Row>
+            </>
+          )}
+        </Container>
+        {/* <DashboardRecent events={events} /> */}
+      </div>
+    </>
   );
 };
 

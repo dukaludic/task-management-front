@@ -6,7 +6,7 @@ import React, {
   useContext,
 } from "react";
 import { Link } from "react-router-dom";
-import { Container, Col, Row } from "react-bootstrap";
+import { Container, Col, Row, Spinner } from "react-bootstrap";
 import * as datahandler from "../../helpers/dataHandler";
 
 import { BsThreeDotsVertical } from "react-icons/bs";
@@ -30,15 +30,13 @@ function TasksList(props) {
   const [newTaskProjectManager, setNewTaskProjectManager] = useState([]);
   const [projectTitles, setProjectTitles] = useState([]);
   const [dueDate, setDueDate] = useState(new Date());
-
   const [workers, setWorkers] = useState([]);
   const [projectManagers, setProjectManagers] = useState([]);
-
   const [showTaskDropdown, setShowTaskDropdown] = useState(-1);
-
   const [update, setUpdate] = useState("");
-
   const authContext = useContext(Auth);
+  const [isLoading, setIsLoading] = useState(true);
+
   const { user } = authContext.state.data;
 
   // Drag and drop state
@@ -56,7 +54,6 @@ function TasksList(props) {
     let tasks;
     (async () => {
       if (props.projectOnly) {
-        console.log("projectONly");
         tasks = await datahandler.show(
           `tasks/project/${props.project._id}`,
           authContext
@@ -65,8 +62,6 @@ function TasksList(props) {
       } else {
         tasks = await datahandler.show(`tasks/user/${user._id}`, authContext);
       }
-
-      console.log(tasks, "TASKS");
 
       const sortedTasks = {
         tasks: {},
@@ -139,6 +134,7 @@ function TasksList(props) {
 
       console.log(sortedTasks, "sortedTasks");
 
+      setIsLoading(false);
       setState(sortedTasks);
       setWorkers(workers);
       setProjectManagers(projectManagers);
@@ -425,130 +421,147 @@ function TasksList(props) {
   };
 
   return (
-    <Container style={{ height: "800px" }} className="card-container">
-      <Row>
-        {props.projectOnly && <h1 className="h-3">{props.project?.title}</h1>}
-        <Col>
-          <DragDropContext onDragEnd={onDragEnd}>
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "row",
-                minWidth: "220px",
-                minHeight: "100px",
-              }}
-            >
-              {state.columnOrder?.map((columnId, index) => {
-                const column = state.columns[columnId];
+    <>
+      {isLoading ? (
+        <Spinner
+          style={{ marginTop: "20px" }}
+          variant="dark"
+          animation="border"
+          role="status"
+        >
+          <span className="visually-hidden">Loading...</span>
+        </Spinner>
+      ) : (
+        <Container style={{ height: "800px" }} className="card-container">
+          <Row>
+            {props.projectOnly && (
+              <h1 className="h-3">{props.project?.title}</h1>
+            )}
+            <Col>
+              <DragDropContext onDragEnd={onDragEnd}>
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "row",
+                    minWidth: "220px",
+                    minHeight: "100px",
+                  }}
+                >
+                  {state.columnOrder?.map((columnId, index) => {
+                    const column = state.columns[columnId];
 
-                const tasks = column.taskIds.map(
-                  (taskId) => state.tasks[taskId]
-                );
+                    const tasks = column.taskIds.map(
+                      (taskId) => state.tasks[taskId]
+                    );
 
-                return (
-                  <Col style={{ height: "600px" }}>
-                    <div>
-                      <h3 className="h-3">{column.title}</h3>
-                      {/* <p>{props.todo.length} tasks available</p> */}
-                    </div>
-                    {newTaskType === column.title ? (
-                      <div className="add-new-task-container">
-                        <div className="mb-4">
-                          <p className="b-2">Title</p>
-                          <input
-                            value={newTaskTitle}
-                            onChange={(e) => {
-                              setNewTaskTitle(e.target.value);
-                            }}
-                            placeholder="Title"
-                            className="input-default w-100"
-                          ></input>
+                    return (
+                      <Col style={{ height: "600px" }}>
+                        <div>
+                          <h3 className="h-3">{column.title}</h3>
+                          {/* <p>{props.todo.length} tasks available</p> */}
                         </div>
-                        <div className="mb-4">
-                          <p className="b-2">Project</p>
+                        {newTaskType === column.title ? (
+                          <div className="add-new-task-container">
+                            <div className="mb-4">
+                              <p className="b-2">Title</p>
+                              <input
+                                value={newTaskTitle}
+                                onChange={(e) => {
+                                  setNewTaskTitle(e.target.value);
+                                }}
+                                placeholder="Title"
+                                className="input-default w-100"
+                              ></input>
+                            </div>
+                            <div className="mb-4">
+                              <p className="b-2">Project</p>
 
-                          <DropdownSearch
-                            items={projectTitles}
-                            type="projects"
-                            setNewEntryProject={setNewTaskProject}
-                          />
-                        </div>
-                        <div className="mb-4">
-                          <p className="b-2">Description</p>
-                          <textarea
-                            value={newTaskDescription}
-                            onChange={(e) =>
-                              setNewTaskDescription(e.target.value)
-                            }
-                            className="input-default w-100"
-                            placeholder="Description"
-                          ></textarea>
-                        </div>
-                        {/* <p>Project Manager</p> */}
-                        {/* <DropdownSearch
+                              <DropdownSearch
+                                items={projectTitles}
+                                type="projects"
+                                setNewEntryProject={setNewTaskProject}
+                              />
+                            </div>
+                            <div className="mb-4">
+                              <p className="b-2">Description</p>
+                              <textarea
+                                value={newTaskDescription}
+                                onChange={(e) =>
+                                  setNewTaskDescription(e.target.value)
+                                }
+                                className="input-default w-100"
+                                placeholder="Description"
+                              ></textarea>
+                            </div>
+                            {/* <p>Project Manager</p> */}
+                            {/* <DropdownSearch
                           items={projectManagers}
                           type="project_managers"
                           setNewEntryProjectManager={setNewTaskProjectManager}
                         /> */}
-                        <p>Team</p>
-                        <DropdownSearch
-                          items={workers}
-                          type="workers"
-                          setNewEntryAssignedUsers={setNewTaskAssignedUsers}
-                          newEntryAssignedUsers={newTaskAssignedUsers}
-                        />
-                        <p>Due Date</p>
-                        <input
-                          style={{ width: "100%" }}
-                          type="date"
-                          placeholder={new Date().toLocaleDateString("en-CA")}
-                          value={dueDate}
-                          onChange={(e) => setDueDate(e.target.value)}
-                          name="dueDate"
-                          className="input-default w-100"
-                        ></input>
-                        <div className="d-flex justify-content-between mt-4">
-                          <button
-                            className="btn-default-g"
-                            onClick={insertTask}
-                          >
-                            Add
-                          </button>
-                          <button
-                            className="btn-default-grey"
-                            onClick={(e) => changeTaskType("")}
-                          >
-                            Cancel
-                          </button>
-                        </div>
-                      </div>
-                    ) : (
-                      <>
-                        <div
-                          style={{ margin: "10px" }}
-                          onClick={() => changeTaskType(column.title)}
-                          className="add-new-task-btn"
-                        >
-                          <div>
-                            <AiOutlinePlus size={20} />
-                            <p className="b-3-w">Add new</p>
+                            <p>Team</p>
+                            <DropdownSearch
+                              items={workers}
+                              type="workers"
+                              setNewEntryAssignedUsers={setNewTaskAssignedUsers}
+                              newEntryAssignedUsers={newTaskAssignedUsers}
+                            />
+                            <p>Due Date</p>
+                            <input
+                              style={{ width: "100%" }}
+                              type="date"
+                              placeholder={new Date().toLocaleDateString(
+                                "en-CA"
+                              )}
+                              value={dueDate}
+                              onChange={(e) => setDueDate(e.target.value)}
+                              name="dueDate"
+                              className="input-default w-100"
+                            ></input>
+                            <div className="d-flex justify-content-between mt-4">
+                              <button
+                                className="btn-default-g"
+                                onClick={insertTask}
+                              >
+                                Add
+                              </button>
+                              <button
+                                className="btn-default-grey"
+                                onClick={(e) => changeTaskType("")}
+                              >
+                                Cancel
+                              </button>
+                            </div>
                           </div>
-                        </div>
-                        <Column
-                          key={column._id}
-                          column={column}
-                          tasks={tasks}
-                        />
-                      </>
-                    )}
-                  </Col>
-                );
-              })}
-            </div>
-          </DragDropContext>
-        </Col>
-      </Row>
-    </Container>
+                        ) : (
+                          <>
+                            <div
+                              style={{ margin: "10px" }}
+                              onClick={() => changeTaskType(column.title)}
+                              className="add-new-task-btn"
+                            >
+                              <div>
+                                <AiOutlinePlus size={20} />
+                                <p className="b-3-w">Add new</p>
+                              </div>
+                            </div>
+                            <Column
+                              key={column._id}
+                              column={column}
+                              tasks={tasks}
+                            />
+                          </>
+                        )}
+                      </Col>
+                    );
+                  })}
+                </div>
+              </DragDropContext>
+            </Col>
+          </Row>
+        </Container>
+      )}
+    </>
   );
 }
 

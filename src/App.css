@@ -588,6 +588,15 @@ body {
   background: whitesmoke;
 }
 
+.task-single-search-list {
+  list-style-type: none;
+  cursor: pointer;
+}
+
+.task-single-search-list:hover {
+  background-color: #fafafa;
+}
+
 .result {
   display: flex;
   align-items: center;
@@ -1383,4 +1392,11 @@ a {
   padding: 0;
   flex-grow: 1;
   overflow-y: scroll;
+}
+
+.drag-handle {
+  background-color: var(--whiteGrey);
+  width: 20px;
+  height: 20px;
+  border-radius: 5px;
 }

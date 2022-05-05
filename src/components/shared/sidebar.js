@@ -91,6 +91,23 @@ function Sidebar(props) {
   function MyDropzone() {
     const onDrop = useCallback((acceptedFiles) => {
       acceptedFiles.forEach((file) => {
+        const fileExtension = file.name.split(".").at(-1);
+        const allowedFileTypes = ["jpg", "png"];
+        console.log(fileExtension, "fileExtension");
+        // console.log(file.size, "file.size");
+        if (file.size > 2 * 1024 * 1024) {
+          window.alert("File size exceeds 4mb");
+          return;
+        }
+        if (!allowedFileTypes.includes(fileExtension)) {
+          window.alert(
+            `File does not support. Files type must be ${allowedFileTypes.join(
+              ", "
+            )}`
+          );
+          return;
+        }
+
         setModalProfilePictureFile(file);
         getBase64(file)
           .then((res) => {
