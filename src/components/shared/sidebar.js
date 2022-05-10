@@ -37,6 +37,12 @@ function Sidebar(props) {
   const [profilePicture, setProfilePicture] = useState(null);
   const [userIsLoading, setUserIsLoading] = useState(true);
 
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+
+  const [error, setError] = useState("");
+
   useEffect(() => {
     const token = localStorage.getItem("access_token");
     const decoded = jwt_decode(token);
@@ -95,18 +101,20 @@ function Sidebar(props) {
         const allowedFileTypes = ["jpg", "png"];
         console.log(fileExtension, "fileExtension");
         // console.log(file.size, "file.size");
-        if (file.size > 2 * 1024 * 1024) {
-          window.alert("File size exceeds 4mb");
+        if (file.size > 3 * 1024 * 1024) {
+          setError("File size exceeds 4mb");
           return;
         }
         if (!allowedFileTypes.includes(fileExtension)) {
-          window.alert(
-            `File does not support. Files type must be ${allowedFileTypes.join(
+          setError(
+            `Format not supported. Files type must be ${allowedFileTypes.join(
               ", "
             )}`
           );
           return;
         }
+
+        setError("");
 
         setModalProfilePictureFile(file);
         getBase64(file)
@@ -147,7 +155,36 @@ function Sidebar(props) {
   }
 
   const modalSaveHandler = async () => {
-    console.log(user._id, "===user._id");
+    console.log(user, "===user._id");
+
+    if (newPassword.length > 0 && newPassword.length < 4) {
+      setError("Password needs to be at least 4 characters long");
+      return;
+    }
+
+    if (newPassword !== confirmPassword) {
+      setError("Passwords do not match");
+      return;
+    }
+
+    const currentPasswordIsCorrect = await datahandler.create(
+      `users/check_password/${user._id}`,
+      { password: currentPassword }
+    );
+
+    if (!currentPasswordIsCorrect && currentPassword.length > 0) {
+      setError("Incorrect password");
+      return;
+    }
+
+    console.log(currentPasswordIsCorrect, "currentPasswordIsCorrect");
+
+    const updatedUserRes = await datahandler.update(
+      "users",
+      user._id,
+      { password: newPassword },
+      authContext
+    );
 
     const imageAssignedExists = await datahandler.show(
       `imagesassigned/single/assignment_id/${user._id}`,
@@ -269,6 +306,7 @@ function Sidebar(props) {
   function closeModal() {
     setModalProfilePicture("");
     setIsOpen(false);
+    setError("");
   }
 
   // Typewriter effect
@@ -303,7 +341,10 @@ function Sidebar(props) {
   };
 
   return (
-    <div className={`sidebar ${sidebarActive ? `active` : ``}`}>
+    <div
+      style={{ marginRight: "20px" }}
+      className={`sidebar ${sidebarActive ? `active` : ``}`}
+    >
       <Modal
         className="profile-picture-modal"
         isOpen={modalIsOpen}
@@ -314,7 +355,7 @@ function Sidebar(props) {
           <div className="sidebar-dropzone-container">
             <MyDropzone onDrop={(acceptedFiles) => console.log(acceptedFiles)}>
               {({ getRootProps, getInputProps }) => (
-                <section>
+                <div>
                   {console.log(modalProfilePicture, "modalProfilePicture")}
                   {modalProfilePicture ? (
                     <img
@@ -322,31 +363,46 @@ function Sidebar(props) {
                       src={modalProfilePicture}
                     />
                   ) : (
-                    <div {...getRootProps()}>
+                    <div className="dropzone-profile-img" {...getRootProps()}>
                       <input {...getInputProps()} />
                       <p>
                         Drag 'n' drop some files here, or click to select files
                       </p>
                     </div>
                   )}
-                </section>
+                </div>
               )}
             </MyDropzone>
           </div>
           <div className="p-2 sidebar-profile-modal-inputs">
             <p className="h-3">Change Password</p>
             <p>Current password</p>
-            <input type="password" className="login-input" />
+            <input
+              onChange={(e) => setCurrentPassword(e.target.value)}
+              type="password"
+              className="login-input"
+            />
             <p>New Password</p>
-            <input type="password" className="login-input" />
+            <input
+              onChange={(e) => setNewPassword(e.target.value)}
+              type="password"
+              className="login-input"
+            />
             <p>Confirm Password</p>
-            <input type="password" className="login-input" />
-            <button onClick={modalSaveHandler}>Save</button>
+            <input
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              type="password"
+              className="login-input"
+            />
+            <button className="btn-default-g mt-5" onClick={modalSaveHandler}>
+              Save
+            </button>
           </div>
         </div>
         <div className="d-flex justify-content-between">
           <AiOutlineClose className="remove-review-icon" onClick={closeModal} />
         </div>
+        {error && <p className="sidebar-modal-error">{error}</p>}
       </Modal>
       {console.log(sidebarActive)}
       <div>
@@ -452,10 +508,10 @@ function Sidebar(props) {
                   <span className="tip">Profile</span>
                 </div>
               ) : (
-                <div className="sidebar-profile-img-container">
+                <div className="profile-picture-default-container">
                   <img
                     onClick={openModal}
-                    className="sidebar-profile-img"
+                    className="profile-picture-default"
                     src={profilePicture || user?.profile_picture?.file_url}
                   />
                 </div>

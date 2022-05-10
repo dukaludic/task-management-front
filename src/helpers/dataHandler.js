@@ -24,7 +24,7 @@ export const show = async (resource, authContext) => {
       return response.data;
     })
     .catch((error) => {
-      return error;
+      console.log(error);
     });
   return result;
 };

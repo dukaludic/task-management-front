@@ -10,28 +10,41 @@ import { Auth } from "../../context/AuthContext";
 
 import * as datahandler from "../../helpers/dataHandler";
 
-const TaskSingleTeamDropdown = forwardRef((props, ref) => {
+const ProjectSingleTeamDropdown = forwardRef((props, ref) => {
   const authContext = useContext(Auth);
   const [data, setData] = useState([]);
   const [search, setSearch] = useState("");
   const [filtered, setFiltered] = useState([]);
 
   useEffect(() => {
-    console.log(ref, "REF");
+    (async () => {
+      const projectUsers = props.data;
 
-    const projectUsers = props.data;
+      const allUsers = await datahandler.show("users");
 
-    //difference between arrays because some are already assigned and shouldn't appear in search
-    const remainingUsers = projectUsers.filter(
-      ({ _id }) => !props.assignedUsers.some((user) => user._id === _id)
-    );
+      const allUsersRepack = allUsers.map((user) => {
+        return {
+          _id: user._id,
+          name: `${user.first_name} ${user.last_name}`,
+          role: user.role,
+          username: user.username,
+          email: user.email,
+          role: user.role,
+          profile_picture: user.profile_picture,
+        };
+      });
+      //difference between arrays because some are already assigned and shouldn't appear in search
+      const remainingUsers = allUsersRepack.filter(
+        ({ _id }) => !props.assignedUsers.some((user) => user._id === _id)
+      );
 
-    console.log(remainingUsers, "remainingUsers");
+      console.log(remainingUsers, "remainingUsers");
 
-    console.log(data, "dataaa");
+      console.log(data, "dataaa");
 
-    setData(remainingUsers);
-    // console.log(props.data, "props.data");
+      setData(remainingUsers);
+      // console.log(props.data, "props.data");
+    })();
   }, []);
 
   const onInput = (e) => {
@@ -57,14 +70,25 @@ const TaskSingleTeamDropdown = forwardRef((props, ref) => {
 
     console.log(assignedUsersIds, "assignedUsers");
 
-    const updatedTask = await datahandler.update(
-      "tasks",
-      props.task._id,
-      {
-        assigned_users: assignedUsersIds,
-      },
-      authContext
-    );
+    if (props.type === "project") {
+      const updatedProject = await datahandler.update(
+        "projects",
+        props.project._id,
+        {
+          assigned_users: assignedUsersIds,
+        },
+        authContext
+      );
+    } else {
+      const updatedTask = await datahandler.update(
+        "tasks",
+        props.task._id,
+        {
+          assigned_users: assignedUsersIds,
+        },
+        authContext
+      );
+    }
 
     setData((prevState) => prevState.filter((user) => user._id !== item._id));
     setFiltered([]);
@@ -100,4 +124,4 @@ const TaskSingleTeamDropdown = forwardRef((props, ref) => {
   );
 });
 
-export default TaskSingleTeamDropdown;
+export default ProjectSingleTeamDropdown;

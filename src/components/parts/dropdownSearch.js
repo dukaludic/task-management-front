@@ -11,6 +11,7 @@ function DropdownSearch({
   setNewEntryProjectManager,
   newEntryAssignedUsers,
   newEntryProjectManager,
+  setProjectManager,
 }) {
   const [data, setData] = useState(items);
   const [search, setSearch] = useState("");

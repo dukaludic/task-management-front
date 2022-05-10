@@ -723,7 +723,7 @@ function TaskSingle() {
                         >
                           <img
                             className="profile-picture-default"
-                            src={item?.profile_picture?.base_64}
+                            src={item?.profile_picture?.file_url}
                           />
                         </div>
                         <div>
@@ -850,10 +850,10 @@ function TaskSingle() {
                 return (
                   <>
                     <div className="comment-container b-2">
-                      <div className="comment-img-container">
+                      <div className="profile-picture-default-container">
                         <img
                           className="profile-picture-default"
-                          src={item.user?.profile_picture?.base_64}
+                          src={item.user?.profile_picture?.file_url}
                         ></img>
                       </div>
                       <div className="comment-content-container">

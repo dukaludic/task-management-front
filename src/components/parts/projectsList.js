@@ -98,14 +98,17 @@ function ProjectsList(props) {
           <div className="project-list-info">
             <Link to={`/project/${project._id}`}>{project.title}</Link>
             <div className="d-flex align-items-center mb-3">
-              {project.assigned_users.map((user) => {
-                return (
-                  <img
-                    src={user.profile_picture?.file_url}
-                    className="team-small-image-circle"
-                  ></img>
-                );
-              })}
+              {console.log(project, "project in projectsList")}
+              {[project.project_manager, ...project.assigned_users].map(
+                (user) => {
+                  return (
+                    <img
+                      src={user.profile_picture?.file_url}
+                      className="team-small-image-circle"
+                    ></img>
+                  );
+                }
+              )}
             </div>
             <p>{moment(project.start_date).format("MMM Do YY")}</p>
             <p>{moment(project.end_date).format("MMM Do YY")}</p>
@@ -122,76 +125,6 @@ function ProjectsList(props) {
           </div>
         );
       })}
-      {/* {newProjectMenuOpen &&
-        authContext.state.data.user.role === "project_manager" && (
-          <div>
-            <div>
-              <p>Title</p>
-              <input
-                value={newEntryTitle}
-                onChange={(e) => setNewEntryTitle(e.target.value)}
-                type="text"
-                className=""
-              />
-              {!newEntryTitleValid && (
-                <p>Title must be at least 3 letter long</p>
-              )}
-            </div>
-            <div>
-              <p>Description</p>
-              <textarea
-                value={newEntryDescription}
-                onChange={(e) => setNewEntryDescription(e.target.value)}
-              />
-            </div>
-            <div>
-              <p>Team</p>
-              <DropdownSearch
-                style={{ display: "block" }}
-                items={allWorkers}
-                type="workers"
-                setNewEntryAssignedUsers={setNewEntryAssignedUsers}
-                newEntryAssignedUsers={newEntryAssignedUsers}
-              />
-            </div>
-            <div>
-              <p>Project Manager</p>
-              <DropdownSearch
-                items={allProjectManagers}
-                type="project_managers"
-                setNewEntryProjectManager={setNewEntryProjectManager}
-              />
-            </div>
-
-            <div>
-              <p>Start Date</p>
-              <input
-                value={newEntryStartDate}
-                onChange={(e) => setNewEntryStartDate(e.target.value)}
-                type="date"
-                className=""
-              />
-            </div>
-
-            <div>
-              <p>End Date</p>
-              <input
-                value={newEntryEndDate}
-                onChange={(e) => setNewEntryEndDate(e.target.value)}
-                type="date"
-                className=""
-              />
-            </div>
-            <button onClick={addProject}>ADD</button>
-            <button onClick={cancelNewProject}>Cancel</button>
-          </div>
-        )}
-      {!newProjectMenuOpen &&
-        authContext.state.data.user.role === "project_manager" && (
-          <button onClick={() => setNewProjectMenuOpen(true)}>
-            New Project
-          </button>
-        )} */}
     </div>
   );
 }

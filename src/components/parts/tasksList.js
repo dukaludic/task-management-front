@@ -434,9 +434,6 @@ function TasksList(props) {
       ) : (
         <Container style={{ height: "800px" }} className="card-container">
           <Row>
-            {props.projectOnly && (
-              <h1 className="h-3">{props.project?.title}</h1>
-            )}
             <Col>
               <DragDropContext onDragEnd={onDragEnd}>
                 <div
@@ -473,15 +470,17 @@ function TasksList(props) {
                                 className="input-default w-100"
                               ></input>
                             </div>
-                            <div className="mb-4">
-                              <p className="b-2">Project</p>
+                            {!props.projectOnly && (
+                              <div className="mb-4">
+                                <p className="b-2">Project</p>
 
-                              <DropdownSearch
-                                items={projectTitles}
-                                type="projects"
-                                setNewEntryProject={setNewTaskProject}
-                              />
-                            </div>
+                                <DropdownSearch
+                                  items={projectTitles}
+                                  type="projects"
+                                  setNewEntryProject={setNewTaskProject}
+                                />
+                              </div>
+                            )}
                             <div className="mb-4">
                               <p className="b-2">Description</p>
                               <textarea
@@ -499,14 +498,14 @@ function TasksList(props) {
                           type="project_managers"
                           setNewEntryProjectManager={setNewTaskProjectManager}
                         /> */}
-                            <p>Team</p>
+                            <p className="b-2">Team</p>
                             <DropdownSearch
                               items={workers}
                               type="workers"
                               setNewEntryAssignedUsers={setNewTaskAssignedUsers}
                               newEntryAssignedUsers={newTaskAssignedUsers}
                             />
-                            <p>Due Date</p>
+                            <p className="b-2">Due Date</p>
                             <input
                               style={{ width: "100%" }}
                               type="date"

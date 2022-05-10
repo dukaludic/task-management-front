@@ -11,7 +11,8 @@ import ProjectGeneralDiscussion from "../components/parts/project.general.discus
 import CommentsSection from "../components/parts/commentsSection";
 import { IoMdClose } from "react-icons/io";
 import { Auth } from "../context/AuthContext";
-import TaskSingleTeamDropdown from "../components/parts/task.single.team.dropdown";
+import ProjectSingleTeamDropdown from "../components/parts/project.single.team.dropdown";
+import DropdownSearch from "../components/parts/dropdownSearch";
 
 function ProjectSingle() {
   const { _id } = useParams();
@@ -21,6 +22,8 @@ function ProjectSingle() {
   const [inReview, setInReview] = useState([]);
   const [done, setDone] = useState([]);
 
+  const [projectProgress, setProjectProgress] = useState(0);
+
   const [newComment, setNewComment] = useState("");
   const [comments, setComments] = useState([]);
 
@@ -29,6 +32,9 @@ function ProjectSingle() {
   const [assignedUsers, setAssignedUsers] = useState([]);
   const [assignMoreOpen, setAssignMoreOpen] = useState([]);
   const [allUsers, setAllUsers] = useState([]);
+  const [projectManager, setProjectManager] = useState(null);
+  const [projectManagers, setProjectManagers] = useState([]);
+  const [workers, setWorkers] = useState([]);
 
   const { user } = authContext.state.data;
 
@@ -43,6 +49,11 @@ function ProjectSingle() {
       console.log(project, "===project");
 
       const allUsers = await datahandler.show("users/basic", authContext);
+      const allProjectManagers = allUsers.filter(
+        (user) => user.role === "project_manager"
+      );
+
+      const allWorkers = allUsers.filter((user) => user.role === "worker");
 
       const todo = project.tasks.filter((task) => task.status === "to_do");
       const inProgress = project.tasks.filter(
@@ -53,10 +64,7 @@ function ProjectSingle() {
       );
       const done = project.tasks.filter((task) => task.status === "done");
 
-      const assignedUsersRepack = [
-        project.project_manager,
-        ...project.assigned_users,
-      ].map((user) => {
+      const assignedUsersRepack = [...project.assigned_users].map((user) => {
         return {
           _id: user._id,
           name: `${user.first_name} ${user.last_name}`,
@@ -84,14 +92,25 @@ function ProjectSingle() {
       setInProgress(inProgress);
       setInReview(inReview);
       setDone(done);
-      console.log(
-        [project.project_manager, ...project.assigned_users],
-        "PROJECT USRS"
-      );
+
       setAllUsers(allUsersRepack);
       setAssignedUsers(assignedUsersRepack);
+      setProjectManager(project.project_manager);
+      setProjectManagers(allProjectManagers);
+      setWorkers(workers);
     })();
   }, []);
+
+  // useEffect(() => {
+  //   console.log(project, "project");
+  //   console.log("done0", done);
+
+  //   let projectProgress = Math.round(
+  //     (done.length / project.tasks.length) * 100
+  //   );
+
+  //   setProjectProgress(projectProgress);
+  // }, [done]);
 
   const submitComment = async () => {
     const time = new Date();
@@ -163,7 +182,21 @@ function ProjectSingle() {
       <Container>
         <Row>
           <Col>
-            <h1 className="h-1">Project</h1>
+            <h1 className="h-1 main-heading">{project.title}</h1>
+            <p className="b-2">Project</p>
+            {/* <div
+              style={{ width: "300px", marginBottom: "20px" }}
+              className="progress-bar-container"
+            >
+              <div className="d-flex progress-bar-progress-container">
+                <div className="progress-bar-whole"></div>
+                <div
+                  style={{ width: `${projectProgress}%` }}
+                  className="progress-bar"
+                ></div>
+              </div>
+              <span>{`${projectProgress}%`}</span>
+            </div> */}
           </Col>
         </Row>
         <Row>
@@ -183,9 +216,48 @@ function ProjectSingle() {
         <Row>
           <Col>
             {user.role === "project_manager" && (
-              <>
+              <div
+                style={{ marginTop: "30px", marginBottom: "200px" }}
+                className="card-container"
+              >
                 <div>
-                  <h3>Team</h3>
+                  <h3 className="h-3">Project Manager</h3>
+                  {project && (
+                    <>
+                      <div className="d-flex">
+                        <div className="d-flex">
+                          <div
+                            style={{
+                              width: "50px",
+                              height: "50px",
+                              backgroundColor: "#ddd",
+                            }}
+                          >
+                            <img
+                              className="profile-picture-default"
+                              src={projectManager?.profile_picture?.file_url}
+                            />
+                          </div>
+                          <div>
+                            {console.log(projectManager, "projectManager")}
+                            <p>{`${projectManager?.first_name} ${projectManager?.last_name}`}</p>
+                          </div>
+                        </div>
+                        {/* <IoMdClose onClick={() => unassignUser(item)} /> */}
+                      </div>
+                      {/* <ProjectSingleTeamDropdown
+                        data={projectManagers}
+                        setParentData={setProjectManager}
+                        assignedUsers={[projectManager]}
+                        ref={childData}
+                        project={project}
+                        type={"project"}
+                      /> */}
+                    </>
+                  )}
+                </div>
+                <div>
+                  <h3 className="h-3">Team</h3>
                   {project && (
                     <>
                       {assignedUsers?.map((item) => {
@@ -201,7 +273,7 @@ function ProjectSingle() {
                               >
                                 <img
                                   className="profile-picture-default"
-                                  src={item?.profile_picture?.base_64}
+                                  src={item?.profile_picture?.file_url}
                                 />
                               </div>
                               <div>
@@ -215,13 +287,20 @@ function ProjectSingle() {
                       })}
 
                       {allUsers.length > 0 && assignMoreOpen && (
-                        <TaskSingleTeamDropdown
+                        <ProjectSingleTeamDropdown
                           data={allUsers}
                           setParentData={setAssignedUsers}
                           assignedUsers={assignedUsers}
                           ref={childData}
                           project={project}
+                          type={"project"}
                         />
+                        // <DropdownSearch
+                        //   items={workers}
+                        //   type="workers"
+                        //   setNewEntryAssignedUsers={setAssignedUsers}
+                        //   newEntryAssignedUsers={assignedUsers}
+                        // />
                       )}
                       {!assignMoreOpen && (
                         <button onClick={() => setAssignMoreOpen(true)}>
@@ -231,13 +310,16 @@ function ProjectSingle() {
                     </>
                   )}
                 </div>
-              </>
+              </div>
             )}
           </Col>
           {/* <Col>
             <ProjectBlockers blockers={project?.blockers} />
           </Col> */}
         </Row>
+        {/* <Row>
+          <ProjectSingleTeamDropdown users={allUsers} />
+        </Row> */}
       </Container>
     </div>
   );
