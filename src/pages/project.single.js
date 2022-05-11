@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useContext, useRef } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { Container, Col, Row } from "react-bootstrap";
 import moment from "moment";
 import * as datahandler from "../helpers/dataHandler";
@@ -13,6 +13,7 @@ import { IoMdClose } from "react-icons/io";
 import { Auth } from "../context/AuthContext";
 import ProjectSingleTeamDropdown from "../components/parts/project.single.team.dropdown";
 import DropdownSearch from "../components/parts/dropdownSearch";
+import ProjectSingleManagerDropdown from "../components/parts/project.single.manager.dropdown";
 
 function ProjectSingle() {
   const { _id } = useParams();
@@ -30,13 +31,15 @@ function ProjectSingle() {
   const authContext = useContext(Auth);
 
   const [assignedUsers, setAssignedUsers] = useState([]);
-  const [assignMoreOpen, setAssignMoreOpen] = useState([]);
+  const [assignMoreOpen, setAssignMoreOpen] = useState(false);
+  const [assignManager, setAssignManager] = useState(false);
   const [allUsers, setAllUsers] = useState([]);
   const [projectManager, setProjectManager] = useState(null);
   const [projectManagers, setProjectManagers] = useState([]);
   const [workers, setWorkers] = useState([]);
 
   const { user } = authContext.state.data;
+  const navigate = useNavigate();
 
   useEffect(() => {
     (async () => {
@@ -151,7 +154,9 @@ function ProjectSingle() {
   };
 
   const unassignUser = async (user) => {
+    console.log(user, "user");
     setAssignedUsers(assignedUsers.filter((el) => el._id !== user._id));
+    console.log(childData);
     childData.current.setData((prevState) => [...prevState, user]);
 
     const assignedUsersIds = [];
@@ -166,7 +171,7 @@ function ProjectSingle() {
     console.log(assignedUsersIds, "assignedUsersIds");
 
     const updatedProject = await datahandler.update(
-      "tasks",
+      "projects",
       project._id,
       {
         assigned_users: assignedUsersIds,
@@ -176,6 +181,14 @@ function ProjectSingle() {
   };
 
   const childData = useRef();
+
+  const deleteProject = async () => {
+    const deleteProjectRes = await datahandler.deleteItem(
+      "projects",
+      project._id
+    );
+    navigate("/projects");
+  };
 
   return (
     <div>
@@ -217,21 +230,21 @@ function ProjectSingle() {
           <Col>
             {user.role === "project_manager" && (
               <div
-                style={{ marginTop: "30px", marginBottom: "200px" }}
+                style={{ marginTop: "30px", marginBottom: "100px" }}
                 className="card-container"
               >
                 <div>
                   <h3 className="h-3">Project Manager</h3>
-                  {project && (
+                  {project.project_manager && (
                     <>
-                      <div className="d-flex">
+                      <div
+                        style={{ width: "300px" }}
+                        className="d-flex justify-content-between"
+                      >
                         <div className="d-flex">
                           <div
-                            style={{
-                              width: "50px",
-                              height: "50px",
-                              backgroundColor: "#ddd",
-                            }}
+                            style={{ marginRight: "20px" }}
+                            className="profile-picture-default-container"
                           >
                             <img
                               className="profile-picture-default"
@@ -239,12 +252,55 @@ function ProjectSingle() {
                             />
                           </div>
                           <div>
-                            {console.log(projectManager, "projectManager")}
-                            <p>{`${projectManager?.first_name} ${projectManager?.last_name}`}</p>
+                            <p style={{ margin: "0" }} className="b-2-bold">
+                              {projectManager?.name
+                                ? projectManager?.name
+                                : `${projectManager?.first_name} ${projectManager?.last_name}`}
+                            </p>
+                            <p className="b-3">
+                              {projectManager?.role === "project_manager"
+                                ? "Project Manager"
+                                : projectManager?.role === "worker"
+                                ? "Worker"
+                                : ""}
+                            </p>
                           </div>
                         </div>
-                        {/* <IoMdClose onClick={() => unassignUser(item)} /> */}
+
+                        {/* {item.role !== "project_manager" && (
+                              <IoMdClose
+                                style={{ cursor: "pointer" }}
+                                onClick={() => unassignUser(item)}
+                              />
+                            )} */}
                       </div>
+                      {!assignManager ? (
+                        <button
+                          className="btn-default-g"
+                          onClick={() => setAssignManager(true)}
+                        >
+                          Assign
+                        </button>
+                      ) : (
+                        <div className="d-flex">
+                          <div style={{ width: "300px" }}>
+                            <ProjectSingleManagerDropdown
+                              data={allUsers}
+                              setParentData={setProjectManager}
+                              projectManager={projectManager}
+                              ref={childData}
+                              project={project}
+                              type={"project"}
+                            />
+                          </div>
+                          <button
+                            className="btn-default-grey"
+                            onClick={() => setAssignManager(false)}
+                          >
+                            Cancel
+                          </button>
+                        </div>
+                      )}
                       {/* <ProjectSingleTeamDropdown
                         data={projectManagers}
                         setParentData={setProjectManager}
@@ -262,14 +318,14 @@ function ProjectSingle() {
                     <>
                       {assignedUsers?.map((item) => {
                         return (
-                          <div className="d-flex">
+                          <div
+                            style={{ width: "300px" }}
+                            className="d-flex justify-content-between"
+                          >
                             <div className="d-flex">
                               <div
-                                style={{
-                                  width: "50px",
-                                  height: "50px",
-                                  backgroundColor: "#ddd",
-                                }}
+                                style={{ marginRight: "20px" }}
+                                className="profile-picture-default-container"
                               >
                                 <img
                                   className="profile-picture-default"
@@ -277,34 +333,58 @@ function ProjectSingle() {
                                 />
                               </div>
                               <div>
-                                <p>{`${item.name}`}</p>
-                                <p>{item.role}</p>
+                                <p
+                                  style={{ margin: "0" }}
+                                  className="b-2-bold"
+                                >{`${item.name}`}</p>
+                                <p className="b-3">
+                                  {item.role === "project_manager"
+                                    ? "Project Manager"
+                                    : item.role === "worker"
+                                    ? "Worker"
+                                    : ""}
+                                </p>
                               </div>
                             </div>
-                            <IoMdClose onClick={() => unassignUser(item)} />
+                            {item.role !== "project_manager" && (
+                              <IoMdClose
+                                style={{ cursor: "pointer" }}
+                                onClick={() => unassignUser(item)}
+                              />
+                            )}
                           </div>
                         );
                       })}
-
-                      {allUsers.length > 0 && assignMoreOpen && (
-                        <ProjectSingleTeamDropdown
-                          data={allUsers}
-                          setParentData={setAssignedUsers}
-                          assignedUsers={assignedUsers}
-                          ref={childData}
-                          project={project}
-                          type={"project"}
-                        />
-                        // <DropdownSearch
-                        //   items={workers}
-                        //   type="workers"
-                        //   setNewEntryAssignedUsers={setAssignedUsers}
-                        //   newEntryAssignedUsers={assignedUsers}
-                        // />
+                      {console.log(
+                        assignedUsers,
+                        "assignedUsers project.single"
+                      )}
+                      {assignedUsers.length > 0 && assignMoreOpen && (
+                        <>
+                          <div style={{ width: "300px" }}>
+                            <ProjectSingleTeamDropdown
+                              data={allUsers}
+                              setParentData={setAssignedUsers}
+                              assignedUsers={assignedUsers}
+                              ref={childData}
+                              project={project}
+                              type={"project"}
+                            />
+                          </div>
+                          <button
+                            className="btn-default-grey"
+                            onClick={() => setAssignMoreOpen(false)}
+                          >
+                            Cancel
+                          </button>
+                        </>
                       )}
                       {!assignMoreOpen && (
-                        <button onClick={() => setAssignMoreOpen(true)}>
-                          Assign More
+                        <button
+                          className="btn-default-g"
+                          onClick={() => setAssignMoreOpen(true)}
+                        >
+                          Assign
                         </button>
                       )}
                     </>
@@ -313,13 +393,22 @@ function ProjectSingle() {
               </div>
             )}
           </Col>
+
           {/* <Col>
             <ProjectBlockers blockers={project?.blockers} />
           </Col> */}
         </Row>
-        {/* <Row>
-          <ProjectSingleTeamDropdown users={allUsers} />
-        </Row> */}
+        <Row>
+          <div>
+            <button
+              style={{ border: "none", marginBottom: "100px" }}
+              className="review-approval-red"
+              onClick={deleteProject}
+            >
+              Cancel Project
+            </button>
+          </div>
+        </Row>
       </Container>
     </div>
   );

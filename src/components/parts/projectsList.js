@@ -93,38 +93,56 @@ function ProjectsList(props) {
         <p>End Date</p>
         <p>Progress</p>
       </div>
-      {props.projects.map((project, index) => {
-        return (
-          <div className="project-list-info">
-            <Link to={`/project/${project._id}`}>{project.title}</Link>
-            <div className="d-flex align-items-center mb-3">
-              {console.log(project, "project in projectsList")}
-              {[project.project_manager, ...project.assigned_users].map(
-                (user) => {
-                  return (
-                    <img
-                      src={user.profile_picture?.file_url}
-                      className="team-small-image-circle"
-                    ></img>
-                  );
-                }
-              )}
-            </div>
-            <p>{moment(project.start_date).format("MMM Do YY")}</p>
-            <p>{moment(project.end_date).format("MMM Do YY")}</p>
-            <div className="progress-bar-container">
-              <div className="progress-bar-progress-container">
-                <div className="progress-bar-whole"></div>
-                <div
-                  style={{ width: `${props.projectProgresses[index]}%` }}
-                  className="progress-bar"
-                ></div>
+      {props.projectsLoading ? (
+        <div>Loading</div>
+      ) : (
+        <>
+          {props.projects.map((project, index) => {
+            return (
+              <div className="project-list-info">
+                <Link to={`/project/${project?._id}`}>{project?.title}</Link>
+                <div className="d-flex align-items-center mb-3">
+                  {[project?.project_manager, ...project?.assigned_users].map(
+                    (user) => {
+                      return (
+                        <img
+                          src={user?.profile_picture?.file_url}
+                          className="team-small-image-circle"
+                        ></img>
+                      );
+                    }
+                  )}
+                </div>
+                {console.log(project, "PROJECT in projectList")}
+                <p className="b-2">
+                  {project.start_date
+                    ? moment(project.start_date).format("MMM Do YY")
+                    : "Not defined"}
+                </p>
+                <p className="b-2">
+                  {project.end_date
+                    ? moment(project.end_date).format("MMM Do YY")
+                    : "Not defined"}
+                </p>
+                <div className="progress-bar-container">
+                  <div className="progress-bar-progress-container">
+                    <div className="progress-bar-whole"></div>
+                    <div
+                      style={{ width: `${props.projectProgresses[index]}%` }}
+                      className="progress-bar"
+                    ></div>
+                  </div>
+                  <span>{`${
+                    props.projectProgresses[index]
+                      ? props.projectProgresses[index]
+                      : "0"
+                  }%`}</span>
+                </div>
               </div>
-              <span>{`${props.projectProgresses[index]}%`}</span>
-            </div>
-          </div>
-        );
-      })}
+            );
+          })}
+        </>
+      )}
     </div>
   );
 }

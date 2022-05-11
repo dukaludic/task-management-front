@@ -238,6 +238,8 @@ const Overview = () => {
         authContext
       );
 
+      console.log(reviews, "REVIEWS in overview");
+
       setIsLoading(false);
 
       if (user.role === "project_manager") {

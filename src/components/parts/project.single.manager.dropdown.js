@@ -10,7 +10,7 @@ import { Auth } from "../../context/AuthContext";
 
 import * as datahandler from "../../helpers/dataHandler";
 
-const ProjectSingleTeamDropdown = forwardRef((props, ref) => {
+const ProjectSingleManagerDropdown = forwardRef((props, ref) => {
   const authContext = useContext(Auth);
   const [data, setData] = useState([]);
   const [search, setSearch] = useState("");
@@ -18,12 +18,10 @@ const ProjectSingleTeamDropdown = forwardRef((props, ref) => {
 
   useEffect(() => {
     (async () => {
-      const projectUsers = props.data;
-
       const allUsers = await datahandler.show("users");
 
-      const allWorkersRepack = allUsers
-        .filter((user) => user.role === "worker")
+      const allManagersRepack = allUsers
+        .filter((user) => user.role === "project_manager")
         .map((user) => {
           return {
             _id: user._id,
@@ -36,21 +34,11 @@ const ProjectSingleTeamDropdown = forwardRef((props, ref) => {
           };
         });
 
-      console.log(allWorkersRepack, "allworkersRepack");
+      console.log(allManagersRepack, "allworkersRepack");
 
       //difference between arrays because some are already assigned and shouldn't appear in search
-      const remainingUsers = allWorkersRepack.filter(
-        ({ _id }) =>
-          !props.assignedUsers.some((user) => {
-            console.log(user._id);
-            if (user._id === _id) return user;
-          })
-      );
-
-      console.log(
-        remainingUsers,
-        props.assignedUsers,
-        "remainingUsers and assignedUsers"
+      const remainingUsers = allManagersRepack.filter(
+        ({ _id }) => props.projectManager._id !== _id
       );
 
       console.log(data, "dataaa");
@@ -61,7 +49,6 @@ const ProjectSingleTeamDropdown = forwardRef((props, ref) => {
   }, []);
 
   const onInput = (e) => {
-    console.log(data, e.target.value, "data");
     const filtered = data?.filter((item) =>
       item.name.toLowerCase().includes(search.toLowerCase())
     );
@@ -77,18 +64,18 @@ const ProjectSingleTeamDropdown = forwardRef((props, ref) => {
   const onClickItem = async (item) => {
     // console.log(props.setAssignedUsers);
 
-    props.setParentData([...props.assignedUsers, item]);
+    console.log(item, "item");
 
-    const assignedUsersIds = [...props.assignedUsers, item].map((el) => el._id);
+    props.setParentData(item);
 
-    console.log(assignedUsersIds, "assignedUsers");
+    const projectManagerId = item._id;
 
     if (props.type === "project") {
       const updatedProject = await datahandler.update(
         "projects",
         props.project._id,
         {
-          assigned_users: assignedUsersIds,
+          project_manager_id: projectManagerId,
         },
         authContext
       );
@@ -128,4 +115,4 @@ const ProjectSingleTeamDropdown = forwardRef((props, ref) => {
   );
 });
 
-export default ProjectSingleTeamDropdown;
+export default ProjectSingleManagerDropdown;

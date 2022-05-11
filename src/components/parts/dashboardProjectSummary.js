@@ -37,8 +37,16 @@ function DashboardProjectSummary(props) {
                     >
                       {project.title}
                     </div>
-                    <div>{moment(project.start_date).format("MMM Do YY")}</div>
-                    <div>{moment(project.end_date).format("MMM Do YY")}</div>
+                    <div>
+                      {project.start_date
+                        ? moment(project.start_date).format("MMM Do YY")
+                        : "Not defined"}
+                    </div>
+                    <div>
+                      {project.end_date
+                        ? moment(project.end_date).format("MMM Do YY")
+                        : "Not defined"}
+                    </div>
                     <div className="progress-bar-container">
                       <div className="progress-bar-progress-container">
                         <div className="progress-bar-whole"></div>

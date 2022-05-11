@@ -105,11 +105,12 @@ function DashboardReviews(props) {
   return (
     <div className="card-container">
       <h3 className="h-3">Reviews</h3>
-      {props.reviews.length === 0 && (
+      {console.log(props.reviews, "props.reviews")}
+      {props.reviews?.length === 0 && (
         <p className="b-3">You currently have no pending reviews</p>
       )}
       <div className="all-reviews-container">
-        {props.reviews.map((review, i) => {
+        {props.reviews?.map((review, i) => {
           return (
             <div
               onMouseEnter={() => setReviewHovering(i)}

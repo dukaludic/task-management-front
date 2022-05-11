@@ -13,15 +13,23 @@ function Projects() {
   const [reloadCounter, reload] = useState(0);
   const [newProjectMenuOpen, setNewProjectMenuOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-
+  const [projectsLoading, setProjectsLoading] = useState(true);
+  const [newProjectId, setNewProjectId] = useState("");
   const authContext = useContext(Auth);
+
+  const loadProjects = async () => {
+    const projects = await datahandler.show(
+      "projects/projects_page",
+      authContext
+    );
+    setProjects(projects);
+    return projects;
+  };
 
   useEffect(() => {
     (async () => {
-      const projects = await datahandler.show(
-        "projects/projects_page",
-        authContext
-      );
+      const projects = await loadProjects();
+
       setIsLoading(false);
       const users = [];
       for (let i = 0; i < projects?.length; i++) {
@@ -55,10 +63,23 @@ function Projects() {
         projectProgresses.push(projectProgress);
       }
 
-      setProjects(projects);
       setProjectProgresses(projectProgresses);
     })();
-  }, [reloadCounter]);
+  }, []);
+
+  useEffect(async () => {
+    if (!newProjectId) {
+      return;
+    }
+    console.log(newProjectId, "id");
+    const newProject = await datahandler.showSingle(
+      "projects/single",
+      newProjectId
+    );
+    console.log(newProject, "newProject");
+    setProjects((prevState) => [...prevState, newProject]);
+    setProjectsLoading(false);
+  }, [newProjectId]);
 
   return (
     <>
@@ -87,6 +108,7 @@ function Projects() {
                     projectProgresses={projectProgresses}
                     reloadCounter={reloadCounter}
                     reload={reload}
+                    // projectsLoading={projectsLoading}
                   />
                 </div>
               </Col>
@@ -95,6 +117,9 @@ function Projects() {
                   authContext.state.data.user.role === "project_manager" && (
                     <NewProjectMenu
                       setNewProjectMenuOpen={setNewProjectMenuOpen}
+                      setProjects={setProjects}
+                      reload={reload}
+                      setNewProjectId={setNewProjectId}
                     />
                   )}
                 {!newProjectMenuOpen &&

@@ -69,6 +69,8 @@ function NewProjectMenu(props) {
       authContext
     );
     props.setNewProjectMenuOpen(false);
+    props.reload((prevState) => prevState + 1);
+    props.setNewProjectId(newProjectRes._id);
   };
 
   const cancelNewProject = () => {

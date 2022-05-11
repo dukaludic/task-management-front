@@ -54,6 +54,8 @@ function TaskSingle() {
   const [initialTitle, setInitialTitle] = useState("");
   const [initialDescription, setInitialDescription] = useState("");
 
+  const [user, setUser] = useState({});
+
   const [, updateState] = useState();
   const forceUpdate = useCallback(() => updateState({}), []);
 
@@ -81,7 +83,7 @@ function TaskSingle() {
 
   const authContext = useContext(Auth);
 
-  const { user } = authContext.state.data;
+  // let { user } = authContext.state.data;
 
   useEffect(() => {
     calcRelationshipToDeadline();
@@ -108,6 +110,10 @@ function TaskSingle() {
 
   useEffect(() => {
     (async () => {
+      const user = await datahandler.show(
+        `users/basic/${authContext.state.data.user._id}`
+      );
+
       const task = await datahandler.showSingle("tasks", _id);
 
       const fetchedProjectUsers = await datahandler.show(
@@ -165,6 +171,7 @@ function TaskSingle() {
 
       console.log(projectUsers, "projectUsers");
 
+      setUser(user);
       setTask(task);
       setTitle(task.title);
       setInitialTitle(task.title);
@@ -442,8 +449,15 @@ function TaskSingle() {
     setEditDueDate(!editDueDate);
   };
 
+  // //fetch user info after leaving a comment
+  // useEffect(() => {
+
+  // },[comments])
+
   const submitComment = async () => {
     const time = new Date();
+
+    console.log(user);
 
     const newCommentObj = {
       user: user,
@@ -781,7 +795,7 @@ function TaskSingle() {
             </Col>
             <Col lg={4}>
               <div>
-                <h3>Subtasks</h3>
+                <h3 className="h-3">Subtasks</h3>
                 {addSubTaskOpen && (
                   <div className="subtask-open-container">
                     <input
