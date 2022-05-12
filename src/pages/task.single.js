@@ -11,7 +11,7 @@ import { useParams } from "react-router";
 import { AiFillEdit, AiOutlineCheck } from "react-icons/ai";
 import { IoMdClose } from "react-icons/io";
 import Modal from "react-modal";
-
+import axios from "axios";
 import { useDropzone } from "react-dropzone";
 import moment from "moment";
 
@@ -126,6 +126,8 @@ function TaskSingle() {
         authContext
       );
 
+      console.log(uploadedImages, "uploadedImages");
+
       const comments = await datahandler.show(
         `comments/assignment_id/${_id}`,
         authContext
@@ -163,7 +165,7 @@ function TaskSingle() {
       const imagesShown = uploadedImages.map((image) => {
         return {
           _id: image._id,
-          base_64: image.base_64,
+          file_url: image.file_url,
         };
       });
 
@@ -209,26 +211,44 @@ function TaskSingle() {
   function MyDropzone() {
     const onDrop = useCallback((acceptedFiles) => {
       acceptedFiles.forEach((file) => {
-        getBase64(file).then(async (data) => {
-          const uploadedImageRes = await datahandler.create(
-            "images",
+        console.log(file, "file");
+        (async () => {
+          const formData = new FormData();
+          formData.append("file", file);
+          formData.append(
+            "file_name",
+            `task=${task._id}-${uploadedImages.length}`
+          );
+          const config = {
+            headers: {
+              "content-type": "multipart/form-data",
+            },
+          };
+
+          const insertImageRes = await axios
+            .post("http://localhost:3000/images", formData, config)
+            .then((res) => {
+              return res.data;
+            })
+            .catch((err) => console.error(err));
+
+          console.log(insertImageRes, "insertImageRes");
+
+          const insertImageAssignedRes = await datahandler.create(
+            "imagesassigned",
             {
-              base_64: data,
+              assignment_id: task._id,
+              image_id: insertImageRes._id,
             },
             authContext
           );
-
-          const createImageAssigned = await datahandler.create(
-            "imagesassigned",
-            { assignment_id: task._id, image_id: uploadedImageRes._id },
-            authContext
-          );
-
-          setUploadedImages((prevState) => [
-            ...prevState,
-            { _id: uploadedImageRes._id, base_64: data },
-          ]);
-        });
+          getBase64(file).then(async (data) => {
+            setUploadedImages((prevState) => [
+              ...prevState,
+              { _id: insertImageRes._id, base_64: data },
+            ]);
+          });
+        })();
       });
     }, []);
     const { getRootProps, getInputProps, isDragActive } = useDropzone({
@@ -338,7 +358,9 @@ function TaskSingle() {
 
   function openModal(image) {
     setModalIsOpen(true);
-    setModalImage(image.base_64);
+    console.log(image, "modal image");
+    const imageState = image.base_64 ? image.base_64 : image.file_url;
+    setModalImage(imageState);
   }
 
   function closeModal() {
@@ -696,10 +718,11 @@ function TaskSingle() {
                             }}
                           />
                         )}
+                        {console.log(item, "image item")}
                         <img
                           onClick={() => openModal(item)}
                           className="task-images"
-                          src={item.base_64}
+                          src={item.file_url ? item.file_url : item.base_64}
                         />
                       </div>
                     );
@@ -894,7 +917,7 @@ function TaskSingle() {
         onRequestClose={closeModal}
         contentLabel="Example Modal"
       >
-        <img src={modalImage} />
+        <img className="task-single-modal-img" src={modalImage} />
       </Modal>
     </div>
   );

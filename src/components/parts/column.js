@@ -1,7 +1,6 @@
 import React from "react";
 import TaskItem from "./taskItem";
 import { Droppable } from "react-beautiful-dnd";
-import styled from "styled-components";
 
 function Column(props) {
   return (

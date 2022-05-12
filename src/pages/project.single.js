@@ -390,6 +390,19 @@ function ProjectSingle() {
                     </>
                   )}
                 </div>
+                <div>
+                  <button
+                    style={{
+                      border: "none",
+                      marginBottom: "100px",
+                      marginTop: "100px",
+                    }}
+                    className="review-approval-red"
+                    onClick={deleteProject}
+                  >
+                    Cancel Project
+                  </button>
+                </div>
               </div>
             )}
           </Col>
@@ -398,17 +411,7 @@ function ProjectSingle() {
             <ProjectBlockers blockers={project?.blockers} />
           </Col> */}
         </Row>
-        <Row>
-          <div>
-            <button
-              style={{ border: "none", marginBottom: "100px" }}
-              className="review-approval-red"
-              onClick={deleteProject}
-            >
-              Cancel Project
-            </button>
-          </div>
-        </Row>
+        <Row></Row>
       </Container>
     </div>
   );
