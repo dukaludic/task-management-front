@@ -91,7 +91,7 @@ const Login = () => {
               style={{ marginTop: "30px", marginBottom: "30px" }}
               className="w-100"
             >
-              <p className="b-2">Last name</p>
+              <p className="b-2">Password</p>
               <input
                 className="login-input"
                 type="password"
